@@ -64,8 +64,17 @@ class Depot:
         with VERROU:
             d = self.releves()
             d["sets"].update(sets)
-            d["dernier"] = journal
             resume = {k: v for k, v in journal.items() if k != "sets"}
+            ancien = d.get("dernier") or {}
+            if journal.get("portee") == "echecs" and ancien.get("sets"):
+                # Relance des échecs : le relevé complet reste la référence, ses lignes relancées sont remplacées.
+                neuves = {s["id"]: s for s in journal.get("sets", [])}
+                lignes = [neuves.get(s["id"], s) for s in ancien["sets"]]
+                compte = lambda st: sum(1 for s in lignes if s.get("statut") == st)
+                journal = {**ancien, "sets": lignes, "lus": compte("ok"), "echecs": compte("echec"),
+                           "sautes": compte("saute"), "changes": sum(1 for s in lignes if s.get("changes")),
+                           "relance": {"le": journal.get("le"), "par": journal.get("par"), "total": journal.get("total")}}
+            d["dernier"] = journal
             d["historique"] = ([resume] + d.get("historique", []))[:HISTORIQUE]
             _ecrire(self.f_releves, d)
 

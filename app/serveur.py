@@ -9,6 +9,7 @@ Routes :
   GET    /api/lien?url=…         lit une page produit (nom, prix, photo, pièces)
   POST   /api/releve             relève les prix maintenant ({"echecs": true} : seulement les sets en échec)
   GET    /api/releve             relevé en cours, journal du dernier, historique
+  GET    /api/catalogue          catalogue avec les derniers prix relevés
 """
 from __future__ import annotations
 
@@ -114,6 +115,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             return self._page(compte)
         if url.path == "/api/selection":
             return self._json(200, [s for s in self.depot.selection() if self._visible(compte, s)])
+        if url.path == "/api/catalogue":
+            return self._json(200, self.depot.catalogue())
         if url.path == "/api/releve":
             r = self.depot.releves()
             return self._json(200, {"etat": releve.etat(), "dernier": r.get("dernier"), "historique": r.get("historique", [])})
@@ -176,7 +179,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
                 return self._json(202, {"etat": "deja_en_cours"})
             threading.Thread(target=releve.releve, args=(self.depot,),
                              kwargs={"par": compte, "ids": ids}, daemon=True).start()
-            return self._json(202, {"etat": "lance"})
+            total = len(ids) if ids is not None else len(self.depot.catalogue())
+            return self._json(202, {"etat": "lance", "total": total})
         self._erreur(404, "introuvable")
 
     def _page(self, compte: str):

@@ -58,10 +58,10 @@ def _raison(e: Exception) -> str:
     if isinstance(e, TimeoutError):
         return "délai dépassé"
     if isinstance(e, OSError):
-        return f"injoignable ({type(e).__name__})"
+        return "boutique injoignable"
     if isinstance(e, ValueError):
         return "page illisible"
-    return f"erreur inattendue ({type(e).__name__})"
+    return "erreur inattendue, détail dans le journal du conteneur"
 
 
 def releve(depot, pause: float = 1.0, par: str = "programme", ids: list[str] | None = None) -> dict:

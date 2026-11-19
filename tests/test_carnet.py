@@ -157,7 +157,7 @@ class Releve(unittest.TestCase):
         self.assertEqual(len(j["sets"]), len(self.cat))
         self.assertEqual(par_id[self.ok["id"]]["statut"], "ok")
         self.assertEqual(par_id[self.ko["id"]]["raison"], "le site a répondu 404")
-        self.assertEqual(par_id[self.bug["id"]]["raison"], "erreur inattendue (KeyError)")
+        self.assertTrue(par_id[self.bug["id"]]["raison"].startswith("erreur inattendue"))
         lego = [s for s in j["sets"] if "lego.com" in s["url"]]
         self.assertTrue(lego and all(s["statut"] == "saute" for s in lego))
         self.assertEqual((j["echecs"], j["sautes"], j["lus"]), (2, len(lego), len(self.cat) - 2 - len(lego)))
@@ -175,6 +175,10 @@ class Releve(unittest.TestCase):
         finally:
             logging.disable(logging.NOTSET)
         self.assertEqual((j["portee"], j["total"], j["lus"], j["par"]), ("echecs", 2, 0, "alice"))
+        dernier = self.d.releves()["dernier"]
+        self.assertEqual((dernier["portee"], len(dernier["sets"]), dernier["echecs"], dernier["relance"]["par"]),
+                         ("tous", len(self.cat), 2, "alice"), "la relance se fond dans le relevé complet")
+        self.assertEqual(self.d.historique()[0]["portee"], "echecs")
         self.assertEqual(self.r.sante(self.d), (True, "ok"), "une relance des échecs ne rend pas le service malade")
         self.r._PROG.update(heures=24.0, fil=None)
         self.assertEqual(self.r.sante(self.d)[1], "relevé programmé arrêté")
