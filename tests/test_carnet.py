@@ -52,6 +52,13 @@ class Lien(unittest.TestCase):
         with self.assertRaises(lien.LienRefuse):
             lien.recuperer("http://user:pass@example.com/")
 
+    def test_tls_minimum(self):
+        import ssl
+        ctx = lien.contexte_tls()
+        self.assertEqual(ctx.minimum_version, ssl.TLSVersion.TLSv1_2)
+        self.assertEqual(ctx.verify_mode, ssl.CERT_REQUIRED)
+        self.assertTrue(ctx.check_hostname)
+
     def test_pieces(self):
         self.assertEqual(lien.nombre_pieces("Avec 3 887 pièces et"), 3887)
         self.assertEqual(lien.nombre_pieces("With 12,688 pieces"), 12688)
@@ -62,7 +69,7 @@ class Lien(unittest.TestCase):
         d = lien.depuis_shopify({"title": "Big Ben", "price": 64995, "available": True,
                                  "featured_image": "//cdn.shopify.com/x.jpg", "description": "<p>13,825 pieces</p>"})
         self.assertEqual((d["nom"], d["prix"], d["dispo"], d["pcs"]), ("Big Ben", 649.95, True, 13825))
-        self.assertTrue(d["img"].startswith("https://cdn.shopify.com"))
+        self.assertEqual(d["img"], "https://cdn.shopify.com/x.jpg")
 
     def test_html(self):
         page = """<html><head><meta property="og:title" content="Set &amp; Co">

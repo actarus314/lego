@@ -59,6 +59,13 @@ def resoudre(hote: str, port: int) -> str:
     return ips[0]
 
 
+def contexte_tls() -> ssl.SSLContext:
+    """Vérification du certificat et du nom d'hôte, TLS 1.2 au minimum."""
+    ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
+
+
 def _get(url: str, accept: str) -> Reponse:
     p = urlsplit(url)
     if p.scheme not in ("http", "https") or not p.hostname:
@@ -71,8 +78,7 @@ def _get(url: str, accept: str) -> Reponse:
     sock = socket.create_connection((ip, port), timeout=DELAI)
     try:
         if p.scheme == "https":
-            ctx = ssl.create_default_context()
-            sock = ctx.wrap_socket(sock, server_hostname=p.hostname)
+            sock = contexte_tls().wrap_socket(sock, server_hostname=p.hostname)
         conn = http.client.HTTPConnection(p.hostname, port, timeout=DELAI)
         conn.sock = sock
         conn.request("GET", chemin, headers={

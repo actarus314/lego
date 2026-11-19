@@ -1,5 +1,8 @@
 # v2.x — Service Docker : relevé des prix à la source, ajout par lien, sélection partagée avec achats masqués ; page autonome jointe à chaque version.
 
+## v2.0.1
+Lecture des pages en TLS 1.2 au minimum et test d'adresse de photo exact, suite à deux alertes de l'analyse de code.
+
 ## v2.0.0
 Passage en service : page servie avec les prix relevés chaque jour et à la demande, lecture d'une page produit par lien (Shopify, JSON-LD, Open Graph) limitée aux adresses publiques, sélection partagée entre comptes avec achats masqués, image multi-architecture sur ghcr.io et page autonome jointe à la version. Python 3.15 ; publication par le fichier VERSION ; mises à jour par Renovate.
 
