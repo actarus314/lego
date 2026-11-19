@@ -1104,7 +1104,7 @@ function renderSynchro(){
     const pct = e.total ? Math.round(e.fait / e.total * 100) : 0;
     prog.innerHTML = `<span class="lbl">Synchronisation en cours${e.par ? " · " + esc(parLbl(e.par)) : ""}</span>
       <div class="track"><i style="width:${pct}%"></i></div>
-      <div class="ligne"><span><b>${e.fait || 0}</b> / ${e.total || "…"} sources</span>${e.courant ? `<span>${esc(e.courant)} : ${e.produits || 0} produits lus</span>` : ""}<span>${duree(e.ecoule_s || 0)} écoulées</span>${e.echecs ? `<span class="r-alerte">${e.echecs} en échec</span>` : ""}</div>
+      <div class="ligne"><span><b>${e.fait || 0}</b> / ${e.total || "…"} sources</span>${e.courant ? `<span>${esc(e.courant)} : ${typeof e.produits === "string" ? esc(e.produits) : `${e.produits || 0} produits lus`}</span>` : ""}<span>${duree(e.ecoule_s || 0)} écoulées</span>${e.echecs ? `<span class="r-alerte">${e.echecs} en échec</span>` : ""}</div>
       <div></div>`;
   } else if (rFin){
     prog.innerHTML = `<span class="lbl">Synchronisation terminée</span>

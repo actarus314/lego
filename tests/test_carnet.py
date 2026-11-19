@@ -147,6 +147,25 @@ class Normalisation(unittest.TestCase):
         self.assertEqual(n.themes("Flugzeugträger Fujian"), ["marine"])
 
 
+class DimensionsKbs(unittest.TestCase):
+    def test_cartes_et_fiche(self):
+        from app.sources import shopify
+        carte = ('<div class="resource-card" href="/en/products/grue-13107"><p class="kbs-card-info__row" style="x">MK13107</p>'
+                 '<p class="kbs-card-info__row" style="x">3218 pieces</p><p class="kbs-card-info__row" style="x">69 × 19 × 110 cm</p></div>')
+        fiche = '<div><p>64 x 31 x 41</p></div><div><p>L x W x H in cm</p></div>'
+        pages = iter([carte + '<link rel="next" href="?page=2">', carte.replace("grue-13107", "camion-19015")])
+        vrai = lien.recuperer
+        try:
+            lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/html", next(pages).encode())
+            d = shopify.dimensions_cartes({"hote": "kbs-shop.com", "prefixe": "/en", "cartes": "/collections/all"}, pause=0)
+            lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/html", fiche.encode())
+            f = shopify.dimensions_fiche({"hote": "kbs-shop.com"}, "camion-19015")
+        finally:
+            lien.recuperer = vrai
+        self.assertEqual(d, {"grue-13107": [110.0, 69.0, 19.0], "camion-19015": [110.0, 69.0, 19.0]})
+        self.assertEqual(f, [64.0, 41.0, 31.0])
+
+
 class IndexSets(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

@@ -110,6 +110,8 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
                     r.update(etat="ok", **liste_lego(index, src))
                 else:
                     offres = CONNECTEURS[src["type"]](src, pause=pause, progres=lambda k: _maj(produits=k))
+                    if src.get("cartes"):
+                        completer_dimensions(index, src, offres, pause)
                     r.update(etat="ok", lus=len(offres), **index.enregistrer(src["id"], offres))
                 log.info("source %s : %s sets (%s nouveaux, %s disparus)", src["nom"], r["lus"], r["nouveaux"], r["disparus"])
             except Exception as e:  # une source en panne n'arrête pas les autres
@@ -136,6 +138,42 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
         EN_COURS.release()
     log.info("synchronisation finie : %s sets, %s sources en échec, %s s", j["lus"], j["echecs"], j["duree_s"])
     return j
+
+
+def completer_dimensions(index: Index, src: dict, offres: list[dict], pause: float) -> None:
+    """Complète les dimensions absentes du catalogue JSON : d'abord par les cartes des pages de
+    collection (une douzaine de produits par page, relues chaque semaine), puis par la page de chaque
+    produit encore sans dimension (une fois par produit ; nouvel essai après 30 jours)."""
+    fichier = index.dossier.parent / f"dimensions_{src['id']}.json"
+    cache = _lire(fichier, {"le": None, "dims": {}, "sans": {}})
+    cache.setdefault("sans", {})
+    if not cache["le"] or _age_h(cache["le"], time.time()) > 7 * 24:
+        try:
+            cache["dims"].update(shopify.dimensions_cartes(src, pause))
+            cache["le"] = _maintenant()
+        except (lien.LienRefuse, OSError, ValueError) as e:
+            log.warning("dimensions %s : cartes non lues : %s", src["nom"], _raison(e))
+    a_lire = [o["cle"].split(":", 1)[1] for o in offres if not o.get("dims")]
+    a_lire = [h for h in a_lire if h not in cache["dims"] and _age_h(cache["sans"].get(h), time.time()) > 30 * 24]
+    for k, h in enumerate(a_lire):
+        _maj(produits=f"{k + 1} / {len(a_lire)} pages produit")
+        try:
+            d = shopify.dimensions_fiche(src, h)
+        except (lien.LienRefuse, OSError, ValueError) as e:
+            log.info("dimensions %s : page %s non lue : %s", src["nom"], h, _raison(e))
+            continue
+        if d:
+            cache["dims"][h] = d
+        else:
+            cache["sans"][h] = _maintenant()
+        if k % 20 == 19:
+            _ecrire(fichier, cache)
+        time.sleep(pause)
+    _ecrire(fichier, cache)
+    for o in offres:
+        h = o["cle"].split(":", 1)[1]
+        if not o.get("dims") and cache["dims"].get(h):
+            o["dims"] = cache["dims"][h]
 
 
 def programmer(index: Index, journal: Journal, heures: float) -> None:

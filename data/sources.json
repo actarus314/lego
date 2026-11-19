@@ -14,7 +14,8 @@
    "livraison": {
     "port": 4.95,
     "delai": "1 à 3 jours ouvrés"
-   }
+   },
+   "cartes": "/collections/all"
   },
   {
    "id": "bausteinreich",

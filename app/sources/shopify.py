@@ -7,6 +7,7 @@ requête, une pause entre deux pages, et l'attente demandée par le site en cas 
 from __future__ import annotations
 
 import json
+import re
 import time
 
 from .. import lien, normalise as n
@@ -77,3 +78,41 @@ def offre(p: dict, source: dict) -> dict | None:
         "themes": n.themes(titre, tags, p.get("product_type") or ""),
         "publie": (p.get("published_at") or p.get("created_at") or "")[:10] or None,
     }
+
+
+def dimensions_cartes(source: dict, pause: float = 1.5) -> dict[str, list[float]]:
+    """Dimensions affichées sur les cartes produit des pages de collection (KBS : « 69 × 19 × 110 cm »),
+    absentes du catalogue JSON. Une page de collection donne une vingtaine de produits d'un coup."""
+    base = "https://" + source["hote"] + source.get("prefixe", "") + source["cartes"]
+    out: dict[str, list[float]] = {}
+    for page in range(1, 80):  # une douzaine de produits par page de collection
+        r = lien.recuperer(f"{base}?page={page}")
+        texte_page = r.corps.decode("utf-8", "replace")
+        cartes = texte_page.split('class="resource-card"')[1:]
+        if not cartes:
+            break
+        for c in cartes:
+            m = re.search(r'href="[^"]*/products/([a-z0-9-]+)"', c)
+            lignes = re.findall(r'kbs-card-info__row"[^>]*>([^<]+)<', c)
+            dims = next((n.dimensions(x) for x in lignes if n.dimensions(x)), None)
+            if m and dims:
+                out[m.group(1)] = dims
+        if 'rel="next"' not in texte_page:  # dernière page de la collection
+            break
+        time.sleep(pause)
+    return out
+
+
+_DIM_FICHE = re.compile(r"(\d{1,3}(?:[.,]\d{1,2})?)\s*[x×]\s*(\d{1,3}(?:[.,]\d{1,2})?)\s*[x×]\s*(\d{1,3}(?:[.,]\d{1,2})?)"
+                        r"[\s|]*(?:L\s*x\s*W\s*x\s*H|L\s*x\s*B\s*x\s*H|dimensions?)[^|]{0,12}\bcm", re.I)
+
+
+def dimensions_fiche(source: dict, poignee: str) -> list[float] | None:
+    """Dimensions lues sur la page produit (KBS : « 64 x 31 x 41 · L x W x H in cm »)."""
+    r = lien.recuperer(f"https://{source['hote']}{source.get('prefixe', '')}/products/{poignee}")
+    page = re.sub(r"<[^>]+>", " | ", r.corps.decode("utf-8", "replace"))
+    m = _DIM_FICHE.search(page)
+    if not m:
+        return None
+    d = sorted((float(x.replace(",", ".")) for x in m.groups()), reverse=True)
+    return d if d[0] > 0 else None
