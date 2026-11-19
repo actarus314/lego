@@ -653,7 +653,7 @@ function renderIdees(){
         <div class="sub">${r.themes.map(themeNom).join(" · ")}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
       <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
-      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(o.prix)}</span><div class="sub">${esc(o.boutique)}${autres ? ` · ${autres + 1} boutiques` : ""}</div><div class="sub">${portLbl(o)}${o.delai ? " · " + esc(o.delai) : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}</td>
+      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(o.prix)}</span><div class="sub">${esc(o.boutique)}${autres ? ` · ${autres + 1} boutiques` : ""}</div><div class="sub">${portLbl(o)}${o.delai ? " · " + esc(o.delai) : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
   }, IDEES.length ? "Aucun set ne correspond : retirer un filtre ou élargir la recherche." : (MODE.serveur ? "Catalogue en cours de chargement…" : "Catalogue vide."));
@@ -683,12 +683,15 @@ sI.render = renderIdees;
 
 /* ---------- Fiche ---------- */
 const dlg = $("#fiche");
+const court = d => { if (!d) return ""; const x = new Date(d); return x.toLocaleDateString("fr-FR", {day:"numeric", month:"short"}) + " " + x.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}); };
 function offresHtml(r){
-  return `<table class="offres">${r.offres.map(o => `<tr>
-    <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a><div class="sub">${esc(o.pays || "")}${o.delai ? " · " + esc(o.delai) : ""}</div></td>
+  return `<table class="offres">${r.offres.map(o => {
+    const info = [o.pays && o.pays !== "France" ? o.pays : "", o.delai || ""].filter(Boolean).join(" · ");
+    return `<tr>
+    <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a>${info ? `<div class="sub">${esc(info)}</div>` : ""}</td>
     <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
     <td class="num"><b>${eur(o.prix)}</b><div class="sub">${portLbl(o)}</div></td>
-    <td class="num sub">${o.releve ? esc(quand(o.releve)) : ""}</td></tr>`).join("")}</table>`;
+    <td class="num sub">${esc(court(o.releve))}</td></tr>`; }).join("")}</table>`;
 }
 function openFiche(id){
   const r = ideeParId(id); if (!r) return;
@@ -701,12 +704,12 @@ function openFiche(id){
       <div class="fiche-top"><div><div class="lbl ligne-marque">${logo(r.marque)} ${esc(r.marque)}${r.numero ? " · " + esc(r.numero) : ""}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
         <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="facts">
-        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">port compris</span></div>
+        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">${o.port == null ? "port non relevé" : "port compris"} · ${esc(o.boutique)}</span></div>
         <div class="fact"><span class="lbl">Pièces</span><b>${r.pieces ?? "—"}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>
         <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
         <div class="fact"><span class="lbl">Briques</span><b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b></div>
       </div>
-      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.offres.length === 1 ? '<span class="sub">Une seule boutique trouvée pour ce set.</span>' : ""}</div>
+      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.offres.length === 1 ? '<span class="sub">Une seule boutique trouvée pour ce set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(r.retrait)}</span>` : ""}</div>
       <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : ""}
         <a href="https://www.youtube.com/results?search_query=${qTests}" target="_blank" rel="noopener">Chercher des tests sur YouTube</a></div>
       <div class="fiche-actions">
@@ -1075,7 +1078,8 @@ function renderSynchro(){
     <div><span class="lbl">Dernière synchronisation</span><b>${d ? esc(quand(d.le)) : "aucune"}</b>${d ? `<span class="sub">${esc(parLbl(d.par))} · ${duree(d.duree_s)}</span>` : ""}</div>
     <div><span class="lbl">Sets au catalogue</span><b>${IDEES.length}</b></div>
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
-    <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>`;
+    <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
+    ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}`;
   sortable("t-sources", colsR, lignes, sR, r => `<tr>
     <td class="wide" data-k="Source"><span class="name">${esc(r.nom)}</span></td>
     <td data-k="Résultat"><span class="pill ${r.etat === "ok" ? "p-ok" : r.etat === "echec" ? "p-warn" : "p-neutral"}">${r.etat === "ok" ? "Lue" : r.etat === "echec" ? "Échec" : "Jamais lue"}</span></td>

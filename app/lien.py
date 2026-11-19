@@ -85,7 +85,8 @@ def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
         conn.sock = sock
         conn.request("GET", chemin, headers={
             "Host": p.netloc.split("@")[-1], "User-Agent": AGENT,
-            "Accept": accept, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7", **(entetes or {})})
+            "Accept": accept, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7", "Accept-Encoding": "gzip",
+            **(entetes or {})})
         r = conn.getresponse()
         if 300 <= r.status < 400 and r.getheader("Location"):
             return Reponse(urljoin(url, r.getheader("Location")), r.status, "", b"")

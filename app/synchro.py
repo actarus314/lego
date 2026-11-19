@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import os
 import threading
 import time
@@ -16,7 +17,7 @@ from pathlib import Path
 from . import lien
 from .donnees import _ecrire, _lire
 from .index import Index, sources_config
-from .sources import shopify
+from .sources import lego as lego_src, shopify
 
 log = logging.getLogger("synchro")
 EN_COURS = threading.Lock()
@@ -25,6 +26,11 @@ _ETAT: dict = {"en_cours": False}
 _PROG: dict = {"heures": 0.0, "fil": None, "prochain": None, "demarre": time.time()}
 HISTORIQUE = 30
 CONNECTEURS = {"shopify": shopify.lire}
+TYPES = {"shopify", "bricksvalue"}
+# Rotation des fiches : âge maximal visé (une fiche d'un set pour adultes n'a jamais plus de 48 h,
+# une fiche d'un set de la sélection plus de 24 h) et bornes de la pause entre deux fiches.
+CIBLE_H, CIBLE_SELECTION_H = 40, 22
+PAS_MIN, PAS_MAX, PAS_AMORCE = 20, 900, 10
 
 
 def actives() -> list[dict]:
@@ -32,8 +38,8 @@ def actives() -> list[dict]:
     conf = sources_config()
     choix = [x.strip() for x in os.environ.get("SOURCES", "").split(",") if x.strip()]
     if choix:
-        return [s for s in conf if s["id"] in choix and s["type"] in CONNECTEURS]
-    return [s for s in conf if s.get("actif") and s["type"] in CONNECTEURS]
+        return [s for s in conf if s["id"] in choix and s["type"] in TYPES]
+    return [s for s in conf if s.get("actif") and s["type"] in TYPES]
 
 
 def _maintenant() -> str:
@@ -100,8 +106,11 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
             t0 = time.time()
             r = {"id": src["id"], "nom": src["nom"], "debut": _maintenant()}
             try:
-                offres = CONNECTEURS[src["type"]](src, pause=pause, progres=lambda k: _maj(produits=k))
-                r.update(etat="ok", lus=len(offres), **index.enregistrer(src["id"], offres))
+                if src["type"] == "bricksvalue":
+                    r.update(etat="ok", **liste_lego(index, src))
+                else:
+                    offres = CONNECTEURS[src["type"]](src, pause=pause, progres=lambda k: _maj(produits=k))
+                    r.update(etat="ok", lus=len(offres), **index.enregistrer(src["id"], offres))
                 log.info("source %s : %s sets (%s nouveaux, %s disparus)", src["nom"], r["lus"], r["nouveaux"], r["disparus"])
             except Exception as e:  # une source en panne n'arrête pas les autres
                 r.update(etat="echec", raison=_raison(e))
@@ -172,6 +181,16 @@ def sante(journal: Journal, maintenant: float | None = None) -> tuple[bool, str]
 def offre_directe(index: Index, cle: str) -> dict:
     """Relit une offre sur sa boutique (prix, disponibilité) et met l'index à jour."""
     sid, _, handle = cle.partition(":")
+    if sid == "bricksvalue":
+        num = handle.split(":")[0]
+        etat = (index.lire("bricksvalue").get("fiches") or {}).get(num)
+        if not etat:
+            raise LienRefuse("fiche inconnue")
+        offres = lire_une(index, num, etat["url"])
+        o = next((x for x in offres if x["cle"] == cle), None)
+        if not o:
+            raise LienRefuse("offre absente de la fiche")
+        return {"prix": o["prix"], "dispo": o["dispo"], "releve": _maintenant()}
     src = next((s for s in sources_config() if s["id"] == sid), None)
     if not src or src["type"] != "shopify" or not handle:
         raise LienRefuse("offre non relisible en direct")
@@ -189,3 +208,123 @@ def offre_directe(index: Index, cle: str) -> dict:
 
 
 LienRefuse = lien.LienRefuse
+
+
+# ----- LEGO officiel : liste des fiches (chaque nuit) et rotation continue -----
+def _reference(index: Index) -> dict:
+    return _lire(index.dossier.parent / "reference_lego.json", {})
+
+
+def liste_lego(index: Index, src: dict) -> dict:
+    """Met à jour la référence Rebrickable et la liste des fiches BricksValue à suivre."""
+    ref = lego_src.reference()
+    _ecrire(index.dossier.parent / "reference_lego.json", ref)
+    plan = lego_src.fiches()
+    candidats = {num: url for num, url in plan.items() if num in ref}
+    with index_verrou():
+        d = index.lire(src["id"])
+        fiches = d.setdefault("fiches", {})
+        nouveaux = [k for k in candidats if k not in fiches]
+        for k, url in candidats.items():
+            fiches.setdefault(k, {"lu": None, "adulte": None})["url"] = url
+        partis = [k for k in fiches if k not in candidats]
+        for k in partis:
+            del fiches[k]
+        d["offres"] = [o for o in d.get("offres", []) if o["numero"] in fiches]
+        d["le"] = _maintenant()
+        _ecrire(index.fichier(src["id"]), d)
+        index._cache = None
+    adultes = sum(1 for f in fiches.values() if f.get("adulte"))
+    return {"lus": adultes, "nouveaux": len(nouveaux), "disparus": len(partis), "fiches": len(fiches)}
+
+
+def index_verrou():
+    from .index import VERROU
+    return VERROU
+
+
+def lire_une(index: Index, num: str, url: str) -> list[dict]:
+    ref = _reference(index).get(num)
+    try:
+        d = lego_src.lire_fiche(num, url, ref)
+    except Exception as e:
+        index.etat_fiche("bricksvalue", num, {"lu": _maintenant(), "erreur": _raison(e)})
+        raise
+    offres = d["offres"] if d["adulte"] else []
+    index.maj_fiche("bricksvalue", f"bricksvalue:{num}:", offres,
+                    {"url": url, "lu": _maintenant(), "adulte": d["adulte"], "age": d["age"]})
+    return offres
+
+
+def _age_h(lu: str | None, maintenant: float) -> float:
+    return 1e9 if not lu else (maintenant - time.mktime(time.strptime(lu, "%Y-%m-%dT%H:%M:%S"))) / 3600
+
+
+def prochaine_fiche(index: Index, selection: set[str], maintenant: float | None = None) -> tuple[str | None, float]:
+    """Rend (numéro de la fiche à lire ou None, pause avant la suivante)."""
+    maintenant = maintenant or time.time()
+    fiches = index.lire("bricksvalue").get("fiches") or {}
+    if not fiches:
+        return None, PAS_MAX
+    jamais = [k for k, f in fiches.items() if not f.get("lu")]
+    if jamais:
+        return jamais[0], PAS_AMORCE
+    adultes = {k: f for k, f in fiches.items() if f.get("adulte")}
+    if not adultes:
+        return None, PAS_MAX
+    # Toujours la fiche la plus ancienne, à un rythme qui relit tout en CIBLE_H heures ;
+    # les sets de la sélection passent devant dès qu'ils dépassent CIBLE_SELECTION_H.
+    pas = min(PAS_MAX, max(PAS_MIN, CIBLE_H * 3600 / len(adultes)))
+    sel = sorted((k for k in selection if k in adultes and _age_h(adultes[k]["lu"], maintenant) > CIBLE_SELECTION_H),
+                 key=lambda k: adultes[k]["lu"])
+    return (sel[0] if sel else min(adultes, key=lambda k: adultes[k]["lu"])), pas
+
+
+def numeros_selection(index: Index, urls: list[str]) -> set[str]:
+    """Numéros des sets LEGO officiel présents dans la sélection (par l'adresse de l'offre choisie)."""
+    cibles = {u.rstrip("/").lower() for u in urls if u}
+    nums = {o["numero"] for o in index.lire("bricksvalue").get("offres", []) if (o.get("url") or "").rstrip("/").lower() in cibles}
+    for u in cibles:
+        m = re.search(r"lego\.com/.*?-(\d{4,6})$", u)
+        if m:
+            nums.add(m.group(1))
+    return nums
+
+
+def etat_rotation(index: Index) -> dict | None:
+    fiches = index.lire("bricksvalue").get("fiches") or {}
+    if not fiches:
+        return None
+    maintenant = time.time()
+    adultes = [f for f in fiches.values() if f.get("adulte")]
+    return {"fiches": len(fiches), "lues": sum(1 for f in fiches.values() if f.get("lu")), "adultes": len(adultes),
+            "erreurs": sum(1 for f in fiches.values() if f.get("erreur")),
+            "plus_ancienne_h": round(max((_age_h(f["lu"], maintenant) for f in adultes), default=0), 1)}
+
+
+def demarrer_rotation(index: Index, selection) -> None:
+    """Lit les fiches LEGO officiel une à une, en continu, si la source BricksValue est active."""
+    if not any(s["type"] == "bricksvalue" for s in actives()):
+        return
+
+    def boucle():
+        time.sleep(90)
+        while True:
+            pas = PAS_MAX
+            try:
+                num, pas = prochaine_fiche(index, numeros_selection(index, selection()))
+                if num:
+                    url = (index.lire("bricksvalue").get("fiches") or {})[num]["url"]
+                    try:
+                        lire_une(index, num, url)
+                    except lien.LienRefuse as e:
+                        log.warning("fiche %s en échec : %s", num, e.public)
+                        if getattr(e, "statut", None) == 429:
+                            pas = max(pas, min(float(getattr(e, "attente", None) or 600), 3600))
+                    except (OSError, ValueError) as e:
+                        log.warning("fiche %s en échec : %s", num, _raison(e))
+            except Exception:
+                log.exception("rotation des fiches en échec")
+            time.sleep(pas)
+
+    threading.Thread(target=boucle, name="rotation", daemon=True).start()

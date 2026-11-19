@@ -144,7 +144,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if url.path == "/api/synchro":
             d = self.journal.lire()
             return self._json(200, {"etat": synchro.etat(), "dernier": d.get("dernier"),
-                                    "historique": d.get("historique", []), "sources": synchro.actives()})
+                                    "historique": d.get("historique", []), "sources": synchro.actives(),
+                                    "rotation": synchro.etat_rotation(self.index)})
         if url.path == "/api/offre":
             cle = (parse_qs(url.query).get("cle") or [""])[0]
             try:
@@ -234,7 +235,10 @@ def main():
     Gestionnaire.masquer = {n.strip() for n in os.environ.get("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
-    synchro.programmer(Gestionnaire.index, Gestionnaire.journal, float(os.environ.get("RELEVE_HEURES", "24")))
+    heures = float(os.environ.get("RELEVE_HEURES", "24"))
+    synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
+    if heures > 0:
+        synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])
     port = int(os.environ.get("PORT", "8080"))
     srv = ThreadingHTTPServer(("0.0.0.0", port), Gestionnaire)
     log.info("Carnet de briques %s sur le port %s, données dans %s", VERSION, port, donnees)

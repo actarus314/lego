@@ -60,6 +60,28 @@ class Index:
             self._cache = None
             return {"nouveaux": len(apres - avant) if avant else 0, "disparus": len(avant - apres)}
 
+    def maj_fiche(self, source_id: str, prefixe: str, offres: list[dict], etat_fiche: dict) -> None:
+        """Remplace les offres d'une fiche (clés commençant par `prefixe`) et note son état de lecture."""
+        with VERROU:
+            d = self.lire(source_id)
+            vus = d.setdefault("vus", {})
+            aujourd_hui = time.strftime("%Y-%m-%d")
+            maintenant = time.strftime("%Y-%m-%dT%H:%M:%S")
+            for o in offres:
+                o["depuis"] = vus.setdefault(o["cle"], aujourd_hui)
+                o["releve"] = maintenant
+            d["offres"] = [o for o in d.get("offres", []) if not o["cle"].startswith(prefixe)] + offres
+            d.setdefault("fiches", {})[prefixe.rstrip(":").split(":")[-1]] = etat_fiche
+            _ecrire(self.fichier(source_id), d)
+            self._cache = None
+
+    def etat_fiche(self, source_id: str, num: str, champs: dict) -> None:
+        """Note l'état de lecture d'une fiche sans toucher à ses offres (échec de lecture)."""
+        with VERROU:
+            d = self.lire(source_id)
+            d.setdefault("fiches", {}).setdefault(num, {}).update(champs)
+            _ecrire(self.fichier(source_id), d)
+
     def maj_offre(self, source_id: str, cle: str, champs: dict) -> None:
         """Met à jour une offre relue en direct (prix, disponibilité)."""
         with VERROU:
@@ -85,7 +107,8 @@ class Index:
                 liv = (conf.get(sid) or {}).get("livraison") or {}
                 o["port"], o["delai"], o["port_estime"] = liv.get("port"), liv.get("delai"), liv.get("estime", False)
                 offres.append(o)
-        offres += editoriales()
+        couverts = {_cle_set(o) for o in offres}
+        offres += [o for o in editoriales() if _cle_set(o) not in couverts]
         groupes: dict[str, list[dict]] = {}
         for o in offres:
             groupes.setdefault(_cle_set(o), []).append(o)
@@ -122,8 +145,10 @@ def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
         "offres": [{k: o.get(k) for k in ("source", "boutique", "pays", "cle", "url", "prix", "port", "port_estime",
                                            "delai", "dispo", "releve")} for o in offres],
     }
+    if premier("retrait"):
+        s["retrait"] = premier("retrait")
     if ed:
-        for k in ("tests", "avis", "tags", "retrait"):
+        for k in ("tests", "avis", "tags"):
             if ed.get(k):
                 s[k] = ed[k]
     return s

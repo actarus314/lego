@@ -178,6 +178,50 @@ class IndexSets(unittest.TestCase):
         self.assertTrue(all(s.get("themes") for s in sets_hors_ligne()), "chaque set éditorial a un thème")
 
 
+FICHE_BV = """<html><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Product",
+ "name":"LEGO Millennium Falcon 75192","category":"Toys > Building toys > LEGO Star Wars","image":["https://cdn.x/75192.png"],
+ "additionalProperty":[{"@type":"PropertyValue","name":"Pièces","value":7541},{"@type":"PropertyValue","name":"Âge","value":"16+"},
+  {"@type":"PropertyValue","name":"Retrait","value":"Retrait prévu d’ici le 2026-12-31"}],
+ "offers":{"@type":"AggregateOffer","priceCurrency":"EUR","offers":[
+  {"@type":"Offer","price":"807.49","priceCurrency":"EUR","availability":"https://schema.org/InStock","url":"https://www.amazon.fr/dp/B075NT1KHB","seller":{"name":"Amazon.fr"}},
+  {"@type":"Offer","price":"849.99","priceCurrency":"EUR","availability":"https://schema.org/OutOfStock","url":"https://www.lego.com/fr-fr/product/millennium-falcon-75192","seller":{"name":"LEGO.com"}}]}}]}</script></html>"""
+
+
+class LegoOfficiel(unittest.TestCase):
+    def test_fiche(self):
+        from app.sources import lego
+        vrai = lien.recuperer
+        lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/html", FICHE_BV.encode())
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon",
+                                {"nom": "Millennium Falcon", "pieces": 7541, "themes_lego": ["Star Wars"], "img": "https://r/75192.jpg"})
+        finally:
+            lien.recuperer = vrai
+        self.assertTrue(d["adulte"])
+        o = {x["boutique"]: x for x in d["offres"]}
+        self.assertEqual((o["Amazon.fr"]["prix"], o["Amazon.fr"]["dispo"], o["LEGO.com"]["dispo"]), (807.49, "vente", "epuise"))
+        self.assertEqual((o["LEGO.com"]["numero"], o["LEGO.com"]["img"], o["LEGO.com"]["themes"]), ("75192", "https://r/75192.jpg", ["aerospatial"]))
+        self.assertEqual(o["LEGO.com"]["retrait"], "Retrait prévu d’ici le 2026-12-31")
+
+    def test_rotation(self):
+        import time as t
+        from app import synchro
+        from app.index import Index
+        with tempfile.TemporaryDirectory() as tmp:
+            i = Index(Path(tmp))
+            from app.donnees import _ecrire
+            vieux, recent = "2026-11-17T10:00:00", "2026-11-19T10:00:00"
+            _ecrire(i.fichier("bricksvalue"), {"offres": [], "fiches": {
+                "1": {"url": "u1", "lu": None}, "2": {"url": "u2", "lu": vieux, "adulte": True},
+                "3": {"url": "u3", "lu": recent, "adulte": True}, "4": {"url": "u4", "lu": vieux, "adulte": False}}})
+            maintenant = t.mktime(t.strptime("2026-11-20T10:00:00", "%Y-%m-%dT%H:%M:%S"))
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant), ("1", synchro.PAS_AMORCE), "une fiche jamais lue passe d'abord")
+            d = i.lire("bricksvalue"); d["fiches"]["1"].update(lu=recent, adulte=False); _ecrire(i.fichier("bricksvalue"), d)
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[0], "2", "la plus ancienne des fiches pour adultes")
+            self.assertEqual(synchro.prochaine_fiche(i, {"3"}, maintenant)[0], "3", "la sélection passe devant après 22 h")
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[1], min(synchro.PAS_MAX, synchro.CIBLE_H * 3600 / 2))
+
+
 class Synchronisation(unittest.TestCase):
     def setUp(self):
         from app import synchro

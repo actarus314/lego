@@ -107,7 +107,7 @@ def _themes() -> list[dict]:
         mots = [sans_accents(m) for m in t["mots"]]
         out.append({"id": t["id"], "nom": t["nom"],
                     "etiquettes": [sans_accents(e) for e in t["etiquettes"]],
-                    "motif": re.compile(r"(?<![\w-])(" + "|".join(re.escape(m) for m in mots) + r")(?![\w-])")})
+                    "motif": re.compile(r"(?<!\w)(" + "|".join(re.escape(m) for m in mots) + r")(?!\w)")})
     return out
 
 
