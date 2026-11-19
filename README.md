@@ -15,7 +15,7 @@ La page autonome est jointe à chaque [version](https://github.com/actarus314/le
 
 ## Service
 
-Image : `ghcr.io/actarus314/lego` (amd64 et arm64), publiée à chaque étiquette `vX.Y.Z`.
+Image : `ghcr.io/actarus314/lego` (amd64 et arm64), publiée à chaque nouvelle version.
 
 1. Récupérer `compose.yaml` et `.env.example` (dépôt ou version), copier `.env.example` en `.env`.
 2. Créer une empreinte par compte et la reporter dans `UTILISATEURS` (`nom=empreinte;nom2=empreinte2`) :
@@ -36,7 +36,7 @@ Le catalogue est dans l'image (`data/catalogue.json`) ; les relevés et la séle
 
 ## Développement
 
-Bibliothèque standard de Python 3.13 uniquement, aucune dépendance.
+Bibliothèque standard de Python 3.15 uniquement, aucune dépendance.
 
 ```sh
 python -m unittest discover -s tests -t .
@@ -45,4 +45,4 @@ UTILISATEURS="essai=$(printf 'essai\nmotdepasse-essai\n' | python -m app.motdepa
 python tools/construire.py 0.0.0 dist/carnet-briques.html   # page autonome
 ```
 
-Publier une version : compléter `CHANGELOG.md` (section `## vX.Y.Z`), puis `git tag vX.Y.Z && git push --tags`.
+Publier une version : changer le numéro dans `VERSION`, ajouter la section `## vX.Y.Z` dans `CHANGELOG.md`, pousser sur `main`. Le workflow « Publication » crée l'étiquette, la version GitHub et l'image. Mises à jour des dépendances : Renovate (`renovate.json`).

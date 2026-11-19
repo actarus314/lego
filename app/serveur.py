@@ -119,8 +119,11 @@ class Gestionnaire(BaseHTTPRequestHandler):
             cible = (parse_qs(url.query).get("url") or [""])[0]
             try:
                 return self._json(200, lien.lire(cible))
-            except (lien.LienRefuse, OSError, ValueError) as e:
-                return self._erreur(422, f"Lecture impossible : {e}")
+            except lien.LienRefuse as e:
+                return self._erreur(422, f"Lecture impossible : {e.public}")
+            except (OSError, ValueError):
+                log.info("lecture de lien en échec", exc_info=True)
+                return self._erreur(422, "Lecture impossible : page injoignable ou illisible")
         self._erreur(404, "introuvable")
 
     def do_PUT(self):

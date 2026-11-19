@@ -25,7 +25,11 @@ AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 
 
 class LienRefuse(ValueError):
-    """Adresse refusée ou page illisible."""
+    """Adresse refusée ou page illisible. `public` : message sûr à montrer à l'utilisateur."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.public = message
 
 
 @dataclass
