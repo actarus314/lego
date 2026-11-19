@@ -26,7 +26,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, lien, normalise, synchro
+from . import acces, lien, logos as logos_mod, normalise, synchro
 from .donnees import Depot
 from .index import Index
 
@@ -54,12 +54,13 @@ class Gestionnaire(BaseHTTPRequestHandler):
     depot: Depot
     index: Index
     journal: synchro.Journal
+    logos: logos_mod.Logos
     gardien: acces.Gardien | None
     masquer: set[str]
 
     # ---------- réponses ----------
     def _entetes_securite(self, nonce: str | None = None):
-        csp = ("default-src 'none'; img-src https: data:; font-src 'self'; "
+        csp = ("default-src 'none'; img-src 'self' https: data:; font-src 'self'; "
                "style-src 'self' 'unsafe-inline'; connect-src 'self'; "
                "base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
         if nonce:
@@ -122,12 +123,14 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(corps)
 
-    def _statique(self, chemin: Path, type_: str) -> None:
+    def _statique(self, chemin: Path, type_: str, bac_a_sable: bool = False) -> None:
         if not chemin.is_file():
             return self._erreur(404, "introuvable")
         corps = chemin.read_bytes()
         self.send_response(200)
         self.send_header("Content-Type", type_)
+        if bac_a_sable:  # image venue d'un site tiers (SVG compris) : aucun script, aucune ressource
+            self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
         self.send_header("Content-Length", str(len(corps)))
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Cache-Control", "public, max-age=604800")
@@ -145,6 +148,12 @@ class Gestionnaire(BaseHTTPRequestHandler):
         m = re.fullmatch(r"/polices/([a-z0-9-]+\.(woff2|css))", url.path)
         if m:
             return self._statique(POLICES / m.group(1), "font/woff2" if m.group(2) == "woff2" else "text/css; charset=utf-8")
+        m = re.fullmatch(r"/logos/([a-z0-9-]{1,40})", url.path)
+        if m:
+            fichier = self.logos.chemin(m.group(1))
+            if not fichier:
+                return self._erreur(404, "introuvable")
+            return self._statique(fichier[0], fichier[1], bac_a_sable=True)
         if url.path == "/api/sante":
             bon, raison = synchro.sante(self.journal)
             return self._json(200 if bon else 503, {"etat": "ok" if bon else "degrade", "raison": raison, "version": VERSION})
@@ -233,7 +242,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
 
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
-        mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer}
+        mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer,
+                "logos": self.logos.disponibles()}
         corps = injecter(MODELE.read_text("utf-8"), {"sets": [], "themes": [], "sources": []}, mode, nonce).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -251,6 +261,8 @@ def main():
     Gestionnaire.masquer = {n.strip() for n in os.environ.get("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
+    Gestionnaire.logos = logos_mod.Logos(donnees)
+    Gestionnaire.logos.demarrer()
     heures = float(os.environ.get("RELEVE_HEURES", "24"))
     synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
     if heures > 0:

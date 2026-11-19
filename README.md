@@ -36,9 +36,13 @@ Les tests indépendants et verdicts de `data/catalogue.json` s'attachent aux set
 
 La synchronisation se suit dans la page (bouton en haut à droite) : avancement, résultat par source, relance des échecs, historique. `/api/sante` répond 503 quand la synchronisation programmée est arrêtée, quand toutes les sources ont échoué ou quand aucune n'a réussi depuis deux périodes : le conteneur passe alors « unhealthy ». Une page lue par lien ne peut viser qu'une adresse publique.
 
+### Logos des marques
+
+Le service récupère l'icône du site officiel de chaque marque listée dans `data/marques.json` (page d'accueil : apple-touch-icon, puis la plus grande icône, puis `/favicon.ico` ; adresse directe quand le site refuse les robots), une fois par mois, et la garde dans `logos/` du dossier de données. Les images sont vérifiées par leur signature et servies sans script ni ressource externe. Une marque sans site connu garde une pastille à initiales. Le dépôt ne contient aucun logo.
+
 ### Données
 
-Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`.
+Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `dimensions_<source>.json` et `reference_lego.json` (caches).
 
 ## Développement
 

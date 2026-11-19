@@ -1,0 +1,43 @@
+{
+ "_note": "Site officiel (ou distributeur officiel) de chaque marque, dont le service récupère l'icône comme logo, gardée dans son dossier de données. « icone » : adresse directe d'une image, quand le site refuse les robots. Une marque absente garde sa pastille à initiales.",
+ "marques": {
+  "LEGO officiel": {
+   "site": "lego.com",
+   "icone": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/120px-LEGO_logo.svg.png"
+  },
+  "Mould King": {
+   "site": "mouldkingcorp.com"
+  },
+  "Reobrix": {
+   "site": "reobrix.eu"
+  },
+  "JIE STAR": {
+   "site": "jiestartoys.com",
+   "icone": "https://www.jiestartoys.com/images/brand/jiestar-logo-color.png"
+  },
+  "Cobi": {
+   "site": "cobi.eu"
+  },
+  "Guly": {
+   "site": "gulytoys.com"
+  },
+  "Mork": {
+   "site": "morktoys.com"
+  },
+  "Pantasy": {
+   "site": "pantasy.com"
+  },
+  "Lonestar": {
+   "site": "lonestar-bricks.de"
+  },
+  "BlueBrixx": {
+   "site": "bluebrixx.com"
+  },
+  "Lumibricks": {
+   "site": "lumibricks.com"
+  },
+  "Funwhole": {
+   "site": "funwhole.com"
+  }
+ }
+}

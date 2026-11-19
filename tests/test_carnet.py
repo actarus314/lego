@@ -304,6 +304,11 @@ class Serveur(unittest.TestCase):
         G.depot = Depot(Path(cls.tmp.name))
         G.index = Index(Path(cls.tmp.name))
         G.journal = synchro.Journal(Path(cls.tmp.name))
+        from app.logos import Logos
+        G.logos = Logos(Path(cls.tmp.name))
+        G.logos.dossier.mkdir(parents=True)
+        (G.logos.dossier / "cobi.svg").write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>')
+        (G.logos.dossier / "logos.json").write_text('{"cobi": {"fichier": "cobi.svg", "format": "svg", "le": "2026-11-20T00:00:00"}}')
         G.gardien = acces.Gardien({"bruno": acces.empreinte("motdepasse-b", iterations=1000),
                                    "alice": acces.empreinte("motdepasse-a", iterations=1000)})
         G.masquer = {"bruno"}
@@ -347,6 +352,21 @@ class Serveur(unittest.TestCase):
         with urllib.request.urlopen(r) as rep:
             self.assertEqual(rep.headers["Content-Encoding"], "gzip")
             self.assertIn("sets", json.loads(gzip.decompress(rep.read())))
+
+    def test_logo_isole(self):
+        code, corps, h = self.req("GET", "/logos/cobi")
+        self.assertEqual((code, h["Content-Type"]), (200, "image/svg+xml"))
+        self.assertIn("sandbox", h["Content-Security-Policy"])
+        self.assertEqual(self.req("GET", "/logos/inconnu")[0], 404)
+        self.assertIn(self.req("GET", "/logos/../logos.json")[0], (401, 404))
+        code, page, _ = self.req("GET", "/", "alice")
+        self.assertIn('"logos": {"cobi": "logos/cobi?v=2026-11-20"}', page)
+
+    def test_formats_logo(self):
+        from app import logos
+        self.assertEqual(logos._format(b"\x89PNG\r\n"), "png")
+        self.assertEqual(logos._format(b'<?xml version="1.0"?>\n<svg></svg>'), "svg")
+        self.assertIsNone(logos._format(b"<html>pas une image</html>"))
 
     def test_page_protegee(self):
         self.assertEqual(self.req("GET", "/")[0], 401)

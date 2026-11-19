@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.3.0
+Logos des marques : icône du site officiel de chaque marque (`data/marques.json`), récupérée par le service une fois par mois et gardée dans son dossier de données, servie isolée (aucun script) ; pastille à initiales pour les marques sans site connu. Le dépôt ne contient aucun logo.
+
 ## v3.2.0
 Dimensions des sets KBS lues sur les cartes des pages de collection, puis sur la page produit pour les autres, gardées en cache (une fois par produit) : 299 sets KBS sur 299 ont une taille, contre 77 auparavant.
 
