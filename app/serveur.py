@@ -2,13 +2,13 @@
 
 Routes :
   GET    /                       page, données du jour injectées
-  GET    /api/sante              état du service (sans authentification)
+  GET    /api/sante              état du service et du relevé (sans authentification ; 503 si le relevé est en panne)
   GET    /api/selection          sélection visible par le compte connecté
   PUT    /api/selection/<id>     ajoute ou modifie un produit
   DELETE /api/selection/<id>     retire un produit
   GET    /api/lien?url=…         lit une page produit (nom, prix, photo, pièces)
-  POST   /api/releve             relève les prix maintenant
-  GET    /api/releve             journal du dernier relevé
+  POST   /api/releve             relève les prix maintenant ({"echecs": true} : seulement les sets en échec)
+  GET    /api/releve             relevé en cours, journal du dernier, historique
 """
 from __future__ import annotations
 
@@ -105,7 +105,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/api/sante":
-            return self._json(200, {"etat": "ok", "version": VERSION})
+            bon, raison = releve.sante(self.depot)
+            return self._json(200 if bon else 503, {"etat": "ok" if bon else "degrade", "raison": raison, "version": VERSION})
         compte = self._compte()
         if not compte:
             return
@@ -114,7 +115,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if url.path == "/api/selection":
             return self._json(200, [s for s in self.depot.selection() if self._visible(compte, s)])
         if url.path == "/api/releve":
-            return self._json(200, self.depot.releves().get("dernier") or {})
+            r = self.depot.releves()
+            return self._json(200, {"etat": releve.etat(), "dernier": r.get("dernier"), "historique": r.get("historique", [])})
         if url.path == "/api/lien":
             cible = (parse_qs(url.query).get("url") or [""])[0]
             try:
@@ -160,19 +162,29 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if not compte:
             return
         if urlsplit(self.path).path == "/api/releve":
-            res = {"etat": "lance"}
+            try:
+                corps = self._corps_json()
+            except ValueError:
+                return self._erreur(400, "requête invalide")
+            ids = None
+            if isinstance(corps, dict) and corps.get("echecs"):
+                dernier = self.depot.releves().get("dernier") or {}
+                ids = [s["id"] for s in dernier.get("sets", []) if s.get("statut") == "echec"]
+                if not ids:
+                    return self._erreur(409, "aucun set en échec au dernier relevé")
             if releve.EN_COURS.locked():
-                res = {"etat": "deja_en_cours"}
-            else:
-                threading.Thread(target=releve.releve, args=(self.depot,), daemon=True).start()
-            return self._json(202, res)
+                return self._json(202, {"etat": "deja_en_cours"})
+            threading.Thread(target=releve.releve, args=(self.depot,),
+                             kwargs={"par": compte, "ids": ids}, daemon=True).start()
+            return self._json(202, {"etat": "lance"})
         self._erreur(404, "introuvable")
 
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
         rel = self.depot.releves().get("dernier") or {}
         mode = {"serveur": True, "compte": compte, "version": VERSION,
-                "releve": rel.get("le"), "achats_masques": compte in self.masquer}
+                "releve": rel.get("le"), "releve_echecs": rel.get("echecs", 0),
+                "achats_masques": compte in self.masquer}
         corps = injecter(MODELE.read_text("utf-8"), self.depot.catalogue(), mode, nonce).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")

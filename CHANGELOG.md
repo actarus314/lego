@@ -1,4 +1,7 @@
-# v2.x — Service Docker : relevé des prix à la source, ajout par lien, sélection partagée avec achats masqués ; page autonome jointe à chaque version.
+# v2.x — Service Docker : relevé des prix à la source suivi dans la page, ajout par lien, sélection partagée avec achats masqués ; page autonome jointe à chaque version.
+
+## v2.1.0
+Relevé des prix suivi dans la page : avancement en direct, résultat de chaque set (lu, échec et raison, sauté), relance des échecs, historique des 30 derniers relevés. Sets LEGO.com sautés sans requête ; contrôle de santé en échec quand le relevé est en panne.
 
 ## v2.0.2
 Code publié sous licence AGPL-3.0 : fichier LICENSE, mention dans l'image et lien vers le code source en pied de page. Outil de construction Docker épinglé par empreinte.

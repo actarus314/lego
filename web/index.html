@@ -157,6 +157,30 @@ td.ph{width:88px}
 .row-actions{display:flex;gap:4px;justify-content:flex-end}
 .row-actions .btn{min-width:84px}
 select.status{height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:12.5px var(--body);padding:0 6px}
+/* Relevé des prix */
+.icon-btn{position:relative}
+.icon-btn .dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--warn);border:1.5px solid var(--card)}
+.icon-btn .dot.run{background:var(--accent)}
+.icon-btn .dot.bad{background:var(--bad)}
+.r-actions{display:flex;gap:8px;flex-wrap:wrap}
+.r-prog{padding:14px 16px;display:grid;gap:8px;min-height:92px;align-content:start}
+.r-prog .track{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.r-prog .track i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.r-prog .ligne{display:flex;gap:6px 14px;flex-wrap:wrap;color:var(--muted);font-variant-numeric:tabular-nums}
+.r-prog .ligne b{color:var(--fg);font-weight:600}
+.r-alerte{color:var(--warn);font-weight:500}
+.r-resume{padding:14px 16px;display:flex;gap:14px 28px;flex-wrap:wrap;align-items:flex-end}
+.r-resume > div{display:grid;gap:2px}
+.r-resume b{font-family:var(--display);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.r-resume .sub{white-space:nowrap}
+.r-panne{padding:12px 16px;display:grid;gap:2px;border-color:var(--bad)}
+.r-panne b{color:var(--bad)}
+.r-filtres{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+details.r-hist > summary{list-style:none;cursor:pointer;display:inline-flex;gap:6px;align-items:center;font-family:var(--display);font-size:16px;font-weight:600}
+details.r-hist > summary::-webkit-details-marker{display:none}
+details.r-hist > summary svg{transition:transform .15s}
+details.r-hist[open] > summary svg{transform:rotate(180deg)}
+details.r-hist .card{margin-top:10px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
 .io{display:grid;gap:8px;padding:16px}
 .io textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--fg);font:12.5px var(--mono);padding:10px}
@@ -234,6 +258,7 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
     </nav>
     <div class="tools">
       <span class="ver" id="ver"></span>
+      <a class="icon-btn" id="r-ico" href="#releve" aria-label="Relevé des prix" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span class="dot" id="r-dot" hidden></span></a>
       <button class="icon-btn" id="theme" aria-label="Thème : automatique"></button>
     </div>
   </div>
@@ -242,7 +267,7 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 <main class="wrap">
 
 <section class="view" id="v-idees">
-  <div class="intro"><h1>Sets pour adultes</h1><div class="releve-bar"><p id="n-idees"></p><span class="sub" id="releve-date"></span><button class="btn small" id="releve-btn" hidden>Actualiser les prix</button></div></div>
+  <div class="intro"><h1>Sets pour adultes</h1><div class="releve-bar"><p id="n-idees"></p><a class="sub" id="releve-date" href="#releve"></a><button class="btn small" id="releve-btn" hidden>Actualiser les prix</button></div></div>
   <div class="fgroups" id="f-idees"></div>
   <div class="fgroups sub-f" id="f-idees-2" hidden></div>
   <div class="card"><table id="t-idees" class="has-ph"></table></div>
@@ -319,6 +344,19 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
     <h1>Marques</h1>
   </div>
   <div class="card"><table id="t-marques"></table></div>
+</section>
+
+<section class="view" id="v-releve" hidden>
+  <div class="intro">
+    <h1>Relevé des prix</h1>
+    <div class="r-actions"><button class="btn small" id="r-echecs">Relancer les échecs</button><button class="btn small primary" id="r-lancer">Actualiser les prix</button></div>
+  </div>
+  <div class="card r-panne" id="r-panne" hidden></div>
+  <div class="card r-prog" id="r-prog" hidden aria-live="polite"></div>
+  <div class="card r-resume" id="r-resume"></div>
+  <div class="r-filtres" id="r-filtres"></div>
+  <div class="card"><table id="t-releve"></table></div>
+  <details class="r-hist" id="r-hist"><summary>Historique<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></summary><div class="card"><table id="t-hist"></table></div></details>
 </section>
 
 <footer><span id="pied"></span> · <a href="https://github.com/actarus314/lego" target="_blank" rel="noopener">Code source (AGPL-3.0)</a></footer>
@@ -796,10 +834,13 @@ $("#io-go").onclick = () => {
 
 /* ---------- Navigation ---------- */
 const TABS = ["idees","selection","boutiques","marques"];
+const VUES = MODE.serveur ? [...TABS, "releve"] : TABS;
 function route(){
   let t = location.hash.slice(1); if (t === "liste") t = "selection";
-  if (!TABS.includes(t)) t = "idees";
-  TABS.forEach(x => { $("#v-" + x).hidden = x !== t; });
+  if (!VUES.includes(t)) t = "idees";
+  VUES.forEach(x => { $("#v-" + x).hidden = x !== t; });
+  $("#r-ico").toggleAttribute("aria-current", t === "releve");
+  if (t === "releve") chargerReleve();
   document.querySelectorAll("nav a").forEach(a => a.dataset.tab === t ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
 }
 window.addEventListener("hashchange", route);
@@ -808,23 +849,146 @@ $("#ver").textContent = MODE.version && MODE.version !== "dev" ? "v" + MODE.vers
 $("#pied").textContent = MODE.serveur
   ? (MODE.releve ? `Prix relevés le ${quand(MODE.releve)}` : "Prix du catalogue, pas encore relevés") + " · à vérifier sur le site avant d'acheter."
   : `Prix et disponibilités relevés le ${MODE.catalogue_du || "19 novembre 2026"} · à vérifier sur le site avant d'acheter.`;
+/* ---------- Relevé des prix (service seulement) ---------- */
+let R = {etat:{}, dernier:null, historique:[]}, rSuivi = null, rLanceIci = false;
+const fR = {statut:null};
+const sR = {key:"statut", dir:"asc", def:"statut", defDir:"asc"};
+const CHAMP_LBL = {prix:"prix", dispo:"disponibilité", img:"photo", pcs:"pièces"};
+const rStatut = r => r.statut === "echec" ? ["Échec","p-warn",0] : r.statut === "saute" ? ["Sauté","p-neutral",3] : r.changes && r.changes.length ? ["Changé","p-ok",1] : ["Lu","p-ok",2];
+const duree = s => s == null ? "—" : s < 10 && s % 1 ? s.toFixed(1) + " s" : s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " min " + String(Math.round(s % 60)).padStart(2, "0") + " s";
+const colsR = [
+  {key:"nom",label:"Set",val:r => r.nom},
+  {key:"statut",label:"Résultat",val:r => rStatut(r)[2]},
+  {key:"prix",label:"Prix",val:r => r.prix ?? r.prix_avant,cls:"num"},
+  {key:"dispo",label:"Disponibilité",val:r => r.dispo == null ? null : r.dispo ? 0 : 1,cls:"hide-m"},
+  {key:"detail",label:"Détail",val:r => r.raison || (r.changes || []).join(" ")},
+  {key:"ms",label:"Durée",val:r => r.statut === "saute" ? null : r.ms,cls:"num hide-m"},
+];
+const colsH = [
+  {key:"le",label:"Fin",val:r => r.le,first:"desc"},
+  {key:"par",label:"Lancé par",val:r => r.par},
+  {key:"portee",label:"Portée",val:r => r.portee,cls:"hide-m"},
+  {key:"lus",label:"Lus",val:r => r.lus,cls:"num"},
+  {key:"changes",label:"Changés",val:r => r.changes,cls:"num"},
+  {key:"echecs",label:"Échecs",val:r => r.echecs,cls:"num"},
+  {key:"sautes",label:"Sautés",val:r => r.sautes,cls:"num hide-m"},
+  {key:"duree_s",label:"Durée",val:r => r.duree_s,cls:"num hide-m"},
+];
+const sH = {key:"le", dir:"desc", def:"le", defDir:"desc"};
+const parLbl = p => p === "programme" ? "programmé" : p || "—";
+
+async function chargerReleve(){
+  try { R = await api("GET", "api/releve"); } catch (e) { toast("Relevé illisible : " + e.message, true); return; }
+  renderReleve();
+  if (R.etat.en_cours) suivre();
+}
+function suivre(){
+  if (rSuivi) return;
+  rSuivi = setInterval(async () => {
+    try { R = await api("GET", "api/releve"); } catch { return; }
+    renderReleve();
+    if (!R.etat.en_cours){
+      clearInterval(rSuivi); rSuivi = null;
+      const d = R.dernier || {};
+      toast(`Relevé ${d.etat === "interrompu" ? "interrompu" : "terminé"} : ${d.lus} lus, ${d.changes} changés, ${d.echecs} échecs, ${d.sautes} sautés`, d.etat === "interrompu" || d.echecs > 0);
+      if (rLanceIci && d.changes > 0) setTimeout(() => location.reload(), 2500);
+      rLanceIci = false;
+    }
+  }, 2000);
+}
+async function lancer(echecs){
+  try {
+    const r = await api("POST", "api/releve", echecs ? {echecs:true} : undefined);
+    if (r.etat === "deja_en_cours") toast("Un relevé est déjà en cours");
+    rLanceIci = true;
+    R.etat = {...R.etat, en_cours:true, fait:0, total:0, ecoule_s:0};
+    renderReleve(); suivre();
+  } catch (e) { toast("Relevé impossible : " + e.message, true); }
+}
+function renderReleve(){
+  const e = R.etat || {}, d = R.dernier, run = !!e.en_cours;
+  const nbEchecs = d ? (d.sets || []).filter(x => x.statut === "echec").length : 0;
+  // Barre du haut et accueil
+  const dot = $("#r-dot"), arret = e.heures > 0 && !e.programme_actif;
+  dot.hidden = !(run || arret || nbEchecs);
+  dot.className = "dot" + (run ? " run" : arret ? " bad" : "");
+  $("#r-ico").setAttribute("aria-label", "Relevé des prix" + (run ? " : en cours" : arret ? " : relevé programmé arrêté" : nbEchecs ? ` : ${nbEchecs} échec${nbEchecs > 1 ? "s" : ""}` : ""));
+  const b = $("#releve-btn");
+  b.disabled = run; b.textContent = run ? `Relevé en cours${e.total ? ` · ${e.fait}/${e.total}` : ""}` : "Actualiser les prix";
+  if (d) $("#pied").textContent = `Prix relevés le ${quand(d.le)} · à vérifier sur le site avant d'acheter.`;
+  if (d) $("#releve-date").innerHTML = "Relevé le " + esc(quand(d.le)) + (nbEchecs ? ` · <span class="r-alerte">${nbEchecs} échec${nbEchecs > 1 ? "s" : ""}</span>` : "");
+  // Commandes de la vue
+  $("#r-lancer").disabled = run;
+  const re = $("#r-echecs");
+  re.disabled = run || !nbEchecs;
+  re.textContent = nbEchecs ? `Relancer les échecs (${nbEchecs})` : "Relancer les échecs";
+  // Panne du relevé programmé
+  const panne = $("#r-panne");
+  panne.hidden = !(arret || (d && d.etat === "interrompu"));
+  panne.innerHTML = arret ? "<b>Relevé programmé arrêté</b><span class=\"sub\">Plus aucun relevé automatique : redémarrer le conteneur.</span>"
+    : d && d.etat === "interrompu" ? `<b>Dernier relevé interrompu</b><span class="sub">${esc(d.raison || "")} · voir le journal du conteneur</span>` : "";
+  // Avancement
+  const prog = $("#r-prog");
+  prog.hidden = !run;
+  if (run){
+    const pct = e.total ? Math.round(e.fait / e.total * 100) : 0;
+    const reste = e.fait && e.total ? Math.round(e.ecoule_s / e.fait * (e.total - e.fait)) : null;
+    prog.innerHTML = `<span class="lbl">Relevé en cours${e.par ? " · " + esc(parLbl(e.par)) : ""}</span>
+      <div class="track"><i style="width:${pct}%"></i></div>
+      <div class="ligne"><span><b>${e.fait || 0}</b> / ${e.total || "…"}</span>${e.courant ? `<span>${esc(e.courant)}</span>` : ""}<span>${duree(e.ecoule_s)} écoulées</span>${reste != null ? `<span>environ ${duree(reste)} restantes</span>` : ""}${e.echecs ? `<span class="r-alerte">${e.echecs} échec${e.echecs > 1 ? "s" : ""}</span>` : ""}</div>
+      ${e.courant_s > 30 ? `<div class="r-alerte">Sans réponse depuis ${duree(e.courant_s)}</div>` : ""}`;
+  }
+  // Résumé du dernier relevé
+  const prochain = e.heures > 0 ? (e.programme_actif ? quand(e.prochain) : "arrêté") : "désactivé";
+  $("#r-resume").innerHTML = d ? `
+    <div><span class="lbl">Dernier relevé</span><b>${esc(quand(d.le))}</b><span class="sub">${esc(parLbl(d.par))}${d.portee === "echecs" ? " · échecs seulement" : ""} · ${duree(d.duree_s)}</span></div>
+    <div><span class="lbl">Lus</span><b>${d.lus} / ${d.total}</b></div>
+    <div><span class="lbl">Changés</span><b>${d.changes}</b></div>
+    <div><span class="lbl">Échecs</span><b${d.echecs ? ' class="r-alerte"' : ""}>${d.echecs}</b></div>
+    <div><span class="lbl">Sautés</span><b>${d.sautes || 0}</b></div>
+    <div><span class="lbl">Prochain relevé</span><b>${esc(prochain)}</b></div>`
+    : `<div><span class="lbl">Dernier relevé</span><b>aucun</b></div><div><span class="lbl">Prochain relevé</span><b>${esc(prochain)}</b></div>`;
+  // Filtres et tableau
+  const sets = d ? d.sets || [] : [];
+  const nb = {echec:sets.filter(x => x.statut === "echec").length, change:sets.filter(x => x.changes && x.changes.length).length, saute:sets.filter(x => x.statut === "saute").length};
+  if (fR.statut && !nb[fR.statut]) fR.statut = null;
+  $("#r-filtres").innerHTML = sets.length ? [["echec","Échecs"],["change","Changés"],["saute","Sautés"]].filter(([k]) => nb[k])
+    .map(([k,l]) => `<button class="chip" data-f="${k}" aria-pressed="${fR.statut === k}">${l} (${nb[k]})</button>`).join("") : "";
+  $("#r-filtres").querySelectorAll(".chip").forEach(c => c.onclick = () => { fR.statut = fR.statut === c.dataset.f ? null : c.dataset.f; renderReleve(); });
+  const rows = sets.filter(x => !fR.statut || (fR.statut === "change" ? x.changes && x.changes.length : x.statut === fR.statut));
+  sortable("t-releve", colsR, rows, sR, r => {
+    const [lbl, cls] = rStatut(r), chPrix = (r.changes || []).includes("prix");
+    const detail = r.raison || ((r.changes || []).length ? "Changé : " + r.changes.map(c => CHAMP_LBL[c] || c).join(", ") : "");
+    return `<tr>
+      <td class="wide" data-k="Set"><a class="name" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom)}</a></td>
+      <td data-k="Résultat"><span class="pill ${cls}">${lbl}</span></td>
+      <td class="num" data-k="Prix">${chPrix ? `<span class="sub">${eur(r.prix_avant)} →</span> ${eur(r.prix)}` : eur(r.prix ?? r.prix_avant)}</td>
+      <td class="hide-m" data-k="Disponibilité">${r.dispo == null ? "—" : r.dispo ? "En vente" : "Épuisé"}</td>
+      <td class="wide" data-k="Détail"><span class="${r.statut === "echec" ? "r-alerte" : "sub"}">${esc(detail)}</span></td>
+      <td class="num hide-m" data-k="Durée">${r.statut === "saute" ? "—" : duree(r.ms / 1000)}</td>
+    </tr>`;
+  }, d ? "Aucun set pour ce filtre" : "Aucun relevé pour l'instant : « Actualiser les prix » pour en lancer un");
+  // Historique
+  sortable("t-hist", colsH, R.historique || [], sH, r => `<tr>
+    <td data-k="Fin">${esc(quand(r.le))}${r.etat === "interrompu" ? ' <span class="pill p-bad">Interrompu</span>' : ""}</td>
+    <td data-k="Lancé par">${esc(parLbl(r.par))}</td>
+    <td class="hide-m" data-k="Portée">${r.portee === "echecs" ? "Échecs seulement" : "Tous les sets"}</td>
+    <td class="num" data-k="Lus">${r.lus} / ${r.total}</td>
+    <td class="num" data-k="Changés">${r.changes}</td>
+    <td class="num" data-k="Échecs">${r.echecs ? `<span class="r-alerte">${r.echecs}</span>` : 0}</td>
+    <td class="num hide-m" data-k="Sautés">${r.sautes || 0}</td>
+    <td class="num hide-m" data-k="Durée">${duree(r.duree_s)}</td>
+  </tr>`, "Aucun relevé pour l'instant");
+}
+sR.render = renderReleve; sH.render = renderReleve;
+
 if (MODE.serveur){
-  const b = $("#releve-btn"); b.hidden = false;
-  $("#releve-date").textContent = MODE.releve ? "Relevé le " + quand(MODE.releve) : "";
-  b.onclick = async () => {
-    b.disabled = true; b.textContent = "Relevé en cours…";
-    try {
-      const avant = (await api("GET", "api/releve")).le;
-      await api("POST", "api/releve");
-      for (let i = 0; i < 90; i++){
-        await new Promise(r => setTimeout(r, 3000));
-        const j = await api("GET", "api/releve");
-        if (j.le && j.le !== avant){ toast(`${j.lus} sets relevés sur ${j.total}, ${j.changes.length} changement${j.changes.length > 1 ? "s" : ""}`); setTimeout(() => location.reload(), 1500); return; }
-      }
-      toast("Relevé toujours en cours : recharger la page plus tard", true);
-    } catch (e) { toast("Relevé impossible : " + e.message, true); }
-    b.disabled = false; b.textContent = "Actualiser les prix";
-  };
+  $("#releve-btn").hidden = false; $("#r-ico").hidden = false;
+  $("#releve-date").innerHTML = MODE.releve ? "Relevé le " + esc(quand(MODE.releve)) + (MODE.releve_echecs ? ` · <span class="r-alerte">${MODE.releve_echecs} échec${MODE.releve_echecs > 1 ? "s" : ""}</span>` : "") : "";
+  $("#releve-btn").onclick = () => lancer(false);
+  $("#r-lancer").onclick = () => lancer(false);
+  $("#r-echecs").onclick = () => lancer(true);
+  if (location.hash !== "#releve") chargerReleve();
 }
 route(); renderBoutiques(); renderMarques(); renderAll(); initStore();
 </script>

@@ -117,6 +117,86 @@ class Donnees(unittest.TestCase):
             self.assertTrue(it["url"].startswith("https://"))
 
 
+class Releve(unittest.TestCase):
+    """Relevé avec une lecture de page simulée : succès, échec attendu, erreur inattendue, set sauté."""
+
+    def setUp(self):
+        from app import releve
+        self.r = releve
+        self.tmp = tempfile.TemporaryDirectory()
+        self.d = Depot(Path(self.tmp.name), RACINE / "data" / "catalogue.json")
+        self.cat = self.d.catalogue()
+        kbs = [it for it in self.cat if "kbs-shop.com" in it["url"]]
+        self.ok, self.ko, self.bug = kbs[0], kbs[1], kbs[2]
+        self.vrai = lien.lire
+
+        def faux(url):
+            if url == self.ko["url"]:
+                raise lien.LienRefuse("le site a répondu 404")
+            if url == self.bug["url"]:
+                raise KeyError("price")
+            if "kbs-shop.com" in url:
+                return {"prix": 99.5, "dispo": True}
+            raise AssertionError("un site sauté ne doit pas être lu : " + url)
+        lien.lire = faux
+
+    def tearDown(self):
+        lien.lire = self.vrai
+        self.r._PROG.update(heures=0.0, fil=None)
+        self.tmp.cleanup()
+
+    def test_journal_par_set(self):
+        import logging
+        logging.disable(logging.CRITICAL)
+        try:
+            j = self.r.releve(self.d, pause=0)
+        finally:
+            logging.disable(logging.NOTSET)
+        par_id = {s["id"]: s for s in j["sets"]}
+        self.assertEqual(j["etat"], "fini")
+        self.assertEqual(len(j["sets"]), len(self.cat))
+        self.assertEqual(par_id[self.ok["id"]]["statut"], "ok")
+        self.assertEqual(par_id[self.ko["id"]]["raison"], "le site a répondu 404")
+        self.assertEqual(par_id[self.bug["id"]]["raison"], "erreur inattendue (KeyError)")
+        lego = [s for s in j["sets"] if "lego.com" in s["url"]]
+        self.assertTrue(lego and all(s["statut"] == "saute" for s in lego))
+        self.assertEqual((j["echecs"], j["sautes"], j["lus"]), (2, len(lego), len(self.cat) - 2 - len(lego)))
+        self.assertEqual(self.d.historique()[0]["echecs"], 2)
+        self.assertNotIn("sets", self.d.historique()[0])
+        self.assertFalse(self.r.etat()["en_cours"])
+        self.assertEqual(self.d.catalogue()[self.cat.index(self.ok)]["prix"], 99.5)
+
+    def test_relance_des_echecs_et_sante(self):
+        import logging
+        logging.disable(logging.CRITICAL)
+        try:
+            self.r.releve(self.d, pause=0)
+            j = self.r.releve(self.d, pause=0, par="alice", ids=[self.ko["id"], self.bug["id"]])
+        finally:
+            logging.disable(logging.NOTSET)
+        self.assertEqual((j["portee"], j["total"], j["lus"], j["par"]), ("echecs", 2, 0, "alice"))
+        self.assertEqual(self.r.sante(self.d), (True, "ok"), "une relance des échecs ne rend pas le service malade")
+        self.r._PROG.update(heures=24.0, fil=None)
+        self.assertEqual(self.r.sante(self.d)[1], "relevé programmé arrêté")
+
+    def test_sante_aucun_set_lu(self):
+        lien.lire = lambda url: (_ for _ in ()).throw(OSError("réseau coupé"))
+        import logging
+        logging.disable(logging.CRITICAL)
+        try:
+            self.r.releve(self.d, pause=0)
+        finally:
+            logging.disable(logging.NOTSET)
+        self.assertEqual(self.r.sante(self.d), (False, "dernier relevé : aucun set lu"))
+
+    def test_historique_borne(self):
+        from app import donnees
+        for i in range(donnees.HISTORIQUE + 5):
+            self.d.enregistrer_releve({}, {"le": str(i), "sets": []})
+        h = self.d.historique()
+        self.assertEqual((len(h), h[0]["le"]), (donnees.HISTORIQUE, str(donnees.HISTORIQUE + 4)))
+
+
 class Serveur(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -150,6 +230,13 @@ class Serveur(unittest.TestCase):
 
     def test_sante_sans_compte(self):
         self.assertEqual(self.req("GET", "/api/sante")[0], 200)
+
+    def test_releve_api(self):
+        code, corps, _ = self.req("GET", "/api/releve", "alice")
+        d = json.loads(corps)
+        self.assertEqual(code, 200)
+        self.assertIn("en_cours", d["etat"])
+        self.assertEqual(self.req("POST", "/api/releve", "alice", {"echecs": True})[0], 409)
 
     def test_page_protegee(self):
         self.assertEqual(self.req("GET", "/")[0], 401)

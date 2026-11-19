@@ -16,6 +16,7 @@ from pathlib import Path
 
 VERROU = threading.RLock()
 STATUTS = ("idee", "retenu", "achete")
+HISTORIQUE = 30
 CHAMPS = {"url": 2048, "nom": 200, "note": 1000, "img": 2048}
 
 
@@ -58,11 +59,18 @@ class Depot:
         return _lire(self.f_releves, {"sets": {}, "dernier": None})
 
     def enregistrer_releve(self, sets: dict, journal: dict) -> None:
+        """Fusionne les sets lus, garde le journal complet du dernier relevé et
+        un résumé des HISTORIQUE derniers (le plus récent en tête)."""
         with VERROU:
             d = self.releves()
             d["sets"].update(sets)
             d["dernier"] = journal
+            resume = {k: v for k, v in journal.items() if k != "sets"}
+            d["historique"] = ([resume] + d.get("historique", []))[:HISTORIQUE]
             _ecrire(self.f_releves, d)
+
+    def historique(self) -> list[dict]:
+        return self.releves().get("historique", [])
 
     # ----- sélection -----
     def selection(self) -> list[dict]:

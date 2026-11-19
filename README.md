@@ -30,6 +30,8 @@ Variables : voir `.env.example`. Le service écoute en HTTP ; l'exposer sur Inte
 
 Le relevé lit chaque set à la source : catalogue public des boutiques Shopify (KBS, par exemple), sinon les métadonnées de la page (JSON-LD, Open Graph). Les sites qui refusent les robots, dont LEGO.com, gardent le prix du catalogue. Une page lue par lien ne peut viser qu'une adresse publique : les adresses du réseau local, de bouclage ou réservées sont refusées, à chaque redirection.
 
+Le relevé se suit dans la page (bouton en haut à droite) : avancement, résultat de chaque set (lu, échec et sa raison, sauté), relance des seuls échecs, historique des 30 derniers relevés. Les sites qui refusent les robots, dont LEGO.com, sont sautés sans être interrogés. `/api/sante` répond 503 quand le relevé programmé est arrêté, quand le dernier relevé complet n'a lu aucun set ou quand aucun relevé n'a réussi depuis deux périodes : le conteneur passe alors « unhealthy ». Le journal du conteneur trace chaque relevé et chaque échec.
+
 ### Données
 
 Le catalogue est dans l'image (`data/catalogue.json`) ; les relevés et la sélection sont dans le dossier monté sur `/donnees` (`releves.json`, `selection.json`).
