@@ -1,10 +1,17 @@
 name: Publication
 
-# Une étiquette vX.Y.Z publie l'image ghcr.io/actarus314/lego (X.Y.Z, X.Y, latest)
-# et crée la version GitHub avec la page autonome en pièce jointe.
+# Une étiquette vX.Y.Z (poussée, ou créée avec une version sur github.com) publie
+# l'image ghcr.io/actarus314/lego (X.Y.Z, X.Y, latest) et complète la version GitHub
+# avec la page autonome, compose.yaml et .env.example.
 on:
   push:
     tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  release:
+    types: [published]
+
+concurrency:
+  group: publication-${{ github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -27,7 +34,9 @@ jobs:
         run: python -m unittest discover -s tests -t .
       - name: Version
         id: v
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        run: |
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Étiquette hors format vX.Y.Z : $GITHUB_REF_NAME"; exit 1; }
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
@@ -62,4 +71,11 @@ jobs:
       - name: Version GitHub
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "dist/carnet-briques-${{ steps.v.outputs.version }}.html" compose.yaml .env.example --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+        run: |
+          FICHIERS=("dist/carnet-briques-${{ steps.v.outputs.version }}.html" compose.yaml .env.example)
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${FICHIERS[@]}" --clobber
+            gh release edit "$GITHUB_REF_NAME" --notes-file notes.md
+          else
+            gh release create "$GITHUB_REF_NAME" "${FICHIERS[@]}" --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          fi
