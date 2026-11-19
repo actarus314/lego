@@ -28,7 +28,23 @@ def sources_config() -> list[dict]:
 
 
 def _cle_set(o: dict) -> str:
-    return f"{n.sans_accents(o['marque'])}|{o['numero']}" if o.get("numero") else o["cle"]
+    base = n.numero_base(o["marque"], o.get("numero"))
+    return f"{n.sans_accents(o['marque'])}|{base}" if base else o["cle"]
+
+
+def _separer(groupe: list[dict]) -> list[list[dict]]:
+    """Sépare les offres d'un même numéro dont le nombre de pièces diffère de plus de 10 % (variantes)."""
+    paquets: list[list[dict]] = []
+    for o in sorted(groupe, key=lambda o: -(o.get("pieces") or 0)):
+        p = o.get("pieces")
+        for paq in paquets:
+            ref = next((x["pieces"] for x in paq if x.get("pieces")), None)
+            if p is None or ref is None or abs(p - ref) <= 0.1 * ref:
+                paq.append(o)
+                break
+        else:
+            paquets.append([o])
+    return paquets
 
 
 def _slug(cle: str) -> str:
@@ -116,7 +132,8 @@ class Index:
         for e in editorial():
             if e.get("cle_numero"):
                 edito.setdefault(e["cle_numero"], e)
-        out = [_set(cle, g, edito) for cle, g in groupes.items()]
+        out = [_set(cle if i == 0 else f"{cle}-{i}", paq, edito)
+               for cle, g in groupes.items() for i, paq in enumerate(_separer(g))]
         out = [s for s in out if s]
         self._cache = (cle_cache, out)
         return out
@@ -130,18 +147,23 @@ def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
     offres.sort(key=lambda o: (DISPO_RANG[o["dispo"]], _total(o)))
     ed = next((edito[o["cle"]] for o in offres if o["cle"] in edito), None)
     if ed is None and offres[0].get("numero"):
-        ed = edito.get(f"{n.sans_accents(offres[0]['marque'])}|{offres[0]['numero']}")
+        ed = edito.get(f"{n.sans_accents(offres[0]['marque'])}|{n.numero_base(offres[0]['marque'], offres[0]['numero'])}")
     par_pref = sorted(offres, key=lambda o: PREFERENCE_NOM.index(o["source"]) if o["source"] in PREFERENCE_NOM else 99)
     premier = lambda k: next((o.get(k) for o in par_pref if o.get(k)), None)
     meilleure = offres[0]
-    themes = sorted({t for o in offres for t in o.get("themes", [])})
+    if ed:  # thème choisi à la main pour les sets du catalogue éditorial
+        themes = n.themes(ed["nom"] + " " + (ed.get("theme") or ""), [ed.get("theme") or ""])
+    else:
+        themes = sorted({t for o in offres for t in o.get("themes", [])})
+    actifs = [o["prix"] for o in offres if o["dispo"] != "epuise"]
     s = {
-        "id": _slug(cle), "nom": (ed or {}).get("nom") or _nom_court(premier("nom"), meilleure["marque"]),
+        "id": _slug(cle), "nom": (ed or {}).get("nom") or n.nom_court(premier("nom")),
         "marque": meilleure["marque"], "numero": premier("numero"),
         "themes": themes, "type": premier("type"), "pieces": premier("pieces"),
         "dims": (ed or {}).get("dims") or premier("dims"), "img": premier("img"),
         "dispo": meilleure["dispo"], "prix": meilleure["prix"], "port": meilleure.get("port"),
         "depuis": min((o.get("depuis") or "9999") for o in offres),
+        "ecart": len(actifs) > 1 and max(actifs) > 1.4 * min(actifs),
         "offres": [{k: o.get(k) for k in ("source", "boutique", "pays", "cle", "url", "prix", "port", "port_estime",
                                            "delai", "dispo", "releve")} for o in offres],
     }
@@ -152,19 +174,6 @@ def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
             if ed.get(k):
                 s[k] = ed[k]
     return s
-
-
-def _nom_court(nom: str | None, marque: str) -> str:
-    """Retire du nom la marque et le numéro répétés par les boutiques (« … – Mould King 13199 »)."""
-    if not nom:
-        return ""
-    t = re.sub(r"\s*[-–|]\s*(" + re.escape(marque) + r"|mould king|cada|reobrix|jie star)[^-–|]*$", "", nom, flags=re.I)
-    t = re.sub(r"^(" + re.escape(marque) + r"|mould king|cada|reobrix|jie star)\s+", "", t, flags=re.I)
-    t = re.sub(r"\s*\((?:" + re.escape(marque) + r"|[^)]{2,20})\)\s*$", "", t)
-    t = re.sub(r"\b(building (set|kit|blocks?)|klemmbausteine?( set)?|bausatz|set)\b.*$", "", t, flags=re.I).strip(" -–|(")
-    t = re.sub(r"^(?:[A-Z]{0,3}[- ]?\d{4,6}[A-Z]?(?:/\d{4,6})?)\s*[-–]?\s*", "", t).strip()
-    t = re.sub(r"^(" + re.escape(marque) + r")\s+", "", t, flags=re.I).strip()
-    return t or nom
 
 
 # ----- couche éditoriale -----
@@ -201,7 +210,7 @@ def editoriales() -> list[dict]:
             "img": it.get("img"), "pieces": it.get("pcs"), "dims": None,
             "type": "technic" if it.get("type") == "Technic" else "classique",
             "themes": n.themes(it["nom"] + " " + (it.get("theme") or ""), [it.get("theme") or ""]),
-            "releve": "2026-11-19T00:00:00", "depuis": "2026-11-19",
+            "releve": None, "depuis": "2026-11-19",
         })
     return out
 
@@ -219,7 +228,7 @@ def sets_hors_ligne() -> list[dict]:
                 "img": it.get("img"), "pieces": it.get("pcs"), "dims": it.get("dims"),
                 "type": "technic" if it.get("type") == "Technic" else "classique",
                 "themes": n.themes(it["nom"] + " " + (it.get("theme") or ""), [it.get("theme") or ""]),
-                "releve": "2026-11-19T00:00:00", "depuis": "2026-11-19"})
+                "releve": None, "depuis": "2026-11-19"})
     groupes: dict[str, list[dict]] = {}
     for o in offres:
         groupes.setdefault(_cle_set(o), []).append(o)

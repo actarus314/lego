@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.1.1
+Recherche : un mot cherche d'abord dans les noms, le thème seulement sans résultat direct ou sur demande. Prix affiché port compris, détail du port et délai ; tri par sélecteur, aussi sur téléphone. Variantes regroupées (R55013 = 55013), noms nettoyés, thèmes « Autres » et type « Non précisé », écart de prix signalé. Polices servies par le service, plus rien chez Google. Onglet Boutiques lisible à 1400 px.
+
 ## v3.1.0
 LEGO officiel automatique : catalogue Rebrickable (sets de 500 pièces et plus) et offres des revendeurs français lues sur les fiches BricksValue, source désactivée par défaut. Rotation continue : fiche d'un set pour adultes relue au moins toutes les 48 h, d'un set de la sélection toutes les 24 h, pages compressées. Date de retrait affichée.
 

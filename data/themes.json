@@ -61,7 +61,6 @@
     "executor",
     "enterprise",
     "voyager",
-    "apollo",
     "artemis",
     "saturn v",
     "long march",
@@ -83,7 +82,11 @@
     "eclipse",
     "monarch",
     "space station",
-    "iss"
+    "iss",
+    "apollo 11",
+    "saturn",
+    "lunar lander",
+    "module lunaire"
    ]
   },
   {
@@ -141,7 +144,18 @@
     "lifeboat",
     "queen anne",
     "trireme",
-    "galere"
+    "galere",
+    "segelyacht",
+    "langschiff",
+    "wikinger-langschiff",
+    "longship",
+    "drakkar",
+    "zweimast",
+    "schooner",
+    "goelette",
+    "steamboat",
+    "paddle steamer",
+    "raddampfer"
    ]
   },
   {

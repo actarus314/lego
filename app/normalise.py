@@ -19,7 +19,7 @@ MARQUES = {
     "lego": "LEGO officiel", "mould king": "Mould King", "mouldking": "Mould King", "cada": "CaDA",
     "doublee_cada": "CaDA", "double e": "CaDA", "reobrix": "Reobrix", "jie star": "JIE STAR", "jiestar": "JIE STAR",
     "bole brick": "Bole Brick", "bole": "Bole Brick", "xingbao": "Xingbao", "wange": "Wange", "guly": "Guly",
-    "panlos": "Panlos", "cobi": "Cobi", "sembo": "Sembo", "lonestar bricks": "Lonestar", "lonestar": "Lonestar",
+    "panlos": "Panlos", "cobi": "Cobi", "sembo": "Sembo", "lonestar bricks": "Lonestar", "lonestar-bricks": "Lonestar", "lonestar": "Lonestar",
 "lumibricks": "Lumibricks", "funwhole": "Funwhole", "pantasy": "Pantasy",
     "bluebrixx": "BlueBrixx", "moyu": "MOYU", "rastar": "Rastar", "xinzhuan": "Xinzhuan", "mork": "Mork",
     "kazi": "Kazi", "gobricks": "Gobricks", "tgl": "TGL", "im.master": "iM.Master", "ausini": "Ausini",
@@ -152,3 +152,36 @@ def pour_adultes(nb_pieces: int | None, prix: float | None, titre: str, type_pro
     if nb_pieces is not None:
         return nb_pieces >= seuil_pieces
     return prix is not None and prix >= seuil_prix
+
+
+def numero_base(marque: str, num: str | None) -> str | None:
+    """Numéro de regroupement : sans le préfixe ou le suffixe de variante d'une boutique
+    (Reobrix R55013 = 55013, Wange W6211 = 6211, Mould King 13197S = 13197)."""
+    if not num:
+        return None
+    b = re.sub(r"^[RW](?=\d{4,6}$)", "", num)
+    return re.sub(r"(?<=\d)S$", "", b)
+
+
+_TOUTES_MARQUES = sorted({*MARQUES, *(v.lower() for v in MARQUES.values()), "lego"}, key=len, reverse=True)
+_MARQUE_RE = re.compile(r"(?<!\w)(" + "|".join(re.escape(m) for m in _TOUTES_MARQUES) + r")(?!\w)", re.I)
+
+
+def nom_court(nom: str | None) -> str:
+    """Nom lisible : sans marque, numéro, nombre de pièces ni « building set » répétés par les boutiques.
+    Le nom des boutiques est souvent « marque numéro – nom – marque numéro » : la plus longue partie
+    qui reste après nettoyage est gardée."""
+    if not nom:
+        return ""
+    t = re.sub(r"\s+", " ", html.unescape(nom)).strip()
+    parties = re.split(r"\s+[–—-]\s+|\s*\|\s*", t)
+
+    def propre(x: str) -> str:
+        x = re.sub(r"\([^)]*\)\s*$", "", x)
+        x = re.sub(r"\b\d[\d.,]*\s*(?:pcs|cps|pieces|pièces|teile|stück)\b", "", x, flags=re.I)
+        x = _MARQUE_RE.sub("", x)
+        x = re.sub(r"(?<!\w)[A-Z]{0,2}-?\d{4,6}[A-Z]?(?:/\d{4,6})?(?!\w)", "", x)
+        x = re.sub(r"\b(?:model )?building (?:set|kit|blocks?)\b|\bklemmbausteine?(?: set)?\b|\bbausatz\b", "", x, flags=re.I)
+        return re.sub(r"\s+", " ", x).strip(" -–|,:;")
+    candidats = [c for c in (propre(x) for x in parties) if len(re.sub(r"\W", "", c)) >= 3]
+    return max(candidats, key=len) if candidats else t

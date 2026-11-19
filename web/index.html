@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Carnet de briques</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='5' width='30' height='24' rx='6' fill='%232f5bd3'/%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='10' cy='12.5' r='3.4'/%3E%3Ccircle cx='22' cy='12.5' r='3.4'/%3E%3Ccircle cx='10' cy='21.5' r='3.4'/%3E%3Ccircle cx='22' cy='21.5' r='3.4'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="polices/polices.css">
 <style>
 /* Outil à onglets : barre collante, une vue par tâche, fiche en boîte de dialogue, tableaux triables devenant fiches empilées sous 820 px */
 :root{
@@ -71,7 +70,7 @@ main{padding-block:20px 48px}
 .fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fgroup .flbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
 .fg-theme{--c:var(--f-theme);--cs:var(--f-theme-soft)} .fg-marque{--c:var(--f-marque);--cs:var(--f-marque-soft)} .fg-achat{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-type{--c:var(--f-type);--cs:var(--f-type-soft)} .fg-zone{--c:var(--f-marque);--cs:var(--f-marque-soft)}
-.fgroup .flbl{color:var(--c)}
+.fgroup .flbl{color:var(--muted)}
 .chip{height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:500 13px var(--body);cursor:pointer;white-space:nowrap}
 .chip:hover{color:var(--fg);border-color:var(--c,var(--line))}
 .chip[aria-pressed="true"]{background:var(--cs,var(--accent-soft));border-color:var(--c,var(--accent));color:var(--c,var(--accent))}
@@ -158,7 +157,7 @@ td.ph{width:88px}
 .row-actions .btn{min-width:84px}
 select.status{height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:12.5px var(--body);padding:0 6px}
 /* Recherche : filtres fixes à gauche, résultats à droite */
-.rech{display:grid;grid-template-columns:272px minmax(0,1fr);gap:20px;align-items:start}
+.rech{display:grid;grid-template-columns:292px minmax(0,1fr);gap:20px;align-items:start}
 .filtres{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(100dvh - 88px);overflow:auto;display:grid;gap:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
 .filtres .q{height:36px;width:100%;border:1px solid var(--line);background:var(--sunk);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
 .fbloc{display:grid;gap:6px}
@@ -166,17 +165,22 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .fbloc > .lbl output{font-family:var(--mono);color:var(--fg);text-transform:none;letter-spacing:0;font-size:11.5px;font-weight:600}
 .puces{display:flex;flex-wrap:wrap;gap:5px}
 .puces .chip{height:28px;padding:0 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
-.puces .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.puces .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint);min-width:3ch;text-align:right}
 .puces .chip[aria-pressed="true"] .n{color:inherit}
 .marques-g{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .marques-g .chip{justify-content:flex-start;padding:0 8px;min-width:0}
 .marques-g .chip span.t{overflow:hidden;text-overflow:ellipsis}
 .curseur{width:100%;accent-color:var(--accent);margin:0}
 .fpied{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
-.logo{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font:700 8.5px var(--mono);letter-spacing:-.02em;color:#fff;background:hsl(var(--h,210) 45% 42%);flex:none;overflow:hidden}
+.logo{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font:700 9px var(--mono);letter-spacing:-.02em;color:var(--muted);background:var(--sunk);border:1px solid var(--line);flex:none;overflow:hidden}
 .logo img{width:100%;height:100%;object-fit:contain;background:#fff}
 nav .m-ico{display:none;vertical-align:-3px}
 .ico-type{width:16px;height:16px;flex:none;color:currentColor}
+#t-idees{table-layout:fixed}
+.fhaut{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fhaut select{height:30px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 6px;font:13px var(--body);min-width:0}
+.voir{display:none}
+.alerte-l{color:var(--warn)}
 .res-tete{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
 .res-tete p{margin:0;color:var(--muted)}
 .ligne-marque{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -188,6 +192,7 @@ nav .m-ico{display:none;vertical-align:-3px}
   .f-barre .btn{height:36px}
   .filtres{display:none;position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);max-height:calc(100dvh - 128px);z-index:8;box-shadow:0 18px 50px rgba(0,0,0,.25)}
   .filtres.ouvert{display:grid}
+  .voir{display:inline-flex;position:sticky;bottom:0;width:100%}
   .filtres .q{display:none}
 }
 /* Fiche : offres */
@@ -251,11 +256,13 @@ dialog::backdrop{background:rgba(10,15,22,.55)}
 .avis-item{border-left:3px solid var(--line);padding:2px 0 2px 10px;font-size:13px}
 .avis-item a{font-weight:600}
 .avis-item .d{color:var(--faint);font-family:var(--mono);font-size:11px}
-.fiche-actions{display:flex;gap:8px;flex-wrap:wrap}
+.fiche-actions{display:flex;gap:8px;flex-wrap:wrap;position:sticky;bottom:0;background:var(--card);padding-block:10px;margin-bottom:-10px}
 
-footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
+footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
 
-@media (max-width:1100px){.hide-l{display:none}.grid-2{grid-template-columns:1fr}}
+@media (max-width:1500px){.grid-2{grid-template-columns:1fr}}
+@media (max-width:1100px){.hide-l{display:none}}
+#t-boutiques .tag{white-space:normal}
 @media (max-width:900px){.hide-m{display:none}.form-row{grid-template-columns:1fr 1fr}.form-row .f-url{grid-column:1/-1}.form-row2{grid-template-columns:1fr}}
 @media (max-width:820px){
   .bar{gap:6px} .brand span{display:none} .ver{display:none}
@@ -307,7 +314,7 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
       <span>Carnet de briques</span>
     </a>
     <nav aria-label="Onglets">
-      <a href="#idees" data-tab="idees" aria-label="Recherche"><svg class="m-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="t-long">Recherche</span><span class="count" id="c-idees"></span></a>
+      <a href="#idees" data-tab="idees" aria-label="Recherche"><svg class="m-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="t-long">Recherche</span></a>
       <a href="#selection" data-tab="selection">Sélection<span class="count" id="c-sel"></span></a>
       <a href="#boutiques" data-tab="boutiques">Boutiques</a>
       <a href="#marques" data-tab="marques">Marques</a>
@@ -327,13 +334,14 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
   <div class="rech">
     <aside class="filtres" id="filtres" aria-label="Filtres">
       <input class="q" id="q" type="search" placeholder="Set, numéro, marque, thème…" aria-label="Rechercher un set">
+      <div class="fhaut"><select id="tri" aria-label="Trier par"><option value="prix|asc">Prix croissant</option><option value="prix|desc">Prix décroissant</option><option value="pieces|desc">Pièces, du plus grand</option><option value="taille|desc">Taille, du plus grand</option><option value="nom|asc">Nom</option></select><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
       <div class="fbloc"><span class="lbl">Disponibilité</span><div class="puces" id="f-dispo"></div></div>
       <div class="fbloc"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
       <div class="fbloc"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
       <div class="fbloc"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur" id="f-prix" type="range" min="0" step="1"></div>
       <div class="fbloc"><label class="lbl" for="f-taille">Taille maximum<output id="o-taille"></output></label><input class="curseur" id="f-taille" type="range" min="0" step="1"><span class="sub" id="n-sansdim"></span></div>
       <div class="fbloc"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
-      <div class="fpied"><span id="n-idees"></span><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
+      <button class="btn primary voir" id="f-voir"></button>
     </aside>
     <div class="view">
       <div class="res-tete"><p id="n-res"></p><a class="sub" id="releve-date" href="#synchro"></a></div>
@@ -343,9 +351,6 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 </section>
 
 <section class="view" id="v-selection" hidden>
-  <div class="intro">
-    <h1>Sélection</h1>
-  </div>
   <div class="list-head">
     <div class="stat" id="stats"></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
@@ -383,9 +388,6 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 </section>
 
 <section class="view" id="v-boutiques" hidden>
-  <div class="intro">
-    <h1>Où acheter</h1>
-  </div>
   <div class="fgroups" id="f-boutiques"></div>
   <div class="grid-2">
     <div class="card"><table id="t-boutiques"></table></div>
@@ -409,15 +411,12 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 </section>
 
 <section class="view" id="v-marques" hidden>
-  <div class="intro">
-    <h1>Marques</h1>
-  </div>
   <div class="card"><table id="t-marques"></table></div>
 </section>
 
 <section class="view" id="v-synchro" hidden>
   <div class="intro">
-    <h1>Synchronisation</h1>
+    <span></span>
     <div class="r-actions"><span class="pq" id="pq-echecs"><button class="btn small" id="r-echecs">Relancer les échecs</button></span><span class="pq" id="pq-lancer"><button class="btn small primary" id="r-lancer">Synchroniser</button></span></div>
   </div>
   <div class="card r-panne" id="r-panne" hidden></div>
@@ -438,7 +437,7 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 let CAT = /*CATALOGUE*/{"sets":[],"themes":[],"sources":[]}/*FIN-CATALOGUE*/;
 const MODE = /*MODE*/{"serveur":false,"version":"dev"}/*FIN-MODE*/;
 let IDEES = [];
-const AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-bad"};
+const AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-warn"};
 const DISPO = {vente:["En vente","p-ok"], precommande:["Précommande","p-warn"], epuise:["Épuisé","p-neutral"]};
 const plat = t => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const longueur = r => r.dims && r.dims.length ? r.dims[0] : null;
@@ -448,7 +447,9 @@ const ideeParId = id => IDEES.find(x => x.id === id);
 function preparer(){
   IDEES = CAT.sets;
   for (const r of IDEES){
-    r._txt = plat([r.nom, r.marque, r.numero, ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
+    r._txt = plat([r.nom, r.marque, r.numero, r.type === "technic" ? "technic" : r.type === "classique" ? "classique" : "", ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
+    r._th = r.themes.length ? r.themes : ["autres"];
+    r._ty = r.type || "inconnu";
     r._lg = longueur(r);
     r._meilleure = r.offres[0];
   }
@@ -597,21 +598,36 @@ function themesDe(tok){
   for (const t of CAT.themes) if (t.mots.some(m => m === tok || (tok.length >= 4 && m.startsWith(tok)))) out.add(t.id);
   return out;
 }
+let ELARGI = [], ELARGISSABLE = [];
+const elargis = new Set();
+function jetons(){
+  // Un mot cherche d'abord dans le nom, la marque, le numéro et la boutique. S'il n'y trouve rien,
+  // il vaut pour les sets des thèmes dont il est un mot-clé (« bateau » : Marine) ; s'il trouve
+  // quelque chose, l'élargissement au thème est proposé (« grue » : Engins et camions).
+  ELARGI = []; ELARGISSABLE = [];
+  return plat(fI.q).split(/\s+/).filter(Boolean).map(mot => {
+    const direct = IDEES.some(r => r._txt.includes(mot)), possibles = themesDe(mot);
+    const themes = !direct || elargis.has(mot) ? possibles : new Set();
+    if (themes.size) ELARGI.push([...themes].map(themeNom).join(", "));
+    else if (possibles.size) ELARGISSABLE.push([mot, [...possibles].map(themeNom).join(", ")]);
+    return {mot, themes};
+  });
+}
 function correspond(r, toks){
   return toks.every(t => r._txt.includes(t.mot) || r.themes.some(th => t.themes.has(th)));
 }
-function filtrer(sauf){
-  const toks = plat(fI.q).split(/\s+/).filter(Boolean).map(mot => ({mot, themes:themesDe(mot)}));
+function filtrer(sauf, toks = jetons()){
   const pMax = PRIX[fI.prix], tMax = TAILLE[fI.taille];
   return IDEES.filter(r =>
     (sauf === "dispo" || fI.dispo.has(r.dispo)) &&
-    (sauf === "themes" || !fI.themes.size || r.themes.some(t => fI.themes.has(t))) &&
-    (sauf === "types" || !fI.types.size || fI.types.has(r.type)) &&
+    (sauf === "themes" || !fI.themes.size || r._th.some(t => fI.themes.has(t))) &&
+    (sauf === "types" || !fI.types.size || fI.types.has(r._ty)) &&
     (sauf === "marques" || !fI.marques.size || fI.marques.has(r.marque)) &&
     (pMax === Infinity || total(r._meilleure) <= pMax) &&
-    (tMax === Infinity || (r._lg != null && r._lg <= tMax)) &&
+    (sauf === "taille" || tMax === Infinity || (r._lg != null && r._lg <= tMax)) &&
     (!toks.length || correspond(r, toks)));
 }
+const compter = (rows, cle) => rows.reduce((m, r) => { for (const v of [].concat(cle(r))) m[v] = (m[v] || 0) + 1; return m; }, {});
 function puces(el, sel, items, compte){
   el.innerHTML = items.map(([v, l, ico]) => `<button class="chip" data-v="${esc(v)}" aria-pressed="${sel.has(v)}">${ico || ""}<span class="t">${esc(l)}</span><span class="n">${compte(v)}</span></button>`).join("");
   el.querySelectorAll(".chip").forEach(b => b.onclick = () => { const v = b.dataset.v; sel.has(v) ? sel.delete(v) : sel.add(v); renderIdees(); });
@@ -621,31 +637,48 @@ const colsI = [
   {key:"nom",label:"Set",val:r => r.nom},
   {key:"pieces",label:"Pièces",val:r => r.pieces,cls:"num",first:"desc"},
   {key:"taille",label:"Taille",val:r => r._lg,cls:"num",first:"desc"},
-  {key:"prix",label:"Prix",val:r => total(r._meilleure),cls:"num"},
+  {key:"prix",label:"Prix, port compris",val:r => total(r._meilleure),cls:"num"},
   {key:"act",label:"",cls:"num"},
 ];
+const LARGEURS = ["88px", "auto", "84px", "84px", "230px", "112px"];
+let MARQUES_ORD = [];
 function renderIdees(){
-  const rows = filtrer();
-  const nb = (sauf, test) => filtrer(sauf).filter(test).length;
-  puces($("#f-dispo"), fI.dispo, [["precommande","Précommande"],["epuise","Épuisés"]], v => nb("dispo", r => r.dispo === v));
-  puces($("#f-themes"), fI.themes, CAT.themes.map(t => [t.id, t.nom]), v => nb("themes", r => r.themes.includes(v)));
-  puces($("#f-types"), fI.types, TYPES, v => nb("types", r => r.type === v));
-  const marques = [...new Set(IDEES.map(r => r.marque))].sort((a, b) => IDEES.filter(r => r.marque === b).length - IDEES.filter(r => r.marque === a).length);
-  const vues = toutesMarques ? marques : marques.filter((m, i) => i < 8 || fI.marques.has(m));
-  puces($("#f-marques"), fI.marques, vues.map(m => [m, m === "LEGO officiel" ? "LEGO" : m, logo(m)]), v => nb("marques", r => r.marque === v));
-  $("#f-plusm").hidden = marques.length <= 8;
-  $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${marques.length})`;
+  const toks = jetons(), rows = filtrer(null, toks);
+  // Compteurs en un passage par groupe de filtres
+  const cDispo = compter(filtrer("dispo", toks), r => r.dispo), cTh = compter(filtrer("themes", toks), r => r._th);
+  const cTy = compter(filtrer("types", toks), r => r._ty), cMq = compter(filtrer("marques", toks), r => r.marque);
+  puces($("#f-dispo"), fI.dispo, [["precommande","Précommande"],["epuise","Épuisés"]], v => cDispo[v] || 0);
+  puces($("#f-themes"), fI.themes, [...CAT.themes.map(t => [t.id, t.nom]), ["autres","Autres"]], v => cTh[v] || 0);
+  puces($("#f-types"), fI.types, [...TYPES, ["inconnu","Non précisé"]], v => cTy[v] || 0);
+  if (MARQUES_ORD.length !== new Set(IDEES.map(r => r.marque)).size){
+    const n = compter(IDEES, r => r.marque);
+    MARQUES_ORD = Object.keys(n).sort((a, b) => n[b] - n[a]);
+  }
+  const vues = toutesMarques ? MARQUES_ORD : MARQUES_ORD.filter((m, i) => i < 8 || fI.marques.has(m));
+  puces($("#f-marques"), fI.marques, vues.map(m => [m, m === "LEGO officiel" ? "LEGO" : m, logo(m)]), v => cMq[v] || 0);
+  $("#f-plusm").hidden = MARQUES_ORD.length <= 8;
+  $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${MARQUES_ORD.length})`;
   $("#f-plusm").setAttribute("aria-expanded", toutesMarques);
   $("#o-prix").textContent = prixLbl(fI.prix); $("#o-taille").textContent = tailleLbl(fI.taille);
-  const sansDim = filtrer().length, avecTaille = fI.taille !== TAILLE.length - 1;
-  $("#n-sansdim").textContent = avecTaille ? `${filtrer("x").length - rows.length ? "" : ""}${IDEES.filter(r => r._lg == null).length} sets sans dimension connue masqués` : "";
-  $("#c-idees").textContent = IDEES.length || "";
+  const avecTaille = fI.taille !== TAILLE.length - 1;
+  const sansDim = filtrer("taille", toks).filter(r => r._lg == null).length;
+  $("#n-sansdim").textContent = avecTaille && sansDim ? `${sansDim} set${sansDim > 1 ? "s" : ""} sans dimension connue masqué${sansDim > 1 ? "s" : ""}` : "";
   const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size - 1) + (fI.prix !== PRIX.length - 1) + avecTaille;
   $("#f-ouvrir").textContent = nf ? `Filtres (${nf})` : "Filtres";
-  $("#n-res").textContent = IDEES.length ? `${rows.length} set${rows.length > 1 ? "s" : ""}${rows.length !== IDEES.length ? ` sur ${IDEES.length}` : ""}` : "";
-  $("#n-idees").textContent = "";
+  const nbTxt = `${rows.length} set${rows.length > 1 ? "s" : ""}`;
+  $("#f-voir").textContent = "Voir " + nbTxt;
+  $("#n-res").innerHTML = IDEES.length ? esc(nbTxt) + (ELARGI.length ? ` <span class="sub">· thème ${esc(ELARGI.join(", "))}</span>` : "")
+    + [...new Set(ELARGISSABLE.map(x => x[1]))].map(th => ` <button class="btn small ghost" data-elargir="${esc(ELARGISSABLE.filter(x => x[1] === th).map(x => x[0]).join(" "))}">Inclure le thème ${esc(th)}</button>`).join("") : "";
+  $("#n-res").querySelectorAll("[data-elargir]").forEach(b => b.onclick = () => { b.dataset.elargir.split(" ").forEach(m => elargis.add(m)); renderIdees(); });
+  $("#tri").value = `${sI.key}|${sI.dir}`;
+  // Aucun résultat : dire ce qui masque les sets
+  let vide = IDEES.length ? "Aucun set ne correspond." : (MODE.serveur ? "Catalogue en cours de chargement…" : "Catalogue vide.");
+  if (IDEES.length && !rows.length){
+    const masques = filtrer("dispo", toks).filter(r => !fI.dispo.has(r.dispo));
+    if (masques.length) vide = `Aucun set en vente : ${masques.length} épuisé${masques.length > 1 ? "s" : ""} ou en précommande. <button class="btn small" id="voir-epuises">Les afficher</button>`;
+  }
   sortable("t-idees", colsI, rows, sI, r => {
-    const o = r._meilleure, inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url))), autres = r.offres.length - 1;
+    const o = r._meilleure, inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url))), nbB = new Set(r.offres.map(x => x.boutique)).size;
     return `<tr class="clic" data-fiche="${r.id}">
       <td class="ph">${thumb(r.img, r.nom)}</td>
       <td class="full" data-k="Set"><button type="button" class="name nb">${esc(r.nom)}</button>
@@ -653,10 +686,13 @@ function renderIdees(){
         <div class="sub">${r.themes.map(themeNom).join(" · ")}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
       <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
-      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(o.prix)}</span><div class="sub">${esc(o.boutique)}${autres ? ` · ${autres + 1} boutiques` : ""}</div><div class="sub">${portLbl(o)}${o.delai ? " · " + esc(o.delai) : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
+      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span>${o.port ? `<div class="sub">${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port</div>` : o.port === 0 ? '<div class="sub">port offert</div>' : '<div class="sub">port non relevé</div>'}<div class="sub">${esc(o.boutique)} · ${o.delai ? esc(o.delai) : "délai non relevé"}${nbB > 1 ? ` · ${nbB} boutiques` : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
-  }, IDEES.length ? "Aucun set ne correspond : retirer un filtre ou élargir la recherche." : (MODE.serveur ? "Catalogue en cours de chargement…" : "Catalogue vide."));
+  }, vide);
+  const t = $("#t-idees");
+  if (!t.querySelector("colgroup")) t.insertAdjacentHTML("afterbegin", `<colgroup>${LARGEURS.map(w => `<col style="width:${w}">`).join("")}</colgroup>`);
+  const ve = $("#voir-epuises"); if (ve) ve.onclick = () => { fI.dispo = new Set(["vente","precommande","epuise"]); renderIdees(); };
 }
 $("#t-idees").addEventListener("click", e => {
   const add = e.target.closest("[data-add]");
@@ -668,11 +704,14 @@ function addFromIdee(id){
   addItem({url:o.url, nom:`${r.marque} – ${r.nom}`, prix:o.prix, pcs:r.pieces, img:r.img, note:"", statut:"idee"});
 }
 let toutesMarques = false;
+$("#tri").onchange = e => { const [k, d] = e.target.value.split("|"); sI.key = k; sI.dir = d; renderIdees(); };
+$("#f-voir").onclick = () => { $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); };
 $("#f-plusm").onclick = () => { toutesMarques = !toutesMarques; renderIdees(); };
 const fPrix = $("#f-prix"), fTaille = $("#f-taille");
 fPrix.max = PRIX.length - 1; fPrix.value = fI.prix; fTaille.max = TAILLE.length - 1; fTaille.value = fI.taille;
-fPrix.oninput = () => { fI.prix = +fPrix.value; renderIdees(); };
-fTaille.oninput = () => { fI.taille = +fTaille.value; renderIdees(); };
+let rafI = 0; const plusTard = () => { cancelAnimationFrame(rafI); rafI = requestAnimationFrame(renderIdees); };
+fPrix.oninput = () => { fI.prix = +fPrix.value; $("#o-prix").textContent = prixLbl(fI.prix); plusTard(); };
+fTaille.oninput = () => { fI.taille = +fTaille.value; $("#o-taille").textContent = tailleLbl(fI.taille); plusTard(); };
 let qT; const surQ = v => { clearTimeout(qT); qT = setTimeout(() => { fI.q = v; renderIdees(); }, 120); };
 $("#q").oninput = e => { $("#q2").value = e.target.value; surQ(e.target.value); };
 $("#q2").oninput = e => { $("#q").value = e.target.value; surQ(e.target.value); };
@@ -691,7 +730,7 @@ function offresHtml(r){
     <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a>${info ? `<div class="sub">${esc(info)}</div>` : ""}</td>
     <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
     <td class="num"><b>${eur(o.prix)}</b><div class="sub">${portLbl(o)}</div></td>
-    <td class="num sub">${esc(court(o.releve))}</td></tr>`; }).join("")}</table>`;
+    <td class="num sub">${o.releve ? esc(court(o.releve)) : "prix du 19 nov."}</td></tr>`; }).join("")}</table>`;
 }
 function openFiche(id){
   const r = ideeParId(id); if (!r) return;
@@ -704,13 +743,13 @@ function openFiche(id){
       <div class="fiche-top"><div><div class="lbl ligne-marque">${logo(r.marque)} ${esc(r.marque)}${r.numero ? " · " + esc(r.numero) : ""}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
         <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="facts">
-        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">${o.port == null ? "port non relevé" : "port compris"} · ${esc(o.boutique)}</span></div>
+        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">${o.port == null ? "port non relevé" : o.port_estime ? "port estimé compris" : "port compris"} · ${esc(o.boutique)}${o.delai ? " · " + esc(o.delai) : ""}</span></div>
         <div class="fact"><span class="lbl">Pièces</span><b>${r.pieces ?? "—"}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>
         <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
         <div class="fact"><span class="lbl">Briques</span><b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b></div>
       </div>
-      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.offres.length === 1 ? '<span class="sub">Une seule boutique trouvée pour ce set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(r.retrait)}</span>` : ""}</div>
-      <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : ""}
+      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(r.retrait)}</span>` : ""}</div>
+      <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : '<span class="sub">Aucun test relevé pour ce set.</span>'}
         <a href="https://www.youtube.com/results?search_query=${qTests}" target="_blank" rel="noopener">Chercher des tests sur YouTube</a></div>
       <div class="fiche-actions">
         <a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">Voir chez ${esc(o.boutique)}</a>
@@ -918,7 +957,7 @@ function renderSel(){
       <td data-k="Statut"><select class="status" data-st="${r.id}" aria-label="Statut">${Object.entries(STATUTS).map(([v,l]) => `<option value="${v}" ${r.statut === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
       <td class="num wide"><div class="row-actions"><button class="btn small" data-ed="${r.id}">Modifier</button><button class="btn small ghost" data-del="${r.id}" aria-label="Retirer ${esc(r.nom)}">Retirer</button></div></td>
     </tr>`;
-  }, souhaits.length ? "Tout est acheté : « Afficher les achetés » pour revoir la sélection." : "Sélection vide. Coller un lien dans « Ajouter un produit » ou utiliser « Ajouter à la sélection » dans Idées.");
+  }, souhaits.length ? "Tout est acheté : « Afficher les achetés » pour revoir la sélection." : "Sélection vide. Coller un lien dans « Ajouter un produit » ou utiliser « Ajouter à la sélection » dans Recherche.");
   document.querySelectorAll("[data-open]").forEach(a => a.onclick = e => { e.preventDefault(); openFiche(a.dataset.open); });
   document.querySelectorAll("[data-st]").forEach(s => s.onchange = () => {
     const it = souhaits.find(x => x.id === s.dataset.st); persist({...it, statut:s.value});

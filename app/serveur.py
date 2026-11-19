@@ -33,6 +33,7 @@ from .index import Index
 VERSION = os.environ.get("VERSION_APP", "dev")
 RACINE = Path(__file__).resolve().parent.parent
 MODELE = RACINE / "web" / "index.html"
+POLICES = RACINE / "web" / "polices"
 log = logging.getLogger("serveur")
 
 
@@ -58,8 +59,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
 
     # ---------- réponses ----------
     def _entetes_securite(self, nonce: str | None = None):
-        csp = ("default-src 'none'; img-src https: data:; font-src https://fonts.gstatic.com; "
-               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self'; "
+        csp = ("default-src 'none'; img-src https: data:; font-src 'self'; "
+               "style-src 'self' 'unsafe-inline'; connect-src 'self'; "
                "base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
         if nonce:
             csp += f"; script-src 'nonce-{nonce}'"
@@ -121,6 +122,18 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(corps)
 
+    def _statique(self, chemin: Path, type_: str) -> None:
+        if not chemin.is_file():
+            return self._erreur(404, "introuvable")
+        corps = chemin.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", type_)
+        self.send_header("Content-Length", str(len(corps)))
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "public, max-age=604800")
+        self.end_headers()
+        self.wfile.write(corps)
+
     def _catalogue(self) -> dict:
         ids = [s["id"] for s in synchro.actives()]
         return {"sets": self.index.sets(ids), "themes": normalise.themes_disponibles(),
@@ -129,6 +142,9 @@ class Gestionnaire(BaseHTTPRequestHandler):
     # ---------- routes ----------
     def do_GET(self):
         url = urlsplit(self.path)
+        m = re.fullmatch(r"/polices/([a-z0-9-]+\.(woff2|css))", url.path)
+        if m:
+            return self._statique(POLICES / m.group(1), "font/woff2" if m.group(2) == "woff2" else "text/css; charset=utf-8")
         if url.path == "/api/sante":
             bon, raison = synchro.sante(self.journal)
             return self._json(200 if bon else 503, {"etat": "ok" if bon else "degrade", "raison": raison, "version": VERSION})

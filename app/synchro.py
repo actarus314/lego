@@ -144,7 +144,9 @@ def programmer(index: Index, journal: Journal, heures: float) -> None:
         return
 
     def boucle():
-        attente = 60
+        dernier = (journal.lire().get("dernier") or {}).get("le")
+        age = time.time() - time.mktime(time.strptime(dernier, "%Y-%m-%dT%H:%M:%S")) if dernier else None
+        attente = 60 if age is None else max(60, heures * 3600 - age)
         while True:
             _PROG["prochain"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() + attente))
             time.sleep(attente)
