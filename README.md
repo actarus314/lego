@@ -1,13 +1,13 @@
 # Carnet de briques
 
-Outil de choix de sets de briques pour adultes, LEGO officiel et marques alternatives (Mould King, Reobrix, CaDA, Bole Brick…) : catalogue avec photos, taille, avis de testeurs indépendants, boutiques et marques, sélection de cadeaux.
+Moteur de recherche de sets de briques pour adultes, LEGO officiel et marques alternatives (Mould King, Reobrix, CaDA, JIE STAR, Cobi…) : catalogue des boutiques tenu à jour chaque nuit, meilleur prix port compris, filtres par thème, marque, type de briques, prix et taille, tests indépendants, sélection de cadeaux partagée.
 
 Deux façons de l'utiliser :
 
 | | Page autonome | Service |
 |---|---|---|
 | Forme | un fichier HTML, à ouvrir dans un navigateur | conteneur Docker |
-| Prix | ceux du catalogue au jour de la version | relevés à la source chaque jour et à la demande |
+| Catalogue | 34 sets choisis, prix du jour de la version | tous les sets des boutiques synchronisées (environ 900) |
 | Sélection | gardée dans le navigateur, copier-coller pour la transmettre | partagée entre les comptes, achats masqués aux comptes choisis |
 | Ajout par lien | nom deviné depuis l'adresse | nom, prix, photo et pièces lus sur la page |
 
@@ -26,15 +26,19 @@ Image : `ghcr.io/actarus314/lego` (amd64 et arm64), publiée à chaque nouvelle 
 
 Variables : voir `.env.example`. Le service écoute en HTTP ; l'exposer sur Internet seulement derrière un reverse proxy en HTTPS.
 
-### Relevé des prix
+### Moteur de recherche et synchronisation
 
-Le relevé lit chaque set à la source : catalogue public des boutiques Shopify (KBS, par exemple), sinon les métadonnées de la page (JSON-LD, Open Graph). Les sites qui refusent les robots, dont LEGO.com, gardent le prix du catalogue. Une page lue par lien ne peut viser qu'une adresse publique : les adresses du réseau local, de bouclage ou réservées sont refusées, à chaque redirection.
+Le service tient un index local des catalogues des boutiques (architecture : `docs/moteur-de-recherche.md`). Les sources sont déclarées dans `data/sources.json` ; `SOURCES` choisit celles qui sont lues. Connecteur actuel : catalogue public JSON des boutiques Shopify (KBS, Bausteinreich, boutique officielle Mould King), prix en euros pour la France. Chaque nuit (`RELEVE_HEURES`) et à la demande, chaque source est relue ; une source en échec n'arrête pas les autres. Le navigateur reçoit l'index entier (compressé) et filtre lui-même ; ouvrir une fiche permet de relire ses offres en direct.
 
-Le relevé se suit dans la page (bouton en haut à droite) : avancement, résultat de chaque set (lu, échec et sa raison, sauté), relance des seuls échecs, historique des 30 derniers relevés. Les sites qui refusent les robots, dont LEGO.com, sont sautés sans être interrogés. `/api/sante` répond 503 quand le relevé programmé est arrêté, quand le dernier relevé complet n'a lu aucun set ou quand aucun relevé n'a réussi depuis deux périodes : le conteneur passe alors « unhealthy ». Le journal du conteneur trace chaque relevé et chaque échec.
+Normalisation (`app/normalise.py`) : marque et numéro (pour regrouper les offres d'un même set), thèmes par étiquettes et mots-clés en français, anglais et allemand (`data/themes.json`, éditable), type de briques, pièces, dimensions, disponibilité. Sont exclus : les marques hors liste, les lots, pièces détachées, éclairages et vitrines, et les sets de moins de 500 pièces.
+
+Les tests indépendants et verdicts de `data/catalogue.json` s'attachent aux sets correspondants ; les sets LEGO officiel de ce fichier gardent leur prix relevé à la main.
+
+La synchronisation se suit dans la page (bouton en haut à droite) : avancement, résultat par source, relance des échecs, historique. `/api/sante` répond 503 quand la synchronisation programmée est arrêtée, quand toutes les sources ont échoué ou quand aucune n'a réussi depuis deux périodes : le conteneur passe alors « unhealthy ». Une page lue par lien ne peut viser qu'une adresse publique.
 
 ### Données
 
-Le catalogue est dans l'image (`data/catalogue.json`) ; les relevés et la sélection sont dans le dossier monté sur `/donnees` (`releves.json`, `selection.json`).
+Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`.
 
 ## Développement
 

@@ -12,6 +12,7 @@ services:
       AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-0}
       ACHATS_MASQUES_POUR: ${ACHATS_MASQUES_POUR:-}
       RELEVE_HEURES: ${RELEVE_HEURES:-24}
+      SOURCES: ${SOURCES:-}
       JOURNAL: ${JOURNAL:-INFO}
       TZ: ${TZ:-Europe/Paris}
     volumes:

@@ -83,7 +83,7 @@ class Lien(unittest.TestCase):
 class Donnees(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.d = Depot(Path(self.tmp.name), RACINE / "data" / "catalogue.json")
+        self.d = Depot(Path(self.tmp.name))
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -104,101 +104,130 @@ class Donnees(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.d.enregistrer("../x", {"url": "https://ex.com"}, "a")
 
-    def test_releve_fusionne(self):
-        cat = self.d.catalogue()
-        self.d.enregistrer_releve({cat[0]["id"]: {"prix": 1.5, "dispo": False, "le": "2026-11-19T10:00:00"}}, {"le": "x"})
-        neuf = self.d.catalogue()[0]
-        self.assertEqual((neuf["prix"], neuf["dispo"], neuf["releve"]), (1.5, False, "2026-11-19T10:00:00"))
-
-    def test_catalogue_complet(self):
-        for it in self.d.catalogue():
-            for k in ("id", "nom", "marque", "theme", "type", "prix", "url", "img"):
-                self.assertIn(k, it, f"{it.get('id')} sans {k}")
-            self.assertTrue(it["url"].startswith("https://"))
+PRODUIT_KBS = {
+    "title": "Pirate Ship – Mould King 13199", "handle": "pirate-ship-mould-king-13199", "vendor": "Mould King",
+    "product_type": "Brickbuild-Set", "tags": ["thema-schiffe", "vorbestellung"],
+    "body_html": "<p>With 3,180 pieces, about 72 cm long. Size: 72 × 26 × 61 cm</p>",
+    "variants": [{"price": "184.95", "available": True, "sku": "MK13199"}],
+    "images": [{"src": "https://cdn.shopify.com/p.jpg"}], "published_at": "2026-10-01T10:00:00+02:00"}
+SOURCE_KBS = {"id": "kbs", "nom": "KBS", "hote": "kbs-shop.com", "prefixe": "/en", "devise": "EUR", "pays_boutique": "Allemagne"}
 
 
-class Releve(unittest.TestCase):
-    """Relevé avec une lecture de page simulée : succès, échec attendu, erreur inattendue, set sauté."""
+class Normalisation(unittest.TestCase):
+    def test_offre_shopify(self):
+        from app.sources import shopify
+        o = shopify.offre(PRODUIT_KBS, SOURCE_KBS)
+        self.assertEqual((o["marque"], o["numero"], o["prix"], o["dispo"], o["pieces"], o["dims"][0], o["type"]),
+                         ("Mould King", "13199", 184.95, "precommande", 3180, 72.0, "classique"))
+        self.assertEqual(o["themes"], ["marine"])
+        self.assertEqual(o["url"], "https://kbs-shop.com/en/products/pirate-ship-mould-king-13199")
 
+    def test_exclusions(self):
+        from app.sources import shopify
+        petit = {**PRODUIT_KBS, "body_html": "<p>120 Teile</p>"}
+        lot = {**PRODUIT_KBS, "product_type": "Bundle"}
+        gratuit = {**PRODUIT_KBS, "variants": [{"price": "0.00", "available": True}]}
+        inconnu = {**PRODUIT_KBS, "vendor": "Marque X", "title": "Joli bateau 13199"}
+        for p in (petit, lot, gratuit, inconnu):
+            self.assertIsNone(shopify.offre(p, SOURCE_KBS))
+
+    def test_pieces_et_dimensions(self):
+        from app import normalise as n
+        self.assertEqual(n.pieces("Mit 3.180 Teilen"), 3180)
+        self.assertEqual(n.pieces("1.234 Klemmbausteinen"), 1234)
+        self.assertEqual(n.dimensions("Modell-Maße : 29 cm; 21,6 cm; 4,5 cm"), [29.0, 21.6, 4.5])
+        self.assertIsNone(n.dimensions("Modell-Maße : 0 cm; 0 cm;0 cm"))
+        self.assertEqual(n.numero("Reobrix 22029 RC", "REO22029"), "22029")
+
+    def test_themes_multilingues(self):
+        from app import normalise as n
+        self.assertIn("aerospatial", n.themes("CaDA NASA SLS Artemis Rakete"))
+        self.assertIn("marine", n.themes("Schlachtschiff Bismarck"))
+        self.assertIn("aerospatial", n.themes("Sternenzerstörer", ["thema-film"]) + n.themes("Star Destroyer"))
+        self.assertEqual(n.themes("Flugzeugträger Fujian"), ["marine"])
+
+
+class IndexSets(unittest.TestCase):
     def setUp(self):
-        from app import releve
-        self.r = releve
         self.tmp = tempfile.TemporaryDirectory()
-        self.d = Depot(Path(self.tmp.name), RACINE / "data" / "catalogue.json")
-        self.cat = self.d.catalogue()
-        kbs = [it for it in self.cat if "kbs-shop.com" in it["url"]]
-        self.ok, self.ko, self.bug = kbs[0], kbs[1], kbs[2]
-        self.vrai = lien.lire
-
-        def faux(url):
-            if url == self.ko["url"]:
-                raise lien.LienRefuse("le site a répondu 404")
-            if url == self.bug["url"]:
-                raise KeyError("price")
-            if "kbs-shop.com" in url:
-                return {"prix": 99.5, "dispo": True}
-            raise AssertionError("un site sauté ne doit pas être lu : " + url)
-        lien.lire = faux
+        from app.index import Index
+        self.i = Index(Path(self.tmp.name))
 
     def tearDown(self):
-        lien.lire = self.vrai
-        self.r._PROG.update(heures=0.0, fil=None)
         self.tmp.cleanup()
 
-    def test_journal_par_set(self):
+    def test_regroupement_et_meilleur_prix(self):
+        from app.sources import shopify
+        a = shopify.offre(PRODUIT_KBS, SOURCE_KBS)
+        src_mk = {"id": "mouldkingcorp", "nom": "Mould King", "hote": "mouldkingcorp.com", "devise": "EUR", "marque": "Mould King"}
+        b = shopify.offre({**PRODUIT_KBS, "title": "Mould King 13199 Pirate Ship Building Set", "handle": "mk-13199",
+                           "tags": [], "variants": [{"price": "144.99", "available": True, "sku": "13199"}]}, src_mk)
+        self.i.enregistrer("kbs", [a])
+        r = self.i.enregistrer("mouldkingcorp", [b])
+        self.assertEqual(r, {"nouveaux": 0, "disparus": 0})
+        sets = [s for s in self.i.sets(["kbs", "mouldkingcorp"]) if s["numero"] == "13199"]
+        self.assertEqual(len(sets), 1)
+        s = sets[0]
+        self.assertEqual((len(s["offres"]), s["offres"][0]["source"], s["dispo"]), (2, "mouldkingcorp", "vente"))
+        self.assertEqual(s["nom"], "Pirate Ship")
+        self.assertEqual(self.i.enregistrer("kbs", []), {"nouveaux": 0, "disparus": 1})
+
+    def test_editorial_rattache(self):
+        from app.index import editorial, sets_hors_ligne
+        self.assertEqual(len(sets_hors_ligne()), len(editorial()))
+        self.assertTrue(all(s.get("themes") for s in sets_hors_ligne()), "chaque set éditorial a un thème")
+
+
+class Synchronisation(unittest.TestCase):
+    def setUp(self):
+        from app import synchro
+        from app.index import Index
+        self.s = synchro
+        self.tmp = tempfile.TemporaryDirectory()
+        self.i, self.j = Index(Path(self.tmp.name)), synchro.Journal(Path(self.tmp.name))
+        self.vrai = dict(synchro.CONNECTEURS)
+        self.env = os.environ.get("SOURCES")
+        os.environ["SOURCES"] = "kbs,bausteinreich"
+
+    def tearDown(self):
+        self.s.CONNECTEURS.clear(); self.s.CONNECTEURS.update(self.vrai)
+        self.s._PROG.update(heures=0.0, fil=None)
+        if self.env is None:
+            os.environ.pop("SOURCES", None)
+        else:
+            os.environ["SOURCES"] = self.env
+        self.tmp.cleanup()
+
+    def test_source_en_echec_n_arrete_pas_les_autres(self):
+        from app.sources import shopify
+        def faux(src, pause=0, progres=None):
+            if src["id"] == "bausteinreich":
+                raise lien.LienRefuse("le site a répondu 503")
+            return [shopify.offre(PRODUIT_KBS, SOURCE_KBS)]
+        self.s.CONNECTEURS["shopify"] = faux
         import logging
         logging.disable(logging.CRITICAL)
         try:
-            j = self.r.releve(self.d, pause=0)
+            j = self.s.synchroniser(self.i, self.j, pause=0)
         finally:
             logging.disable(logging.NOTSET)
-        par_id = {s["id"]: s for s in j["sets"]}
-        self.assertEqual(j["etat"], "fini")
-        self.assertEqual(len(j["sets"]), len(self.cat))
-        self.assertEqual(par_id[self.ok["id"]]["statut"], "ok")
-        self.assertEqual(par_id[self.ko["id"]]["raison"], "le site a répondu 404")
-        self.assertTrue(par_id[self.bug["id"]]["raison"].startswith("erreur inattendue"))
-        lego = [s for s in j["sets"] if "lego.com" in s["url"]]
-        self.assertTrue(lego and all(s["statut"] == "saute" for s in lego))
-        self.assertEqual((j["echecs"], j["sautes"], j["lus"]), (2, len(lego), len(self.cat) - 2 - len(lego)))
-        self.assertEqual(self.d.historique()[0]["echecs"], 2)
-        self.assertNotIn("sets", self.d.historique()[0])
-        self.assertFalse(self.r.etat()["en_cours"])
-        self.assertEqual(self.d.catalogue()[self.cat.index(self.ok)]["prix"], 99.5)
+        etats = {r["id"]: r["etat"] for r in j["sources"]}
+        self.assertEqual(etats, {"kbs": "ok", "bausteinreich": "echec"})
+        self.assertEqual(j["echecs"], 1)
+        self.assertEqual(self.s.sante(self.j), (True, "ok"))
+        self.assertEqual(len([x for x in self.i.sets(["kbs"]) if x["marque"] != "LEGO officiel"]), 1)
 
-    def test_relance_des_echecs_et_sante(self):
+    def test_sante_toutes_en_echec(self):
+        self.s.CONNECTEURS["shopify"] = lambda src, pause=0, progres=None: (_ for _ in ()).throw(OSError("coupé"))
         import logging
         logging.disable(logging.CRITICAL)
         try:
-            self.r.releve(self.d, pause=0)
-            j = self.r.releve(self.d, pause=0, par="alice", ids=[self.ko["id"], self.bug["id"]])
+            self.s.synchroniser(self.i, self.j, pause=0)
         finally:
             logging.disable(logging.NOTSET)
-        self.assertEqual((j["portee"], j["total"], j["lus"], j["par"]), ("echecs", 2, 0, "alice"))
-        dernier = self.d.releves()["dernier"]
-        self.assertEqual((dernier["portee"], len(dernier["sets"]), dernier["echecs"], dernier["relance"]["par"]),
-                         ("tous", len(self.cat), 2, "alice"), "la relance se fond dans le relevé complet")
-        self.assertEqual(self.d.historique()[0]["portee"], "echecs")
-        self.assertEqual(self.r.sante(self.d), (True, "ok"), "une relance des échecs ne rend pas le service malade")
-        self.r._PROG.update(heures=24.0, fil=None)
-        self.assertEqual(self.r.sante(self.d)[1], "relevé programmé arrêté")
-
-    def test_sante_aucun_set_lu(self):
-        lien.lire = lambda url: (_ for _ in ()).throw(OSError("réseau coupé"))
-        import logging
-        logging.disable(logging.CRITICAL)
-        try:
-            self.r.releve(self.d, pause=0)
-        finally:
-            logging.disable(logging.NOTSET)
-        self.assertEqual(self.r.sante(self.d), (False, "dernier relevé : aucun set lu"))
-
-    def test_historique_borne(self):
-        from app import donnees
-        for i in range(donnees.HISTORIQUE + 5):
-            self.d.enregistrer_releve({}, {"le": str(i), "sets": []})
-        h = self.d.historique()
-        self.assertEqual((len(h), h[0]["le"]), (donnees.HISTORIQUE, str(donnees.HISTORIQUE + 4)))
+        self.assertFalse(self.s.sante(self.j)[0])
+        self.s._PROG.update(heures=24.0, fil=None)
+        self.assertEqual(self.s.sante(self.j)[1], "synchronisation programmée arrêtée")
 
 
 class Serveur(unittest.TestCase):
@@ -207,7 +236,11 @@ class Serveur(unittest.TestCase):
         from app import serveur
         cls.tmp = tempfile.TemporaryDirectory()
         G = serveur.Gestionnaire
-        G.depot = Depot(Path(cls.tmp.name), RACINE / "data" / "catalogue.json")
+        from app import synchro
+        from app.index import Index
+        G.depot = Depot(Path(cls.tmp.name))
+        G.index = Index(Path(cls.tmp.name))
+        G.journal = synchro.Journal(Path(cls.tmp.name))
         G.gardien = acces.Gardien({"bruno": acces.empreinte("motdepasse-b", iterations=1000),
                                    "alice": acces.empreinte("motdepasse-a", iterations=1000)})
         G.masquer = {"bruno"}
@@ -235,12 +268,22 @@ class Serveur(unittest.TestCase):
     def test_sante_sans_compte(self):
         self.assertEqual(self.req("GET", "/api/sante")[0], 200)
 
-    def test_releve_api(self):
-        code, corps, _ = self.req("GET", "/api/releve", "alice")
+    def test_catalogue_et_synchro(self):
+        code, corps, _ = self.req("GET", "/api/catalogue", "alice")
         d = json.loads(corps)
         self.assertEqual(code, 200)
-        self.assertIn("en_cours", d["etat"])
-        self.assertEqual(self.req("POST", "/api/releve", "alice", {"echecs": True})[0], 409)
+        self.assertTrue(d["themes"] and any(s["marque"] == "LEGO officiel" for s in d["sets"]))
+        code, corps, _ = self.req("GET", "/api/synchro", "alice")
+        self.assertIn("en_cours", json.loads(corps)["etat"])
+        self.assertEqual(self.req("POST", "/api/synchro", "alice", {"sources": "kbs"})[0], 400)
+
+    def test_catalogue_compresse(self):
+        import gzip
+        r = urllib.request.Request(self.base + "/api/catalogue", headers={
+            "Accept-Encoding": "gzip", "Authorization": "Basic " + base64.b64encode(b"alice:motdepasse-a").decode()})
+        with urllib.request.urlopen(r) as rep:
+            self.assertEqual(rep.headers["Content-Encoding"], "gzip")
+            self.assertIn("sets", json.loads(gzip.decompress(rep.read())))
 
     def test_page_protegee(self):
         self.assertEqual(self.req("GET", "/")[0], 401)

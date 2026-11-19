@@ -8,6 +8,7 @@ connexion. Les redirections sont suivies une à une, chacune revérifiée.
 """
 from __future__ import annotations
 
+import gzip
 import html
 import http.client
 import ipaddress
@@ -38,6 +39,7 @@ class Reponse:
     statut: int
     type: str
     corps: bytes
+    attente: str | None = None
 
 
 def _ip_publique(ip: str) -> bool:
@@ -66,7 +68,7 @@ def contexte_tls() -> ssl.SSLContext:
     return ctx
 
 
-def _get(url: str, accept: str) -> Reponse:
+def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
     p = urlsplit(url)
     if p.scheme not in ("http", "https") or not p.hostname:
         raise LienRefuse("seuls les liens http et https sont acceptés")
@@ -83,26 +85,33 @@ def _get(url: str, accept: str) -> Reponse:
         conn.sock = sock
         conn.request("GET", chemin, headers={
             "Host": p.netloc.split("@")[-1], "User-Agent": AGENT,
-            "Accept": accept, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7"})
+            "Accept": accept, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7", **(entetes or {})})
         r = conn.getresponse()
         if 300 <= r.status < 400 and r.getheader("Location"):
             return Reponse(urljoin(url, r.getheader("Location")), r.status, "", b"")
         corps = r.read(TAILLE_MAX + 1)
         if len(corps) > TAILLE_MAX:
             raise LienRefuse("page trop volumineuse")
-        return Reponse(url, r.status, r.getheader("Content-Type", ""), corps)
+        if r.getheader("Content-Encoding", "").lower() == "gzip":
+            corps = gzip.decompress(corps)[:TAILLE_MAX + 1]
+            if len(corps) > TAILLE_MAX:
+                raise LienRefuse("page trop volumineuse")
+        return Reponse(url, r.status, r.getheader("Content-Type", ""), corps, r.getheader("Retry-After"))
     finally:
         sock.close()
 
 
-def recuperer(url: str, accept: str = "text/html,application/json;q=0.9,*/*;q=0.5") -> Reponse:
+def recuperer(url: str, accept: str = "text/html,application/json;q=0.9,*/*;q=0.5",
+              entetes: dict | None = None) -> Reponse:
     for _ in range(REDIRECTIONS_MAX + 1):
-        r = _get(url, accept)
+        r = _get(url, accept, entetes)
         if 300 <= r.statut < 400:
             url = r.url
             continue
         if r.statut != 200:
-            raise LienRefuse(f"le site a répondu {r.statut}")
+            e = LienRefuse(f"le site a répondu {r.statut}")
+            e.statut, e.attente = r.statut, r.attente
+            raise e
         return r
     raise LienRefuse("trop de redirections")
 

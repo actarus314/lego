@@ -1,18 +1,20 @@
 """Serveur HTTP du Carnet de briques (bibliothèque standard uniquement).
 
 Routes :
-  GET    /                       page, données du jour injectées
-  GET    /api/sante              état du service et du relevé (sans authentification ; 503 si le relevé est en panne)
+  GET    /                       page
+  GET    /api/sante              état du service et de la synchronisation (sans authentification ; 503 en panne)
+  GET    /api/catalogue          sets de toutes les sources actives, regroupés (compressé si le client l'accepte)
+  GET    /api/offre?cle=…        relit une offre sur sa boutique
+  GET    /api/synchro            synchronisation en cours, dernier passage, historique
+  POST   /api/synchro            synchronise maintenant ({"sources": [...]} : seulement celles-ci)
   GET    /api/selection          sélection visible par le compte connecté
   PUT    /api/selection/<id>     ajoute ou modifie un produit
   DELETE /api/selection/<id>     retire un produit
   GET    /api/lien?url=…         lit une page produit (nom, prix, photo, pièces)
-  POST   /api/releve             relève les prix maintenant ({"echecs": true} : seulement les sets en échec)
-  GET    /api/releve             relevé en cours, journal du dernier, historique
-  GET    /api/catalogue          catalogue avec les derniers prix relevés
 """
 from __future__ import annotations
 
+import gzip
 import json
 import logging
 import os
@@ -24,8 +26,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, lien, releve
+from . import acces, lien, normalise, synchro
 from .donnees import Depot
+from .index import Index
 
 VERSION = os.environ.get("VERSION_APP", "dev")
 RACINE = Path(__file__).resolve().parent.parent
@@ -48,6 +51,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
     server_version = "carnet-briques"
     sys_version = ""
     depot: Depot
+    index: Index
+    journal: synchro.Journal
     gardien: acces.Gardien | None
     masquer: set[str]
 
@@ -102,11 +107,30 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def _visible(self, compte: str, item: dict) -> bool:
         return not (compte in self.masquer and item.get("statut") == "achete")
 
+    def _json_compresse(self, valeur) -> None:
+        corps = json.dumps(valeur, ensure_ascii=False, separators=(",", ":")).encode()
+        gz = "gzip" in (self.headers.get("Accept-Encoding") or "")
+        if gz:
+            corps = gzip.compress(corps, 6)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        if gz:
+            self.send_header("Content-Encoding", "gzip")
+        self.send_header("Content-Length", str(len(corps)))
+        self._entetes_securite()
+        self.end_headers()
+        self.wfile.write(corps)
+
+    def _catalogue(self) -> dict:
+        ids = [s["id"] for s in synchro.actives()]
+        return {"sets": self.index.sets(ids), "themes": normalise.themes_disponibles(),
+                "sources": [{k: s.get(k) for k in ("id", "nom", "pays_boutique", "livraison")} for s in synchro.actives()]}
+
     # ---------- routes ----------
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/api/sante":
-            bon, raison = releve.sante(self.depot)
+            bon, raison = synchro.sante(self.journal)
             return self._json(200 if bon else 503, {"etat": "ok" if bon else "degrade", "raison": raison, "version": VERSION})
         compte = self._compte()
         if not compte:
@@ -116,10 +140,20 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if url.path == "/api/selection":
             return self._json(200, [s for s in self.depot.selection() if self._visible(compte, s)])
         if url.path == "/api/catalogue":
-            return self._json(200, self.depot.catalogue())
-        if url.path == "/api/releve":
-            r = self.depot.releves()
-            return self._json(200, {"etat": releve.etat(), "dernier": r.get("dernier"), "historique": r.get("historique", [])})
+            return self._json_compresse(self._catalogue())
+        if url.path == "/api/synchro":
+            d = self.journal.lire()
+            return self._json(200, {"etat": synchro.etat(), "dernier": d.get("dernier"),
+                                    "historique": d.get("historique", []), "sources": synchro.actives()})
+        if url.path == "/api/offre":
+            cle = (parse_qs(url.query).get("cle") or [""])[0]
+            try:
+                return self._json(200, synchro.offre_directe(self.index, cle))
+            except lien.LienRefuse as e:
+                return self._erreur(422, f"Relecture impossible : {e.public}")
+            except (OSError, ValueError):
+                log.info("relecture d'offre en échec", exc_info=True)
+                return self._erreur(422, "Relecture impossible : boutique injoignable ou réponse illisible")
         if url.path == "/api/lien":
             cible = (parse_qs(url.query).get("url") or [""])[0]
             try:
@@ -164,32 +198,26 @@ class Gestionnaire(BaseHTTPRequestHandler):
         compte = self._compte()
         if not compte:
             return
-        if urlsplit(self.path).path == "/api/releve":
+        if urlsplit(self.path).path == "/api/synchro":
             try:
                 corps = self._corps_json()
             except ValueError:
                 return self._erreur(400, "requête invalide")
-            ids = None
-            if isinstance(corps, dict) and corps.get("echecs"):
-                dernier = self.depot.releves().get("dernier") or {}
-                ids = [s["id"] for s in dernier.get("sets", []) if s.get("statut") == "echec"]
-                if not ids:
-                    return self._erreur(409, "aucun set en échec au dernier relevé")
-            if releve.EN_COURS.locked():
+            ids = corps.get("sources") if isinstance(corps, dict) else None
+            if ids is not None and not (isinstance(ids, list) and all(isinstance(x, str) for x in ids)):
+                return self._erreur(400, "liste de sources invalide")
+            if synchro.EN_COURS.locked():
                 return self._json(202, {"etat": "deja_en_cours"})
-            threading.Thread(target=releve.releve, args=(self.depot,),
+            threading.Thread(target=synchro.synchroniser, args=(self.index, self.journal),
                              kwargs={"par": compte, "ids": ids}, daemon=True).start()
-            total = len(ids) if ids is not None else len(self.depot.catalogue())
+            total = len([s for s in synchro.actives() if ids is None or s["id"] in ids])
             return self._json(202, {"etat": "lance", "total": total})
         self._erreur(404, "introuvable")
 
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
-        rel = self.depot.releves().get("dernier") or {}
-        mode = {"serveur": True, "compte": compte, "version": VERSION,
-                "releve": rel.get("le"), "releve_echecs": rel.get("echecs", 0),
-                "achats_masques": compte in self.masquer}
-        corps = injecter(MODELE.read_text("utf-8"), self.depot.catalogue(), mode, nonce).encode()
+        mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer}
+        corps = injecter(MODELE.read_text("utf-8"), {"sets": [], "themes": [], "sources": []}, mode, nonce).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(corps)))
@@ -201,10 +229,12 @@ class Gestionnaire(BaseHTTPRequestHandler):
 def main():
     logging.basicConfig(level=os.environ.get("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
     donnees = Path(os.environ.get("DOSSIER_DONNEES", "/donnees"))
-    Gestionnaire.depot = Depot(donnees, RACINE / "data" / "catalogue.json")
+    Gestionnaire.depot = Depot(donnees)
     Gestionnaire.gardien = acces.depuis_env()
     Gestionnaire.masquer = {n.strip() for n in os.environ.get("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
-    releve.programmer(Gestionnaire.depot, float(os.environ.get("RELEVE_HEURES", "24")))
+    Gestionnaire.index = Index(donnees)
+    Gestionnaire.journal = synchro.Journal(donnees)
+    synchro.programmer(Gestionnaire.index, Gestionnaire.journal, float(os.environ.get("RELEVE_HEURES", "24")))
     port = int(os.environ.get("PORT", "8080"))
     srv = ThreadingHTTPServer(("0.0.0.0", port), Gestionnaire)
     log.info("Carnet de briques %s sur le port %s, données dans %s", VERSION, port, donnees)

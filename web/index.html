@@ -157,6 +157,44 @@ td.ph{width:88px}
 .row-actions{display:flex;gap:4px;justify-content:flex-end}
 .row-actions .btn{min-width:84px}
 select.status{height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:12.5px var(--body);padding:0 6px}
+/* Recherche : filtres fixes à gauche, résultats à droite */
+.rech{display:grid;grid-template-columns:272px minmax(0,1fr);gap:20px;align-items:start}
+.filtres{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(100dvh - 88px);overflow:auto;display:grid;gap:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
+.filtres .q{height:36px;width:100%;border:1px solid var(--line);background:var(--sunk);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
+.fbloc{display:grid;gap:6px}
+.fbloc > .lbl{display:flex;justify-content:space-between;gap:8px}
+.fbloc > .lbl output{font-family:var(--mono);color:var(--fg);text-transform:none;letter-spacing:0;font-size:11.5px;font-weight:600}
+.puces{display:flex;flex-wrap:wrap;gap:5px}
+.puces .chip{height:28px;padding:0 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.puces .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.puces .chip[aria-pressed="true"] .n{color:inherit}
+.marques-g{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.marques-g .chip{justify-content:flex-start;padding:0 8px;min-width:0}
+.marques-g .chip span.t{overflow:hidden;text-overflow:ellipsis}
+.curseur{width:100%;accent-color:var(--accent);margin:0}
+.fpied{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.logo{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font:700 8.5px var(--mono);letter-spacing:-.02em;color:#fff;background:hsl(var(--h,210) 45% 42%);flex:none;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+nav .m-ico{display:none;vertical-align:-3px}
+.ico-type{width:16px;height:16px;flex:none;color:currentColor}
+.res-tete{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
+.res-tete p{margin:0;color:var(--muted)}
+.ligne-marque{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.f-barre{display:none}
+@media (max-width:900px){
+  .rech{grid-template-columns:1fr}
+  .f-barre{display:flex;gap:8px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:5;background:var(--bg);padding-block:10px;margin-top:-10px}
+  .f-barre .q{flex:1;min-width:0;height:36px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
+  .f-barre .btn{height:36px}
+  .filtres{display:none;position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);max-height:calc(100dvh - 128px);z-index:8;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+  .filtres.ouvert{display:grid}
+  .filtres .q{display:none}
+}
+/* Fiche : offres */
+.offres{width:100%;border-collapse:collapse;font-size:13px}
+.offres td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}
+.offres td.num{white-space:nowrap}
+.offres tr:first-child td{border-top:0}
 /* Relevé des prix */
 .icon-btn{position:relative}
 .icon-btn .dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--warn);border:1.5px solid var(--card)}
@@ -200,6 +238,7 @@ dialog::backdrop{background:rgba(10,15,22,.55)}
 .fiche-img{background:#fff;display:grid;place-items:center;min-height:300px;border-right:1px solid var(--line);border-radius:16px 0 0 16px;overflow:hidden}
 .fiche-img img{width:100%;height:100%;max-height:440px;object-fit:contain}
 .fiche-body{padding:20px 22px;display:grid;gap:14px;align-content:start;overflow:auto;max-height:calc(100dvh - 32px)}
+.fiche-body .offres-t{display:grid;gap:4px}
 .fiche-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .fiche h2{font-family:var(--display);font-size:20px;font-weight:600;margin:0;text-wrap:balance}
 .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -245,7 +284,17 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
   .fiche-body{max-height:none}
   dialog{overflow:auto}
 }
-@media (max-width:480px){.brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){nav .m-ico{display:inline}nav .t-long{display:none}
+  #t-idees tr{display:grid;grid-template-columns:64px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl prix" "ph act act prix";gap:2px 12px;padding:10px 12px}
+  #t-idees td[data-k]::before{display:none}
+  #t-idees td.ph{grid-area:ph;grid-row:1/4}
+  #t-idees td[data-k="Set"]{grid-area:set}
+  #t-idees td[data-k="Pièces"]{grid-area:pc;align-self:start}
+  #t-idees td[data-k="Taille"]{grid-area:tl;align-self:start}
+  #t-idees td[data-k="Prix"]{grid-area:prix;text-align:right!important;align-self:start}
+  #t-idees td.wide:last-child{grid-area:act}
+  #t-idees .thumb{width:60px;height:46px}
+  .brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
 @media (max-width:380px){nav a{padding:8px 3px;font-size:12.5px}.bar{gap:6px}.brand svg{width:22px;height:22px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -258,14 +307,14 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
       <span>Carnet de briques</span>
     </a>
     <nav aria-label="Onglets">
-      <a href="#idees" data-tab="idees">Idées<span class="count" id="c-idees"></span></a>
+      <a href="#idees" data-tab="idees" aria-label="Recherche"><svg class="m-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="t-long">Recherche</span><span class="count" id="c-idees"></span></a>
       <a href="#selection" data-tab="selection">Sélection<span class="count" id="c-sel"></span></a>
       <a href="#boutiques" data-tab="boutiques">Boutiques</a>
       <a href="#marques" data-tab="marques">Marques</a>
     </nav>
     <div class="tools">
       <span class="ver" id="ver"></span>
-      <a class="icon-btn" id="r-ico" href="#releve" aria-label="Relevé des prix" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg><span class="dot" id="r-dot" hidden></span></a>
+      <a class="icon-btn" id="r-ico" href="#synchro" aria-label="Synchronisation" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg><span class="dot" id="r-dot" hidden></span></a>
       <button class="icon-btn" id="theme" aria-label="Thème : automatique"></button>
     </div>
   </div>
@@ -274,10 +323,23 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 <main class="wrap">
 
 <section class="view" id="v-idees">
-  <div class="intro"><h1>Sets pour adultes</h1><div class="releve-bar"><p id="n-idees"></p><a class="sub" id="releve-date" href="#releve"></a><span class="pq" id="pq-releve"><button class="btn small" id="releve-btn" hidden>Actualiser les prix</button></span></div></div>
-  <div class="fgroups" id="f-idees"></div>
-  <div class="fgroups sub-f" id="f-idees-2" hidden></div>
-  <div class="card"><table id="t-idees" class="has-ph"></table></div>
+  <div class="f-barre"><input class="q" id="q2" type="search" placeholder="Set, numéro, marque, thème…" aria-label="Rechercher un set"><button class="btn" id="f-ouvrir" aria-expanded="false" aria-controls="filtres">Filtres</button></div>
+  <div class="rech">
+    <aside class="filtres" id="filtres" aria-label="Filtres">
+      <input class="q" id="q" type="search" placeholder="Set, numéro, marque, thème…" aria-label="Rechercher un set">
+      <div class="fbloc"><span class="lbl">Disponibilité</span><div class="puces" id="f-dispo"></div></div>
+      <div class="fbloc"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
+      <div class="fbloc"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
+      <div class="fbloc"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur" id="f-prix" type="range" min="0" step="1"></div>
+      <div class="fbloc"><label class="lbl" for="f-taille">Taille maximum<output id="o-taille"></output></label><input class="curseur" id="f-taille" type="range" min="0" step="1"><span class="sub" id="n-sansdim"></span></div>
+      <div class="fbloc"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
+      <div class="fpied"><span id="n-idees"></span><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
+    </aside>
+    <div class="view">
+      <div class="res-tete"><p id="n-res"></p><a class="sub" id="releve-date" href="#synchro"></a></div>
+      <div class="card"><table id="t-idees" class="has-ph"></table></div>
+    </div>
+  </div>
 </section>
 
 <section class="view" id="v-selection" hidden>
@@ -353,16 +415,15 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
   <div class="card"><table id="t-marques"></table></div>
 </section>
 
-<section class="view" id="v-releve" hidden>
+<section class="view" id="v-synchro" hidden>
   <div class="intro">
-    <h1>Relevé des prix</h1>
-    <div class="r-actions"><span class="pq" id="pq-echecs"><button class="btn small" id="r-echecs">Relancer les échecs</button></span><span class="pq" id="pq-lancer"><button class="btn small primary" id="r-lancer">Actualiser les prix</button></span></div>
+    <h1>Synchronisation</h1>
+    <div class="r-actions"><span class="pq" id="pq-echecs"><button class="btn small" id="r-echecs">Relancer les échecs</button></span><span class="pq" id="pq-lancer"><button class="btn small primary" id="r-lancer">Synchroniser</button></span></div>
   </div>
   <div class="card r-panne" id="r-panne" hidden></div>
   <div class="card r-prog" id="r-prog" hidden aria-live="polite"></div>
   <div class="card r-resume" id="r-resume"></div>
-  <div class="r-filtres" id="r-filtres"></div>
-  <div class="card" id="r-table"><table id="t-releve"></table></div>
+  <div class="card" id="r-table"><table id="t-sources"></table></div>
   <details class="r-hist" id="r-hist"><summary>Historique<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></summary><div class="card"><table id="t-hist"></table></div></details>
 </section>
 
@@ -374,21 +435,33 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 24px}
 
 <script>
 /* ---------- Données ---------- */
-const IDEES = /*CATALOGUE*/[]/*FIN-CATALOGUE*/;
+let CAT = /*CATALOGUE*/{"sets":[],"themes":[],"sources":[]}/*FIN-CATALOGUE*/;
 const MODE = /*MODE*/{"serveur":false,"version":"dev"}/*FIN-MODE*/;
-const AVIS_ORD = {"Favorable":0,"Mitigé":1,"Déconseillé":2,"Aucun test":3}, AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-bad","Aucun test":"p-neutral"};
-const avisOf = r => r.avis || "Aucun test";
-const longueur = r => { const n = (r.dim || "").match(/\d+(?:\.\d+)?/g); return n ? Math.max(...n.map(Number)) : null; };
-const TAILLES = [["Petit","Petit, moins de 50 cm"],["Moyen","Moyen, 50 à 80 cm"],["Grand","Grand, plus de 80 cm"]];
-const tailleOf = r => { const l = longueur(r); return l == null ? null : l < 50 ? "Petit" : l <= 80 ? "Moyen" : "Grand"; };
-const fabOf = r => r.marque === "LEGO officiel" ? "LEGO officiel" : "Marques alternatives";
-const TESTS = Object.fromEntries(IDEES.filter(r => r.tests).map(r => [r.id, r.tests]));
+let IDEES = [];
+const AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-bad"};
+const DISPO = {vente:["En vente","p-ok"], precommande:["Précommande","p-warn"], epuise:["Épuisé","p-neutral"]};
+const plat = t => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const longueur = r => r.dims && r.dims.length ? r.dims[0] : null;
+const total = o => o.prix + (o.port || 0);
+const themeNom = id => (CAT.themes.find(t => t.id === id) || {}).nom || id;
 const ideeParId = id => IDEES.find(x => x.id === id);
+function preparer(){
+  IDEES = CAT.sets;
+  for (const r of IDEES){
+    r._txt = plat([r.nom, r.marque, r.numero, ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
+    r._lg = longueur(r);
+    r._meilleure = r.offres[0];
+  }
+}
 const BOUTIQUES = [
  {nom:"LEGO (boutique officielle)",host:"lego.com",url:"https://www.lego.com/fr-fr",pays:"Danemark",zone:"ue",delai:"Non relevé",dmin:null,douane:false,boite:"Oui",fiab:3,prix:2,
   points:["Prix publics du LEGO officiel","Souvent plus cher que les revendeurs"]},
- {nom:"KBS – World of Bricks",host:"kbs-shop.com",url:"https://kbs-shop.com/en",pays:"Allemagne",zone:"ue",delai:"1 à 2 jours",dmin:1,douane:false,boite:"Oui",fiab:3,prix:2,
-  points:["Avis Trusted Shops : 4.75 sur 5 (796 avis)","Port 5.95 €, offert dès 99 €","Pièces manquantes envoyées gratuitement","Paiement en 2 à 12 fois"]},
+ {nom:"KBS – World of Bricks",host:"kbs-shop.com",url:"https://kbs-shop.com/en",pays:"Allemagne",zone:"ue",delai:"1 à 3 jours ouvrés",dmin:1,douane:false,boite:"Oui",fiab:3,prix:2,
+  points:["Avis Trusted Shops : 4.75 sur 5 (796 avis)","Port vers la France : 4.95 €","Pièces manquantes envoyées gratuitement","Paiement en 2 à 12 fois"]},
+ {nom:"Bausteinreich",host:"bausteinreich.de",url:"https://www.bausteinreich.de",pays:"Allemagne",zone:"ue",delai:"Non relevé",dmin:null,douane:false,boite:"Oui",fiab:2,prix:2,
+  points:["Mould King, Reobrix, Cobi, JIE STAR, Wange","Port vers l'Union européenne : 9.95 € (France non listée)","PayPal accepté"]},
+ {nom:"Mould King (boutique officielle)",host:"mouldkingcorp.com",url:"https://mouldkingcorp.com",pays:"Chine",zone:"chine",delai:"15 à 25 jours",dmin:15,douane:false,boite:"Oui",fiab:2,prix:1,
+  points:["Tout le catalogue Mould King","Livraison France offerte par DPD, TVA comprise","PayPal et Klarna acceptés"]},
  {nom:"Galaxus",host:"galaxus.fr",url:"https://www.galaxus.fr",pays:"Suisse",zone:"ue",delai:"Selon l'article",dmin:4,douane:null,boite:"Oui",fiab:3,prix:2,
   points:["Taux de défaut publiés par marque","Vend aussi le LEGO officiel"]},
  {nom:"Kaufland",host:"kaufland.fr",url:"https://www.kaufland.fr/product/439117837/",pays:"Place de marché",zone:"ue",delai:"Selon le vendeur",dmin:4,douane:false,boite:"Selon le vendeur",fiab:2,prix:2,
@@ -428,7 +501,6 @@ const MARQUES = [
 ];
 const ZONES = {ue:"Vendeur européen",entrepot:"Stock en Europe",chine:"Envoi de Chine",pieces:"Pièces détachées"};
 const STATUTS = {idee:"Idée",retenu:"Retenu",achete:"Acheté"};
-const stockOf = r => !r.dispo ? ["Épuisé","p-bad",2] : r.precommande ? ["Précommande","p-warn",1] : r.retrait ? ["Bientôt retiré","p-warn",0] : ["En vente","p-ok",0];
 
 /* ---------- Utilitaires ---------- */
 const $ = s => document.querySelector(s);
@@ -439,7 +511,7 @@ const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "#";
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\.|^fr\./, ""); } catch { return ""; } };
 const shopFor = u => { const h = hostOf(u); return h ? BOUTIQUES.find(b => h === b.host || h.endsWith("." + b.host)) : null; };
 const norm = u => { try { const x = new URL(u); return (x.hostname.replace(/^www\./,"") + x.pathname.replace(/\/+$/,"")).toLowerCase(); } catch { return (u || "").trim().toLowerCase(); } };
-const ideeFor = u => IDEES.find(r => norm(r.url) === norm(u));
+const ideeFor = u => IDEES.find(r => r.offres.some(o => norm(o.url) === norm(u)));
 const thumbUrl = (u, w) => u && u.includes("cdn.shopify.com") ? u + (u.includes("?") ? "&" : "?") + "width=" + w : u;
 const BRICK = '<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="20" rx="4" fill="var(--faint)"/><g fill="var(--card)"><circle cx="8" cy="10" r="2.6"/><circle cx="18" cy="10" r="2.6"/><circle cx="8" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/></g></svg>';
 const thumb = (src, alt) => `<span class="thumb">${src ? `<img src="${esc(thumbUrl(safeUrl(src), 160))}" alt="${esc(alt)}" loading="lazy">` : BRICK}</span>`;
@@ -501,46 +573,90 @@ function filterGroups(container, groups){
   });
 }
 
-/* ---------- Idées ---------- */
-const fI = {themes:new Set(), tailles:new Set(), fabs:new Set(), types:new Set(), marques:new Set(), prixMax:0, dispo:false, q:""};
+/* ---------- Recherche ---------- */
+const PRIX = [30,50,75,100,150,200,250,300,400,500,750,1000,1500,2000,Infinity];
+const TAILLE = [20,30,40,50,60,70,80,100,120,150,Infinity];
+const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(["vente"]), prix:PRIX.length - 1, taille:TAILLE.length - 1};
 const sI = {key:"prix", dir:"asc", def:"prix", defDir:"asc"};
+const TYPES = [["classique","Classique",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="6" width="14" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/><rect x="9.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/></svg>'],
+  ["technic","Technic",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="8" r="1.3" fill="currentColor"/></svg>']];
+const typeIco = t => (TYPES.find(x => x[0] === t) || [])[2] || "";
+const hue = m => [...m].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+const initiales = m => m === "LEGO officiel" ? "L" : m.split(/[\s.]+/).filter(Boolean).map(w => w[0]).join("").slice(0, 3).toUpperCase();
+const LOGOS = new Set(MODE.logos || []);
+const slugM = m => plat(m).replace(/[^a-z0-9]+/g, "-");
+const logo = m => LOGOS.has(slugM(m)) ? `<span class="logo"><img src="logos/${slugM(m)}.png" alt=""></span>` : `<span class="logo" style="--h:${hue(m)}" aria-hidden="true">${esc(initiales(m))}</span>`;
+const prixLbl = i => PRIX[i] === Infinity ? "tous" : `${PRIX[i]} €`;
+const tailleLbl = i => TAILLE[i] === Infinity ? "toutes" : `${TAILLE[i]} cm`;
+const portLbl = o => o.port == null ? "port non relevé" : o.port ? `+ ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
+
+function themesDe(tok){
+  // Mots-clés des thèmes : « bateau » trouve aussi « Schiff ».
+  const out = new Set();
+  if (tok.length < 3) return out;
+  for (const t of CAT.themes) if (t.mots.some(m => m === tok || (tok.length >= 4 && m.startsWith(tok)))) out.add(t.id);
+  return out;
+}
+function correspond(r, toks){
+  return toks.every(t => r._txt.includes(t.mot) || r.themes.some(th => t.themes.has(th)));
+}
+function filtrer(sauf){
+  const toks = plat(fI.q).split(/\s+/).filter(Boolean).map(mot => ({mot, themes:themesDe(mot)}));
+  const pMax = PRIX[fI.prix], tMax = TAILLE[fI.taille];
+  return IDEES.filter(r =>
+    (sauf === "dispo" || fI.dispo.has(r.dispo)) &&
+    (sauf === "themes" || !fI.themes.size || r.themes.some(t => fI.themes.has(t))) &&
+    (sauf === "types" || !fI.types.size || fI.types.has(r.type)) &&
+    (sauf === "marques" || !fI.marques.size || fI.marques.has(r.marque)) &&
+    (pMax === Infinity || total(r._meilleure) <= pMax) &&
+    (tMax === Infinity || (r._lg != null && r._lg <= tMax)) &&
+    (!toks.length || correspond(r, toks)));
+}
+function puces(el, sel, items, compte){
+  el.innerHTML = items.map(([v, l, ico]) => `<button class="chip" data-v="${esc(v)}" aria-pressed="${sel.has(v)}">${ico || ""}<span class="t">${esc(l)}</span><span class="n">${compte(v)}</span></button>`).join("");
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => { const v = b.dataset.v; sel.has(v) ? sel.delete(v) : sel.add(v); renderIdees(); });
+}
 const colsI = [
   {key:"img",label:"",cls:"ph-h"},
   {key:"nom",label:"Set",val:r => r.nom},
-  {key:"marque",label:"Marque",val:r => r.marque,cls:"hide-m"},
-  {key:"taille",label:"Taille",val:r => longueur(r),cls:"num",first:"desc"},
-  {key:"pcs",label:"Pièces",val:r => r.pcs,cls:"num",first:"desc"},
-  {key:"prix",label:"Prix",val:r => r.prix,cls:"num"},
-  {key:"avis",label:"Avis des testeurs",val:r => AVIS_ORD[avisOf(r)]},
-  {key:"stock",label:"Disponibilité",val:r => stockOf(r)[2]},
+  {key:"pieces",label:"Pièces",val:r => r.pieces,cls:"num",first:"desc"},
+  {key:"taille",label:"Taille",val:r => r._lg,cls:"num",first:"desc"},
+  {key:"prix",label:"Prix",val:r => total(r._meilleure),cls:"num"},
   {key:"act",label:"",cls:"num"},
 ];
 function renderIdees(){
-  const rows = IDEES.filter(r =>
-    (!fI.themes.size || fI.themes.has(r.theme)) &&
-    (!fI.tailles.size || fI.tailles.has(tailleOf(r))) &&
-    (!fI.fabs.size || fI.fabs.has(fabOf(r))) &&
-    (!fI.types.size || fI.types.has(r.type)) &&
-    (!fI.marques.size || fI.marques.has(r.marque)) &&
-    (!fI.prixMax || r.prix <= fI.prixMax) && (!fI.dispo || stockOf(r)[2] === 0) &&
-    (!fI.q || (r.nom + " " + r.marque + " " + r.ref).toLowerCase().includes(fI.q)));
-  $("#c-idees").textContent = IDEES.length;
-  const nf = fI.marques.size + fI.types.size + (fI.dispo ? 1 : 0); $("#more-l").textContent = nf ? `Plus de filtres (${nf})` : "Plus de filtres";
-  $("#n-idees").textContent = rows.length === IDEES.length ? "" : `${rows.length} set${rows.length > 1 ? "s" : ""} sur ${IDEES.length}`;
+  const rows = filtrer();
+  const nb = (sauf, test) => filtrer(sauf).filter(test).length;
+  puces($("#f-dispo"), fI.dispo, [["precommande","Précommande"],["epuise","Épuisés"]], v => nb("dispo", r => r.dispo === v));
+  puces($("#f-themes"), fI.themes, CAT.themes.map(t => [t.id, t.nom]), v => nb("themes", r => r.themes.includes(v)));
+  puces($("#f-types"), fI.types, TYPES, v => nb("types", r => r.type === v));
+  const marques = [...new Set(IDEES.map(r => r.marque))].sort((a, b) => IDEES.filter(r => r.marque === b).length - IDEES.filter(r => r.marque === a).length);
+  const vues = toutesMarques ? marques : marques.filter((m, i) => i < 8 || fI.marques.has(m));
+  puces($("#f-marques"), fI.marques, vues.map(m => [m, m === "LEGO officiel" ? "LEGO" : m, logo(m)]), v => nb("marques", r => r.marque === v));
+  $("#f-plusm").hidden = marques.length <= 8;
+  $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${marques.length})`;
+  $("#f-plusm").setAttribute("aria-expanded", toutesMarques);
+  $("#o-prix").textContent = prixLbl(fI.prix); $("#o-taille").textContent = tailleLbl(fI.taille);
+  const sansDim = filtrer().length, avecTaille = fI.taille !== TAILLE.length - 1;
+  $("#n-sansdim").textContent = avecTaille ? `${filtrer("x").length - rows.length ? "" : ""}${IDEES.filter(r => r._lg == null).length} sets sans dimension connue masqués` : "";
+  $("#c-idees").textContent = IDEES.length || "";
+  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size - 1) + (fI.prix !== PRIX.length - 1) + avecTaille;
+  $("#f-ouvrir").textContent = nf ? `Filtres (${nf})` : "Filtres";
+  $("#n-res").textContent = IDEES.length ? `${rows.length} set${rows.length > 1 ? "s" : ""}${rows.length !== IDEES.length ? ` sur ${IDEES.length}` : ""}` : "";
+  $("#n-idees").textContent = "";
   sortable("t-idees", colsI, rows, sI, r => {
-    const inSel = souhaits.some(s => s.url === r.url), st = stockOf(r), n = (TESTS[r.id] || []).length;
+    const o = r._meilleure, inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url))), autres = r.offres.length - 1;
     return `<tr class="clic" data-fiche="${r.id}">
       <td class="ph">${thumb(r.img, r.nom)}</td>
-      <td class="full" data-k="Set"><button type="button" class="name nb">${esc(r.nom)}</button><div class="sub">${esc(r.theme)}<span class="m-only"> · ${esc(r.marque)}</span></div></td>
-      <td class="hide-m m-off" data-k="Marque">${esc(r.marque)}</td>
-      <td class="num" data-k="Taille">${longueur(r) ? `${longueur(r)} cm<div class="sub">${tailleOf(r).toLowerCase()}</div>` : "—"}</td>
-      <td class="num" data-k="Pièces"><span class="big">${r.pcs ?? "—"}</span></td>
-      <td class="num" data-k="Prix"><span class="big">${eur(r.prix)}</span>${r.meilleur ? `<div class="sub">dès ${eur(r.meilleur.prix)} ailleurs</div>` : ""}</td>
-      <td data-k="Avis des testeurs"><span class="pill ${AVIS_CLS[avisOf(r)]}">${avisOf(r)}</span></td>
-      <td data-k="Disponibilité"><span class="pill ${st[1]}">${st[0]}</span></td>
+      <td class="full" data-k="Set"><button type="button" class="name nb">${esc(r.nom)}</button>
+        <div class="sub ligne-marque">${logo(r.marque)}<span>${esc(r.marque)}${r.numero ? " " + esc(r.numero) : ""}</span>${r.type ? typeIco(r.type) : ""}${r.avis ? `<span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</div>
+        <div class="sub">${r.themes.map(themeNom).join(" · ")}</div></td>
+      <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
+      <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
+      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(o.prix)}</span><div class="sub">${esc(o.boutique)}${autres ? ` · ${autres + 1} boutiques` : ""}</div><div class="sub">${portLbl(o)}${o.delai ? " · " + esc(o.delai) : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
-  }, "Aucun set ne correspond aux filtres.");
+  }, IDEES.length ? "Aucun set ne correspond : retirer un filtre ou élargir la recherche." : (MODE.serveur ? "Catalogue en cours de chargement…" : "Catalogue vide."));
 }
 $("#t-idees").addEventListener("click", e => {
   const add = e.target.closest("[data-add]");
@@ -548,61 +664,69 @@ $("#t-idees").addEventListener("click", e => {
   const tr = e.target.closest("tr[data-fiche]"); if (tr) openFiche(tr.dataset.fiche);
 });
 function addFromIdee(id){
-  const r = IDEES.find(x => x.id === id);
-  addItem({url:r.url, nom:`${r.marque} – ${r.nom}`, prix:r.prix, pcs:r.pcs, img:r.img, note:"", statut:"idee"});
+  const r = ideeParId(id), o = r._meilleure;
+  addItem({url:o.url, nom:`${r.marque} – ${r.nom}`, prix:o.prix, pcs:r.pieces, img:r.img, note:"", statut:"idee"});
 }
-filterGroups($("#f-idees"), [
-  {id:"t", label:"Thème", color:"theme", sel:fI.themes, items:[...new Set(IDEES.map(r => r.theme))].map(t => [t,t]), onChange:renderIdees},
-  {id:"s", label:"Taille", color:"type", sel:fI.tailles, items:TAILLES, onChange:renderIdees},
-  {id:"f", label:"Fabricant", color:"marque", sel:fI.fabs, items:[["LEGO officiel","LEGO officiel"],["Marques alternatives","Marques alternatives"]], onChange:renderIdees},
-  {label:"Prix", color:"achat", html:`<select class="sel" id="prix-max" aria-label="Prix maximum"><option value="0">Tous les prix</option><option value="100">Jusqu'à 100 €</option><option value="200">Jusqu'à 200 €</option><option value="300">Jusqu'à 300 €</option><option value="500">Jusqu'à 500 €</option></select>
-    <input class="search" id="q-idees" type="search" placeholder="Rechercher un set" aria-label="Rechercher un set">
-    <button class="btn small more" id="more" aria-expanded="false" aria-controls="f-idees-2"><span id="more-l">Plus de filtres</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>`}
-]);
-filterGroups($("#f-idees-2"), [
-  {id:"m", label:"Marque", color:"marque", sel:fI.marques, items:[...new Set(IDEES.map(r => r.marque))].map(t => [t,t]), onChange:renderIdees},
-  {id:"b", label:"Briques", color:"type", sel:fI.types, items:[["Classiques","Classiques"],["Technic","Technic"]], onChange:renderIdees},
-  {label:"Achat", color:"achat", html:`<button class="chip" id="dispo" aria-pressed="false">En vente seulement</button>`}
-]);
-$("#prix-max").onchange = e => { fI.prixMax = +e.target.value; renderIdees(); };
-$("#more").onclick = e => { const b = e.currentTarget, open = b.getAttribute("aria-expanded") !== "true"; b.setAttribute("aria-expanded", open); $("#f-idees-2").hidden = !open; };
-$("#dispo").onclick = e => { fI.dispo = !fI.dispo; e.currentTarget.setAttribute("aria-pressed", fI.dispo); renderIdees(); };
-$("#q-idees").oninput = e => { fI.q = e.target.value.trim().toLowerCase(); renderIdees(); };
+let toutesMarques = false;
+$("#f-plusm").onclick = () => { toutesMarques = !toutesMarques; renderIdees(); };
+const fPrix = $("#f-prix"), fTaille = $("#f-taille");
+fPrix.max = PRIX.length - 1; fPrix.value = fI.prix; fTaille.max = TAILLE.length - 1; fTaille.value = fI.taille;
+fPrix.oninput = () => { fI.prix = +fPrix.value; renderIdees(); };
+fTaille.oninput = () => { fI.taille = +fTaille.value; renderIdees(); };
+let qT; const surQ = v => { clearTimeout(qT); qT = setTimeout(() => { fI.q = v; renderIdees(); }, 120); };
+$("#q").oninput = e => { $("#q2").value = e.target.value; surQ(e.target.value); };
+$("#q2").oninput = e => { $("#q").value = e.target.value; surQ(e.target.value); };
+$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(["vente"]); fI.prix = PRIX.length - 1; fI.taille = TAILLE.length - 1; fPrix.value = fI.prix; fTaille.value = fI.taille; renderIdees(); };
+$("#f-ouvrir").onclick = e => { const b = e.currentTarget, o = !$("#filtres").classList.contains("ouvert"); $("#filtres").classList.toggle("ouvert", o); b.setAttribute("aria-expanded", o); };
+document.addEventListener("click", e => { if ($("#filtres").classList.contains("ouvert") && !e.target.closest("#filtres,#f-ouvrir")){ $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); } });
 sI.render = renderIdees;
 
 /* ---------- Fiche ---------- */
 const dlg = $("#fiche");
+function offresHtml(r){
+  return `<table class="offres">${r.offres.map(o => `<tr>
+    <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a><div class="sub">${esc(o.pays || "")}${o.delai ? " · " + esc(o.delai) : ""}</div></td>
+    <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
+    <td class="num"><b>${eur(o.prix)}</b><div class="sub">${portLbl(o)}</div></td>
+    <td class="num sub">${o.releve ? esc(quand(o.releve)) : ""}</td></tr>`).join("")}</table>`;
+}
 function openFiche(id){
-  const r = IDEES.find(x => x.id === id); if (!r) return;
-  const st = stockOf(r), c = cents(r.prix, r.pcs), shop = shopFor(r.url), tests = TESTS[r.id] || [];
-  const inSel = souhaits.some(s => s.url === r.url);
+  const r = ideeParId(id); if (!r) return;
+  const o = r._meilleure, c = cents(o.prix, r.pieces), tests = r.tests || [];
+  const inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url)));
+  const qTests = encodeURIComponent(`${r.marque === "LEGO officiel" ? "LEGO" : r.marque} ${r.numero || ""} ${r.nom} review`);
   dlg.innerHTML = `<div class="fiche">
     <div class="fiche-img">${r.img ? `<img src="${esc(thumbUrl(r.img, 900))}" alt="${esc(r.nom)}">` : BRICK}</div>
     <div class="fiche-body">
-      <div class="fiche-top"><div><div class="lbl">${esc(r.marque)} · ${esc(r.ref)}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
+      <div class="fiche-top"><div><div class="lbl ligne-marque">${logo(r.marque)} ${esc(r.marque)}${r.numero ? " · " + esc(r.numero) : ""}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
         <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="facts">
-        <div class="fact"><span class="lbl">Avis des testeurs</span><span class="pill ${AVIS_CLS[avisOf(r)]}">${avisOf(r)}</span></div>
-        <div class="fact"><span class="lbl">Prix</span><b>${eur(r.prix)}</b></div>
-        <div class="fact"><span class="lbl">Pièces</span><b>${r.pcs ?? "—"}</b></div>
-        <div class="fact"><span class="lbl">Disponibilité</span><span class="pill ${st[1]}">${st[0]}</span></div>
+        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">port compris</span></div>
+        <div class="fact"><span class="lbl">Pièces</span><b>${r.pieces ?? "—"}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>
+        <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
+        <div class="fact"><span class="lbl">Briques</span><b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b></div>
       </div>
-      <div class="meta">
-        ${r.dim ? `<div><strong>Dimensions</strong> : ${esc(r.dim)} cm (${tailleOf(r).toLowerCase()})</div>` : ""}
-        <div><strong>Briques</strong> : ${esc(r.type)}</div>
-        <div><strong>Thème</strong> : ${esc(r.theme)}${r.tags.length ? " · " + r.tags.map(esc).join(" · ") : ""}</div>
-        ${shop ? `<div><strong>Chez ${esc(shop.nom)}</strong> : ${!r.dispo ? "épuisé pour l'instant" : r.precommande ? "en précommande, délai d'expédition non relevé" : /^Non/.test(shop.delai) ? "délai de livraison non relevé" : `livré en ${esc(shop.delai)}`}${r.retrait ? ", retrait du catalogue prévu" : ""}, taxes comprises, sans douane</div>` : ""}
-        ${r.meilleur ? `<div><strong>Moins cher ailleurs</strong> : ${eur(r.meilleur.prix)} chez ${esc(r.meilleur.vendeur)}, <a href="${esc(r.meilleur.url)}" target="_blank" rel="noopener">voir le relevé</a></div>` : ""}
-        ${c ? `<div><strong>Prix par pièce</strong> : ${c} centimes${r.marque === "LEGO officiel" ? "" : ", contre 7 à 11 pour le LEGO officiel"}</div>` : ""}
-      </div>
-      <div class="avis"><span class="lbl">Tests indépendants</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : '<div class="sub">Aucun test indépendant trouvé pour ce set.</div>'}</div>
+      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.offres.length === 1 ? '<span class="sub">Une seule boutique trouvée pour ce set.</span>' : ""}</div>
+      <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : ""}
+        <a href="https://www.youtube.com/results?search_query=${qTests}" target="_blank" rel="noopener">Chercher des tests sur YouTube</a></div>
       <div class="fiche-actions">
-        <a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">Voir chez ${shop ? esc(shop.nom.split(" ")[0]) : "le vendeur"}</a>
+        <a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">Voir chez ${esc(o.boutique)}</a>
         <button class="btn" id="f-add" ${inSel ? "disabled" : ""}>${inSel ? "Dans la sélection" : "Ajouter à la sélection"}</button>
       </div>
     </div></div>`;
   $("#f-close").onclick = () => dlg.close();
   $("#f-add").onclick = e => { addFromIdee(r.id); e.currentTarget.disabled = true; e.currentTarget.textContent = "Dans la sélection"; };
+  const relire = $("#f-relire");
+  if (relire) relire.onclick = async () => {
+    relire.disabled = true; relire.textContent = "Lecture…";
+    const res = await Promise.allSettled(r.offres.filter(x => x.source !== "editorial").map(async x => Object.assign(x, await api("GET", "api/offre?cle=" + encodeURIComponent(x.cle)))));
+    r.offres.sort((a, b) => ({vente:0, precommande:1, epuise:2}[a.dispo] - {vente:0, precommande:1, epuise:2}[b.dispo]) || total(a) - total(b));
+    r._meilleure = r.offres[0]; r.dispo = r._meilleure.dispo; r.prix = r._meilleure.prix;
+    $("#f-offres").innerHTML = offresHtml(r);
+    const ko = res.filter(x => x.status === "rejected").length;
+    relire.textContent = ko ? `${ko} boutique${ko > 1 ? "s" : ""} injoignable${ko > 1 ? "s" : ""}` : "Prix à jour";
+    renderIdees();
+  };
   dlg.showModal();
 }
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
@@ -726,7 +850,7 @@ function updateHint(){
   else if (hostOf(u)) parts.push(`Boutique inconnue (<b>${esc(hostOf(u))}</b>) : vérifier délai et douane`);
   const img = iImg.value.trim() || (known && known.img);
   $("#hint").innerHTML = (img ? thumb(img, "") : "") + `<span>${parts.join("")}</span>`;
-  if (known && (!iNom.value || guessed)){ iNom.value = `${known.marque} – ${known.nom}`; remplir("i-prix", known.prix); remplir("i-pcs", known.pcs); guessed = true; }
+  if (known && (!iNom.value || guessed)){ iNom.value = `${known.marque} – ${known.nom}`; remplir("i-prix", known.prix); remplir("i-pcs", known.pieces); guessed = true; }
 }
 let hintT; iUrl.addEventListener("input", () => { clearTimeout(hintT); hintT = setTimeout(updateHint, 400); }); iImg.addEventListener("input", updateHint);
 iUrl.addEventListener("change", async () => {
@@ -842,169 +966,144 @@ $("#io-go").onclick = () => {
 
 /* ---------- Navigation ---------- */
 const TABS = ["idees","selection","boutiques","marques"];
-const VUES = MODE.serveur ? [...TABS, "releve"] : TABS;
+const VUES = MODE.serveur ? [...TABS, "synchro"] : TABS;
 function route(){
-  let t = location.hash.slice(1); if (t === "liste") t = "selection";
+  let t = location.hash.slice(1); if (t === "liste") t = "selection"; if (t === "releve") t = "synchro";
   if (!VUES.includes(t)) t = "idees";
   VUES.forEach(x => { $("#v-" + x).hidden = x !== t; });
-  $("#r-ico").toggleAttribute("aria-current", t === "releve");
-  if (t === "releve") chargerReleve();
+  $("#r-ico").toggleAttribute("aria-current", t === "synchro");
+  if (t === "synchro") chargerSynchro();
   document.querySelectorAll("nav a").forEach(a => a.dataset.tab === t ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
 }
 window.addEventListener("hashchange", route);
 function renderAll(){ renderIdees(); renderSel(); }
 $("#ver").textContent = MODE.version && MODE.version !== "dev" ? "v" + MODE.version.replace(/^v/, "") : "";
-$("#pied").textContent = MODE.serveur
-  ? (MODE.releve ? `Prix relevés le ${quand(MODE.releve)}` : "Prix du catalogue, pas encore relevés") + " · à vérifier sur le site avant d'acheter."
+$("#pied").textContent = MODE.serveur ? "Prix à vérifier sur le site avant d'acheter."
   : `Prix et disponibilités relevés le ${MODE.catalogue_du || "19 novembre 2026"} · à vérifier sur le site avant d'acheter.`;
-/* ---------- Relevé des prix (service seulement) ---------- */
-let R = {etat:{}, dernier:null, historique:[]}, rSuivi = null;
-const fR = {statut:null};
-const sR = {key:"statut", dir:"asc", def:"statut", defDir:"asc"};
-const CHAMP_LBL = {prix:"prix", dispo:"disponibilité", img:"photo", pcs:"pièces"};
-const rStatut = r => r.statut === "echec" ? ["Échec","p-warn",0] : r.statut === "saute" ? ["Sauté","p-neutral",3] : r.changes && r.changes.length ? ["Changé","p-info",1] : ["Lu","p-ok",2];
-const duree = s => s == null ? "—" : s < 10 && s % 1 ? s.toFixed(1) + " s" : s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " min " + String(Math.round(s % 60)).padStart(2, "0") + " s";
+/* ---------- Synchronisation (service seulement) ---------- */
+let R = {etat:{}, dernier:null, historique:[], sources:[]}, rSuivi = null, rFin = null;
+const sR = {key:"nom", dir:"asc", def:"nom", defDir:"asc"}, sH = {key:"le", dir:"desc", def:"le", defDir:"desc"};
+const duree = s => s == null ? "—" : s < 60 ? Math.round(s) + " s" : Math.floor(s / 60) + " min " + String(Math.round(s % 60)).padStart(2, "0") + " s";
+const parLbl = p => p === "programme" ? "programmée" : p || "—";
 const colsR = [
-  {key:"nom",label:"Set",val:r => r.nom},
-  {key:"statut",label:"Résultat",val:r => rStatut(r)[2]},
-  {key:"prix",label:"Prix",val:r => r.prix ?? r.prix_avant,cls:"num"},
-  {key:"dispo",label:"Disponibilité",val:r => r.dispo == null ? null : r.dispo ? 0 : 1,cls:"hide-m"},
-  {key:"detail",label:"Détail",val:r => r.raison || (r.changes || []).join(" ")},
+  {key:"nom",label:"Source",val:r => r.nom},
+  {key:"etat",label:"Résultat",val:r => r.etat === "echec" ? 0 : 1},
+  {key:"lus",label:"Sets",val:r => r.lus,cls:"num",first:"desc"},
+  {key:"nouveaux",label:"Nouveaux",val:r => r.nouveaux,cls:"num",first:"desc"},
+  {key:"disparus",label:"Disparus",val:r => r.disparus,cls:"num hide-m",first:"desc"},
+  {key:"le",label:"Dernier passage",val:r => r.debut,cls:"hide-m"},
+  {key:"detail",label:"Détail",val:r => r.raison || ""},
 ];
 const colsH = [
   {key:"le",label:"Fin",val:r => r.le,first:"desc"},
-  {key:"par",label:"Lancé par",val:r => r.par},
-  {key:"portee",label:"Portée",val:r => r.portee,cls:"hide-m"},
-  {key:"lus",label:"Lus",val:r => r.lus,cls:"num"},
-  {key:"changes",label:"Changés",val:r => r.changes,cls:"num"},
-  {key:"echecs",label:"Échecs",val:r => r.echecs,cls:"num"},
-  {key:"sautes",label:"Sautés",val:r => r.sautes,cls:"num hide-m"},
+  {key:"par",label:"Lancée par",val:r => r.par},
+  {key:"lus",label:"Sets",val:r => r.lus,cls:"num"},
+  {key:"echecs",label:"Sources en échec",val:r => r.echecs,cls:"num"},
   {key:"duree_s",label:"Durée",val:r => r.duree_s,cls:"num hide-m"},
 ];
-const sH = {key:"le", dir:"desc", def:"le", defDir:"desc"};
-const parLbl = p => p === "programme" ? "programmé" : p || "—";
-
-async function chargerReleve(){
-  try { R = await api("GET", "api/releve"); } catch (e) { toast("Relevé illisible : " + e.message, true); return; }
-  renderReleve();
+async function chargerCatalogue(){
+  try { CAT = await api("GET", "api/catalogue"); preparer(); renderAll(); } catch (e) { toast("Catalogue indisponible : " + e.message, true); }
+}
+async function chargerSynchro(){
+  try { R = await api("GET", "api/synchro"); } catch (e) { toast("Synchronisation illisible : " + e.message, true); return; }
+  renderSynchro();
   if (R.etat.en_cours) suivre();
 }
-let rFin = null;
 function suivre(){
   if (rSuivi) return;
   rSuivi = setInterval(async () => {
-    try { R = await api("GET", "api/releve"); } catch { return; }
+    try { R = await api("GET", "api/synchro"); } catch { return; }
     if (!R.etat.en_cours){
       clearInterval(rSuivi); rSuivi = null;
-      rFin = R.dernier; setTimeout(() => { rFin = null; renderReleve(); }, 8000);
-      try { const cat = await api("GET", "api/catalogue"); IDEES.splice(0, IDEES.length, ...cat); renderAll(); } catch {}
+      rFin = R.dernier; setTimeout(() => { rFin = null; renderSynchro(); }, 8000);
+      chargerCatalogue();
     }
-    renderReleve();
+    renderSynchro();
   }, 2000);
 }
-async function lancer(echecs){
+async function lancer(ids){
   try {
-    const r = await api("POST", "api/releve", echecs ? {echecs:true} : undefined);
-    if (r.etat === "lance") R.etat = {...R.etat, en_cours:true, fait:0, total:r.total, ecoule_s:0, echecs:0, courant:null, par:MODE.compte};
-    rFin = null; renderReleve(); suivre();
-  } catch (e) { toast("Relevé impossible : " + e.message, true); }
+    const r = await api("POST", "api/synchro", ids ? {sources:ids} : undefined);
+    if (r.etat === "lance") R.etat = {...R.etat, en_cours:true, fait:0, total:r.total, ecoule_s:0, echecs:0, courant:null, produits:0, par:MODE.compte};
+    rFin = null; renderSynchro(); suivre();
+  } catch (e) { toast("Synchronisation impossible : " + e.message, true); }
 }
-function renderReleve(){
-  const e = R.etat || {}, d = R.dernier, run = !!e.en_cours;
-  const nbEchecs = d ? (d.sets || []).filter(x => x.statut === "echec").length : 0;
-  // Barre du haut et accueil
-  const dot = $("#r-dot"), arret = e.heures > 0 && !e.programme_actif, coupe = d && d.etat === "interrompu";
-  dot.hidden = !(run || arret || coupe || nbEchecs);
-  dot.className = "dot" + (run ? " run" : arret || coupe ? " bad" : "");
-  $("#r-ico").setAttribute("aria-label", "Relevé des prix" + (run ? " : en cours" : arret ? " : relevé programmé arrêté" : coupe ? " : dernier relevé interrompu" : nbEchecs ? ` : ${nbEchecs} échec${nbEchecs > 1 ? "s" : ""}` : ""));
-  const b = $("#releve-btn");
-  b.disabled = run; b.textContent = run ? `Relevé en cours${e.total ? ` · ${e.fait}/${e.total}` : ""}` : "Actualiser les prix";
-  $("#pq-releve").toggleAttribute("data-pourquoi", run); if (run) $("#pq-releve").dataset.pourquoi = "Relevé en cours";
-  if (d) $("#pied").textContent = `Prix relevés le ${quand(d.le)} · à vérifier sur le site avant d'acheter.`;
-  if (d) $("#releve-date").innerHTML = "Relevé le " + esc(quand(d.le)) + (coupe ? ' · <span class="r-alerte">interrompu</span>' : nbEchecs ? ` · <span class="r-alerte">${nbEchecs} échec${nbEchecs > 1 ? "s" : ""}</span>` : "");
-  // Commandes de la vue, avec la raison d'un bouton désactivé
+function parSource(){
+  // Dernier résultat connu de chaque source active (le dernier passage peut n'en avoir relu qu'une partie).
+  const out = {};
+  for (const h of [...(R.historique || [])].reverse()) for (const s of h.sources) out[s.id] = s;
+  return (R.sources || []).map(s => out[s.id] || {id:s.id, nom:s.nom, etat:"jamais"});
+}
+function renderSynchro(){
+  const e = R.etat || {}, d = R.dernier, run = !!e.en_cours, lignes = parSource();
+  const enEchec = lignes.filter(x => x.etat === "echec");
+  const arret = e.heures > 0 && !e.programme_actif;
+  const dot = $("#r-dot");
+  dot.hidden = !(run || arret || enEchec.length);
+  dot.className = "dot" + (run ? " run" : arret || (lignes.length && enEchec.length === lignes.length) ? " bad" : "");
+  $("#r-ico").setAttribute("aria-label", "Synchronisation" + (run ? " : en cours" : arret ? " : programmée arrêtée" : enEchec.length ? ` : ${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec` : ""));
+  if (d){
+    $("#pied").textContent = `Prix synchronisés le ${quand(d.le)} · à vérifier sur le site avant d'acheter.`;
+    $("#releve-date").innerHTML = "Synchronisé le " + esc(quand(d.le)) + (enEchec.length ? ` · <span class="r-alerte">${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec</span>` : "");
+  }
   const pourquoi = (id, raison) => { const w = $(id); if (raison) w.dataset.pourquoi = raison; else w.removeAttribute("data-pourquoi"); };
-  $("#r-lancer").disabled = run; pourquoi("#pq-lancer", run ? "Relevé en cours" : "");
+  $("#r-lancer").disabled = run; pourquoi("#pq-lancer", run ? "Synchronisation en cours" : "");
   const re = $("#r-echecs");
-  re.disabled = run || !nbEchecs;
-  re.textContent = nbEchecs ? `Relancer les échecs (${nbEchecs})` : "Relancer les échecs";
-  pourquoi("#pq-echecs", run ? "Relevé en cours" : !nbEchecs ? "Aucun échec au dernier relevé" : "");
-  // Panne du relevé programmé
+  re.disabled = run || !enEchec.length;
+  re.textContent = enEchec.length ? `Relancer les échecs (${enEchec.length})` : "Relancer les échecs";
+  pourquoi("#pq-echecs", run ? "Synchronisation en cours" : !enEchec.length ? "Aucune source en échec" : "");
   const panne = $("#r-panne");
-  panne.hidden = !(arret || (d && d.etat === "interrompu"));
-  panne.innerHTML = arret ? "<b>Relevé programmé arrêté</b><span class=\"sub\">Plus de relevé automatique · redémarrage du conteneur nécessaire</span>"
-    : coupe ? `<b>Dernier relevé interrompu</b><span class="sub">${esc(d.raison || "")} · détail dans le journal du conteneur</span>` : "";
-  // Avancement, puis résumé passager à la fin
+  panne.hidden = !arret;
+  panne.innerHTML = arret ? '<b>Synchronisation programmée arrêtée</b><span class="sub">Plus de mise à jour automatique · redémarrage du conteneur nécessaire</span>' : "";
   const prog = $("#r-prog");
   prog.hidden = !(run || rFin);
   prog.classList.toggle("fini", !run && !!rFin);
   if (run){
     const pct = e.total ? Math.round(e.fait / e.total * 100) : 0;
-    const reste = e.fait && e.total ? Math.round(e.ecoule_s / e.fait * (e.total - e.fait)) : null;
-    prog.innerHTML = `<span class="lbl">Relevé en cours${e.par ? " · " + esc(parLbl(e.par)) : ""}</span>
+    prog.innerHTML = `<span class="lbl">Synchronisation en cours${e.par ? " · " + esc(parLbl(e.par)) : ""}</span>
       <div class="track"><i style="width:${pct}%"></i></div>
-      <div class="ligne"><span><b>${e.fait || 0}</b> / ${e.total || "…"}</span><span>${duree(e.ecoule_s || 0)} écoulées</span>${reste != null ? `<span>environ ${duree(reste)} restantes</span>` : ""}${e.echecs ? `<span class="r-alerte">${e.echecs} échec${e.echecs > 1 ? "s" : ""}</span>` : ""}${e.courant ? `<span>${esc(e.courant)}</span>` : ""}</div>
-      <div class="r-alerte">${e.courant_s > 30 ? `Aucune réponse depuis ${duree(e.courant_s)}` : ""}</div>`;
+      <div class="ligne"><span><b>${e.fait || 0}</b> / ${e.total || "…"} sources</span>${e.courant ? `<span>${esc(e.courant)} : ${e.produits || 0} produits lus</span>` : ""}<span>${duree(e.ecoule_s || 0)} écoulées</span>${e.echecs ? `<span class="r-alerte">${e.echecs} en échec</span>` : ""}</div>
+      <div></div>`;
   } else if (rFin){
-    const f = rFin;
-    prog.innerHTML = `<span class="lbl">Relevé ${f.etat === "interrompu" ? "interrompu" : "terminé"}</span>
+    prog.innerHTML = `<span class="lbl">Synchronisation terminée</span>
       <div class="track"><i style="width:100%"></i></div>
-      <div class="ligne"><span><b>${f.lus}</b> / ${f.total - (f.sautes || 0)} lus</span><span>${f.changes} changés</span>${f.echecs ? `<span class="r-alerte">${f.echecs} échec${f.echecs > 1 ? "s" : ""}</span>` : "<span>aucun échec</span>"}<span>${duree(f.duree_s)}</span></div>
+      <div class="ligne"><span><b>${rFin.lus}</b> sets</span>${rFin.echecs ? `<span class="r-alerte">${rFin.echecs} source${rFin.echecs > 1 ? "s" : ""} en échec</span>` : "<span>aucun échec</span>"}<span>${duree(rFin.duree_s)}</span></div>
       <div></div>`;
   }
-  // Résumé du dernier relevé
-  const prochain = e.heures > 0 ? (e.programme_actif ? quand(e.prochain) : "arrêté") : "désactivé";
-  $("#r-resume").innerHTML = d ? `
-    <div><span class="lbl">Dernier relevé</span><b>${esc(quand(d.le))}</b><span class="sub">${esc(parLbl(d.par))}${d.portee === "echecs" ? " · échecs seulement" : ""} · ${duree(d.duree_s)}</span></div>
-    <div><span class="lbl">Lus</span><b>${d.lus} / ${d.total - (d.sautes || 0)}</b>${d.relance ? `<span class="sub">relance le ${esc(quand(d.relance.le))}</span>` : ""}</div>
-    <div><span class="lbl">Changés</span><b>${d.changes}</b></div>
-    <div><span class="lbl">Échecs</span><b${d.echecs ? ' class="r-alerte"' : ""}>${d.echecs}</b></div>
-    <div><span class="lbl">Sautés</span><b>${d.sautes || 0}</b></div>
-    <div><span class="lbl">Prochain relevé</span><b>${esc(prochain)}</b></div>`
-    : `<div><span class="lbl">Dernier relevé</span><b>aucun</b></div><div><span class="lbl">Prochain relevé</span><b>${esc(prochain)}</b></div>`;
-  // Filtres et tableau
-  const sets = d ? d.sets || [] : [];
-  $("#r-table").hidden = !sets.length; $("#r-filtres").hidden = !sets.length;
-  const nb = {echec:sets.filter(x => x.statut === "echec").length, change:sets.filter(x => x.changes && x.changes.length).length, saute:sets.filter(x => x.statut === "saute").length};
-  if (fR.statut && !nb[fR.statut]) fR.statut = null;
-  $("#r-filtres").innerHTML = sets.length ? [["echec","Échecs"],["change","Changés"],["saute","Sautés"]].filter(([k]) => nb[k])
-    .map(([k,l]) => `<button class="chip" data-f="${k}" aria-pressed="${fR.statut === k}">${l} (${nb[k]})</button>`).join("") : "";
-  $("#r-filtres").querySelectorAll(".chip").forEach(c => c.onclick = () => { fR.statut = fR.statut === c.dataset.f ? null : c.dataset.f; renderReleve(); });
-  const rows = sets.filter(x => !fR.statut || (fR.statut === "change" ? x.changes && x.changes.length : x.statut === fR.statut));
-  sortable("t-releve", colsR, rows, sR, r => {
-    const [lbl, cls] = rStatut(r), chPrix = (r.changes || []).includes("prix"), idee = ideeParId(r.id);
-    const detail = r.statut === "echec" ? `${hostOf(r.url)} · ${r.raison}` : r.raison || ((r.changes || []).length ? "Changé : " + r.changes.map(c => CHAMP_LBL[c] || c).join(", ") : "");
-    const prix = chPrix ? `<span class="sub">${eur(r.prix_avant)} →</span> ${eur(r.prix)}`
-      : r.statut === "ok" ? eur(r.prix ?? r.prix_avant) : `<span class="sub">${eur(r.prix_avant)}</span>`;
-    return `<tr>
-      <td class="wide" data-k="Set"><a class="name-link" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom)}</a>${idee ? `<div class="sub">${esc(idee.marque)}</div>` : ""}</td>
-      <td data-k="Résultat"><span class="pill ${cls}">${lbl}</span></td>
-      <td class="num" data-k="Prix">${prix}</td>
-      <td class="hide-m" data-k="Disponibilité">${r.dispo == null ? "—" : r.dispo ? "En vente" : "Épuisé"}</td>
-      <td class="wide${detail ? "" : " m-off"}" data-k="Détail"><span class="${r.statut === "echec" ? "r-alerte" : "sub"}">${esc(detail)}</span></td>
-    </tr>`;
-  }, d ? "Aucun set pour ce filtre" : "Aucun relevé pour l'instant : « Actualiser les prix » pour en lancer un");
-  // Historique
+  const prochain = e.heures > 0 ? (e.programme_actif ? quand(e.prochain) : "arrêtée") : "désactivée";
+  $("#r-resume").innerHTML = `
+    <div><span class="lbl">Dernière synchronisation</span><b>${d ? esc(quand(d.le)) : "aucune"}</b>${d ? `<span class="sub">${esc(parLbl(d.par))} · ${duree(d.duree_s)}</span>` : ""}</div>
+    <div><span class="lbl">Sets au catalogue</span><b>${IDEES.length}</b></div>
+    <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
+    <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>`;
+  sortable("t-sources", colsR, lignes, sR, r => `<tr>
+    <td class="wide" data-k="Source"><span class="name">${esc(r.nom)}</span></td>
+    <td data-k="Résultat"><span class="pill ${r.etat === "ok" ? "p-ok" : r.etat === "echec" ? "p-warn" : "p-neutral"}">${r.etat === "ok" ? "Lue" : r.etat === "echec" ? "Échec" : "Jamais lue"}</span></td>
+    <td class="num" data-k="Sets">${r.lus ?? "—"}</td>
+    <td class="num" data-k="Nouveaux">${r.nouveaux ?? "—"}</td>
+    <td class="num hide-m" data-k="Disparus">${r.disparus ?? "—"}</td>
+    <td class="hide-m" data-k="Dernier passage">${r.debut ? esc(quand(r.debut)) : "—"}</td>
+    <td class="wide${r.raison ? "" : " m-off"}" data-k="Détail"><span class="r-alerte">${esc(r.raison || "")}</span></td>
+  </tr>`, "Aucune source active");
   sortable("t-hist", colsH, R.historique || [], sH, r => `<tr>
-    <td data-k="Fin">${esc(quand(r.le))}${r.etat === "interrompu" ? ' <span class="pill p-bad">Interrompu</span>' : ""}</td>
-    <td data-k="Lancé par">${esc(parLbl(r.par))}</td>
-    <td class="hide-m" data-k="Portée">${r.portee === "echecs" ? "Échecs seulement" : "Tous les sets"}</td>
-    <td class="num" data-k="Lus">${r.lus} / ${r.total - (r.sautes || 0)}</td>
-    <td class="num" data-k="Changés">${r.changes}</td>
-    <td class="num" data-k="Échecs">${r.echecs ? `<span class="r-alerte">${r.echecs}</span>` : 0}</td>
-    <td class="num hide-m" data-k="Sautés">${r.sautes || 0}</td>
+    <td data-k="Fin">${esc(quand(r.le))}</td>
+    <td data-k="Lancée par">${esc(parLbl(r.par))}</td>
+    <td class="num" data-k="Sets">${r.lus}</td>
+    <td class="num" data-k="Sources en échec">${r.echecs ? `<span class="r-alerte">${r.echecs}</span>` : 0}</td>
     <td class="num hide-m" data-k="Durée">${duree(r.duree_s)}</td>
-  </tr>`, "Aucun relevé pour l'instant");
+  </tr>`, "Aucune synchronisation pour l'instant");
 }
-sR.render = renderReleve; sH.render = renderReleve;
+sR.render = renderSynchro; sH.render = renderSynchro;
 
 if (MODE.serveur){
-  $("#releve-btn").hidden = false; $("#r-ico").hidden = false;
-  $("#releve-date").innerHTML = MODE.releve ? "Relevé le " + esc(quand(MODE.releve)) + (MODE.releve_echecs ? ` · <span class="r-alerte">${MODE.releve_echecs} échec${MODE.releve_echecs > 1 ? "s" : ""}</span>` : "") : "";
-  $("#releve-btn").onclick = () => lancer(false);
-  $("#r-lancer").onclick = () => lancer(false);
-  $("#r-echecs").onclick = () => lancer(true);
-  if (location.hash !== "#releve") chargerReleve();
+  $("#r-ico").hidden = false;
+  $("#r-lancer").onclick = () => lancer(null);
+  $("#r-echecs").onclick = () => lancer(parSource().filter(x => x.etat === "echec").map(x => x.id));
+  chargerCatalogue();
+  if (location.hash !== "#synchro") chargerSynchro();
+} else {
+  preparer();
+  $("#releve-date").textContent = MODE.catalogue_du ? `Prix relevés le ${MODE.catalogue_du}` : "";
 }
 route(); renderBoutiques(); renderMarques(); renderAll(); initStore();
 </script>

@@ -1,0 +1,58 @@
+{
+ "_note": "Sources du moteur de recherche. « actif » : lue par défaut ; la variable SOURCES du .env remplace cette liste (identifiants séparés par des virgules). Prix des boutiques en euros, livraison en France.",
+ "sources": [
+  {
+   "id": "kbs",
+   "type": "shopify",
+   "nom": "KBS",
+   "hote": "kbs-shop.com",
+   "prefixe": "/en",
+   "pays": "FR",
+   "devise": "EUR",
+   "pays_boutique": "Allemagne",
+   "actif": true,
+   "livraison": {
+    "port": 4.95,
+    "delai": "1 à 3 jours ouvrés"
+   }
+  },
+  {
+   "id": "bausteinreich",
+   "type": "shopify",
+   "nom": "Bausteinreich",
+   "hote": "www.bausteinreich.de",
+   "pays": "FR",
+   "devise": "EUR",
+   "pays_boutique": "Allemagne",
+   "actif": true,
+   "livraison": {
+    "port": 9.95,
+    "estime": true,
+    "delai": null
+   }
+  },
+  {
+   "id": "mouldkingcorp",
+   "type": "shopify",
+   "nom": "Mould King officiel",
+   "hote": "mouldkingcorp.com",
+   "pays": "FR",
+   "devise": "EUR",
+   "pays_boutique": "Chine",
+   "marque": "Mould King",
+   "actif": true,
+   "livraison": {
+    "port": 0,
+    "delai": "15 à 25 jours"
+   }
+  },
+  {
+   "id": "bricksvalue",
+   "type": "bricksvalue",
+   "nom": "BricksValue",
+   "hote": "bricksvalue.com",
+   "pays_boutique": "France",
+   "actif": false
+  }
+ ]
+}
