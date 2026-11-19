@@ -1,5 +1,8 @@
 # v2.x — Service Docker : relevé des prix à la source, ajout par lien, sélection partagée avec achats masqués ; page autonome jointe à chaque version.
 
+## v2.0.2
+Code publié sous licence AGPL-3.0 : fichier LICENSE, mention dans l'image et lien vers le code source en pied de page. Outil de construction Docker épinglé par empreinte.
+
 ## v2.0.1
 Lecture des pages en TLS 1.2 au minimum et test d'adresse de photo exact, suite à deux alertes de l'analyse de code.
 

@@ -5,7 +5,7 @@ ARG VERSION_APP=dev
 LABEL org.opencontainers.image.title="Carnet de briques" \
       org.opencontainers.image.description="Choix de sets de briques pour adultes : catalogue, relevé des prix, sélection partagée" \
       org.opencontainers.image.source="https://github.com/actarus314/lego" \
-      org.opencontainers.image.licenses="NOASSERTION"
+      org.opencontainers.image.licenses="AGPL-3.0-only"
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     VERSION_APP=${VERSION_APP} PORT=8080 DOSSIER_DONNEES=/donnees
@@ -14,6 +14,7 @@ WORKDIR /app
 COPY app ./app
 COPY web ./web
 COPY data ./data
+COPY LICENSE ./
 
 VOLUME ["/donnees"]
 EXPOSE 8080
