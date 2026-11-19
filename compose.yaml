@@ -1,0 +1,32 @@
+# Carnet de briques : toutes les valeurs propres à une installation viennent du fichier .env
+# (voir .env.example). Aucune valeur de ce fichier n'est à modifier.
+services:
+  carnet-briques:
+    image: ghcr.io/actarus314/lego:${IMAGE_TAG:-latest}
+    container_name: ${NOM_CONTENEUR:-carnet-briques}
+    restart: unless-stopped
+    ports:
+      - "${ADRESSE_ECOUTE:-127.0.0.1}:${PORT_HOTE:-8080}:8080"
+    environment:
+      UTILISATEURS: ${UTILISATEURS:-}
+      AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-0}
+      ACHATS_MASQUES_POUR: ${ACHATS_MASQUES_POUR:-}
+      RELEVE_HEURES: ${RELEVE_HEURES:-24}
+      JOURNAL: ${JOURNAL:-INFO}
+      TZ: ${TZ:-Europe/Paris}
+    volumes:
+      - ${DOSSIER_DONNEES:-./donnees}:/donnees
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 256m
+    networks:
+      - carnet-briques
+
+networks:
+  carnet-briques:
+    driver: bridge

@@ -1,0 +1,10 @@
+.git
+.github
+tests
+dist
+donnees
+.env
+*.md
+__pycache__
+**/__pycache__
+.dockerignore
