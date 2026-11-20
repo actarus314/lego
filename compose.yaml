@@ -21,6 +21,8 @@ services:
       SMTP_UTILISATEUR: ${SMTP_UTILISATEUR:-}
       SMTP_MOT_DE_PASSE: ${SMTP_MOT_DE_PASSE:-}
       SMTP_EXPEDITEUR: ${SMTP_EXPEDITEUR:-}
+      SIGNAL_URL: ${SIGNAL_URL:-}
+      SIGNAL_NUMERO: ${SIGNAL_NUMERO:-}
       JOURNAL: ${JOURNAL:-INFO}
       TZ: ${TZ:-Europe/Paris}
     volumes:
@@ -33,6 +35,32 @@ services:
       - no-new-privileges:true
     pids_limit: 128
     mem_limit: 256m
+    networks:
+      - carnet-briques
+
+  # Envoi des alertes par Signal (facultatif) : actif seulement avec COMPOSE_PROFILES=signal dans le .env.
+  # L'image tourne sous l'utilisateur 1000 : son dossier de données doit lui appartenir.
+  signal:
+    image: bbernhard/signal-cli-rest-api:${SIGNAL_IMAGE_TAG:-0.101}
+    profiles: [signal]
+    container_name: ${NOM_CONTENEUR:-carnet-briques}-signal
+    restart: unless-stopped
+    environment:
+      MODE: native
+      TZ: ${TZ:-Europe/Paris}
+    ports:
+      - "127.0.0.1:${PORT_SIGNAL:-8081}:8080"   # inscription du numéro, depuis l'hôte seulement
+    volumes:
+      - ${DOSSIER_SIGNAL:-./signal}:/home/.local/share/signal-cli
+    read_only: true
+    tmpfs:
+      - /tmp:exec,size=256m                     # bibliothèque native de Signal, extraite à chaque appel
+      - /run:exec,size=64m,uid=1000,gid=1000,mode=0755
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 512m
     networks:
       - carnet-briques
 

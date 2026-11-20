@@ -38,7 +38,23 @@ La synchronisation se suit dans la page (bouton en haut à droite) : avancement,
 
 ### Alertes sur la sélection
 
-Chaque heure, le service compare l'état du jour de chaque produit suivi de la sélection (retrouvé dans l'index par l'adresse de l'offre choisie) au dernier état connu : baisse de prix (2 € et 2 % au moins, port compris), rupture, retour en vente, retrait annoncé, offre moins chère ailleurs. Les changements partent en un seul message par compte, aux canaux de la variable `ALERTES` (courriel par un serveur SMTP déclaré dans le `.env`). Un produit « Acheté » ne déclenche rien. La vue Synchronisation montre les canaux du compte connecté et envoie un message d'essai.
+Chaque heure, le service compare l'état du jour de chaque produit suivi de la sélection (retrouvé dans l'index par l'adresse de l'offre choisie) au dernier état connu : baisse de prix (2 € et 2 % au moins, port compris), rupture, retour en vente, retrait annoncé, offre moins chère ailleurs. Les changements partent en un seul message par compte, aux canaux de la variable `ALERTES` : courriel, par un serveur SMTP déclaré dans le `.env`, ou Signal. Un produit « Acheté » ne déclenche rien. La vue Synchronisation montre les canaux du compte connecté et envoie un message d'essai.
+
+#### Signal
+
+Les messages partent d'un numéro dédié au service, par le conteneur [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) du compose (image 0.101, durcie : système de fichiers en lecture seule, aucune capacité). Il faut un numéro qui reçoit les SMS, distinct de celui des destinataires. Mise en place, une fois :
+
+1. Dossier des clés du numéro, à l'utilisateur 1000 : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`.
+2. Dans le `.env` : `COMPOSE_PROFILES=signal`, `DOSSIER_SIGNAL=/docker/lego/signal`, `SIGNAL_NUMERO=+33…` (numéro d'envoi) et le canal dans `ALERTES` (`romain=signal:+33…`, numéro du destinataire). Redéployer.
+3. Captcha : ouvrir https://signalcaptchas.org/registration/generate.html dans un navigateur du même réseau, le résoudre, puis copier le lien du bouton « Open Signal » sans `signalcaptcha://`.
+4. Inscription, sur l'hôte :
+   `curl -X POST -H 'Content-Type: application/json' -d '{"captcha":"<valeur>"}' http://127.0.0.1:8081/v1/register/+33…`
+5. Code reçu par SMS :
+   `curl -X POST http://127.0.0.1:8081/v1/register/+33…/verify/<code>`
+6. Nom affiché (facultatif) : `curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Carnet de briques"}' http://127.0.0.1:8081/v1/profiles/+33…`
+7. « Envoyer un essai » dans la vue Synchronisation. Le premier message arrive comme une demande de contact, à accepter.
+
+Entretien : signal-cli doit suivre les changements des serveurs Signal ; mettre à jour `SIGNAL_IMAGE_TAG` au moins tous les trois mois, à chaque nouvelle version de l'image. Garder un courriel en second canal : un envoi Signal en échec n'empêche pas les autres.
 
 ### Logos des marques
 

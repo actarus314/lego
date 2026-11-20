@@ -6,10 +6,13 @@ message par compte, par les canaux de la variable ALERTES. Un produit « Acheté
 ALERTES : comptes séparés par « ; », canaux par « , » :
     julie=courriel:julie@exemple.fr;romain=courriel:romain@exemple.fr
 Envoi des courriels : variables SMTP_HOTE, SMTP_PORT, SMTP_SECURITE (starttls, ssl ou aucune),
-SMTP_UTILISATEUR, SMTP_MOT_DE_PASSE, SMTP_EXPEDITEUR.
+SMTP_UTILISATEUR, SMTP_MOT_DE_PASSE, SMTP_EXPEDITEUR. Signal : canal « signal:+33… », envoyé par
+signal-cli-rest-api (SIGNAL_URL, par exemple http://signal:8080) depuis le numéro SIGNAL_NUMERO.
 """
 from __future__ import annotations
 
+import http.client
+import json
 import logging
 import os
 import re
@@ -107,7 +110,28 @@ def envoyer_courriel(adresse: str, sujet: str, texte: str) -> None:
         smtp.send_message(msg)
 
 
-CANAUX = {"courriel": envoyer_courriel}
+def envoyer_signal(numero: str, sujet: str, texte: str) -> None:
+    """Message Signal par signal-cli-rest-api (conteneur voisin, SIGNAL_URL) depuis le numéro SIGNAL_NUMERO."""
+    base, expediteur = os.environ.get("SIGNAL_URL", "").rstrip("/"), os.environ.get("SIGNAL_NUMERO", "")
+    if not base or not expediteur:
+        raise RuntimeError("SIGNAL_URL ou SIGNAL_NUMERO absent")
+    p = urlsplit(base)
+    if p.scheme not in ("http", "https") or not p.hostname:
+        raise RuntimeError("SIGNAL_URL invalide")
+    conn = (http.client.HTTPSConnection if p.scheme == "https" else http.client.HTTPConnection)(
+        p.hostname, p.port or (443 if p.scheme == "https" else 80), timeout=30)
+    corps = json.dumps({"message": f"{sujet}\n\n{texte}", "number": expediteur, "recipients": [numero]})
+    try:
+        conn.request("POST", (p.path or "") + "/v2/send", body=corps, headers={"Content-Type": "application/json"})
+        r = conn.getresponse()
+        detail = r.read(2000).decode("utf-8", "replace")
+        if r.status >= 300:
+            raise RuntimeError(f"signal-cli-rest-api a répondu {r.status} : {detail[:200]}")
+    finally:
+        conn.close()
+
+
+CANAUX = {"courriel": envoyer_courriel, "signal": envoyer_signal}
 
 
 def envoyer(compte: str, sujet: str, texte: str) -> list[str]:
@@ -122,7 +146,8 @@ def envoyer(compte: str, sujet: str, texte: str) -> list[str]:
             f(adresse, sujet, texte)
         except Exception as e:  # un canal en panne n'empêche pas les autres
             log.warning("alerte %s par %s en échec : %s", compte, canal, e)
-            erreurs.append(f"{canal} : {type(e).__name__}")
+            # message propre au service (RuntimeError) gardé, type seul pour le reste (texte d'un serveur tiers)
+            erreurs.append(f"{canal} : {str(e)[:160] if type(e) is RuntimeError else type(e).__name__}")
     return erreurs
 
 

@@ -284,6 +284,43 @@ class AlertesSelection(unittest.TestCase):
             else:
                 os.environ["ALERTES"] = env
 
+    def test_envoi_signal(self):
+        """Requête attendue par signal-cli-rest-api (POST /v2/send) et erreur rendue sur refus."""
+        import json as js
+        import os
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+        from app import alertes as al
+        recu, statut = [], [201]
+
+        class Faux(BaseHTTPRequestHandler):
+            def do_POST(self):
+                recu.append((self.path, js.loads(self.rfile.read(int(self.headers["Content-Length"])))))
+                self.send_response(statut[0])
+                self.end_headers()
+                self.wfile.write(b'{"error":"User +33600000000 is not registered."}' if statut[0] >= 300 else b"{}")
+
+            def log_message(self, *a):
+                pass
+        srv = HTTPServer(("127.0.0.1", 0), Faux)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        vieux = {k: os.environ.get(k) for k in ("SIGNAL_URL", "SIGNAL_NUMERO")}
+        os.environ.update(SIGNAL_URL=f"http://127.0.0.1:{srv.server_port}/", SIGNAL_NUMERO="+33600000000")
+        try:
+            al.envoyer_signal("+33600000001", "Sujet", "Texte")
+            self.assertEqual(recu[0], ("/v2/send", {"message": "Sujet\n\nTexte", "number": "+33600000000",
+                                                    "recipients": ["+33600000001"]}))
+            statut[0] = 400
+            with self.assertRaisesRegex(RuntimeError, "400.*not registered"):
+                al.envoyer_signal("+33600000001", "Sujet", "Texte")
+            os.environ.pop("SIGNAL_NUMERO")
+            with self.assertRaisesRegex(RuntimeError, "absent"):
+                al.envoyer_signal("+33600000001", "Sujet", "Texte")
+        finally:
+            srv.shutdown()
+            for k, v in vieux.items():
+                os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+
 
 class Synchronisation(unittest.TestCase):
     def setUp(self):
