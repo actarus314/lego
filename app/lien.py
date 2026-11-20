@@ -4,7 +4,8 @@ La lecture passe par `recuperer`, qui refuse toute adresse du réseau local
 (boucle locale, réseaux privés, adresses de lien local, réservées ou de
 diffusion) et se connecte à l'adresse IP déjà vérifiée, ce qui empêche un
 nom de domaine de changer de résolution entre la vérification et la
-connexion. Les redirections sont suivies une à une, chacune revérifiée.
+connexion. Seuls les ports 80 et 443 sont acceptés. Les redirections sont
+suivies une à une, chacune revérifiée.
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ from urllib.parse import urljoin, urlsplit
 TAILLE_MAX = 3 * 1024 * 1024
 DELAI = 12
 REDIRECTIONS_MAX = 4
+PORTS = (80, 443)  # ports web standard : une boutique n'en emploie pas d'autre
 AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 
 
@@ -75,6 +77,8 @@ def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
     if p.username or p.password:
         raise LienRefuse("lien avec identifiants refusé")
     port = p.port or (443 if p.scheme == "https" else 80)
+    if port not in PORTS:
+        raise LienRefuse("seuls les ports 80 et 443 sont acceptés")
     ip = resoudre(p.hostname, port)
     chemin = (p.path or "/") + (f"?{p.query}" if p.query else "")
     sock = socket.create_connection((ip, port), timeout=DELAI)

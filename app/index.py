@@ -12,9 +12,10 @@ import re
 import threading
 import time
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from . import normalise as n
-from .donnees import _ecrire, _lire
+from .donnees import _ecrire, _lire, dans
 
 RACINE = Path(__file__).resolve().parent.parent
 VERROU = threading.RLock()
@@ -75,7 +76,7 @@ class Index:
         self._cache: tuple[float, list] | None = None
 
     def fichier(self, source_id: str) -> Path:
-        return self.dossier / f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json"
+        return dans(self.dossier, f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json")
 
     def lire(self, source_id: str) -> dict:
         return _lire(self.fichier(source_id), {"offres": [], "vus": {}})
@@ -244,7 +245,7 @@ def sets_hors_ligne() -> list[dict]:
     """Sets de la page autonome : le seul catalogue éditorial, avec les prix relevés à la main."""
     offres = editoriales()
     for it in editorial():
-        if "kbs-shop.com" in it["url"]:
+        if urlsplit(it["url"]).hostname in ("kbs-shop.com", "www.kbs-shop.com"):
             offres.append({
                 "source": "kbs", "boutique": "KBS", "pays": "Allemagne", "cle": it["cle"], "url": it["url"],
                 "nom": it["nom"], "marque": it["marque"], "numero": n.numero(it.get("ref") or "", it.get("ref")),

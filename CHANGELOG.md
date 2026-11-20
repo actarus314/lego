@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.8.2
+Sécurité, d'après l'analyse de code : reconnaissance des logos SVG réécrite en un seul passage (l'ancienne expression régulière prenait un temps exponentiel sur une suite de commentaires, ce qu'un site de marque aurait pu exploiter pour bloquer la mise à jour des logos) ; lecture d'un lien limitée aux ports 80 et 443 ; tout nom de fichier dérivé d'une requête (polices, logos, index des sources) vérifié dans son dossier après résolution des chemins ; reconnaissance des offres KBS par le nom d'hôte du lien.
+
 ## v3.8.1
 Architecture du moteur de recherche mise à jour : en service, relecture continue des fiches LEGO officiel (40 heures, 22 pour la sélection) au lieu du rythme nocturne prévu, étapes remplacées par un renvoi au CHANGELOG.
 

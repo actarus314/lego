@@ -30,7 +30,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, synchro
 from .reglage import reglage
-from .donnees import Depot
+from .donnees import Depot, dans
 from .index import Index
 
 VERSION = reglage("VERSION_APP", "dev")
@@ -133,7 +133,11 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(corps)
 
-    def _statique(self, chemin: Path, type_: str, bac_a_sable: bool = False) -> None:
+    def _statique(self, dossier: Path, nom: str, type_: str, bac_a_sable: bool = False) -> None:
+        try:
+            chemin = dans(dossier, nom)
+        except ValueError:
+            return self._erreur(404, "introuvable")
         if not chemin.is_file():
             return self._erreur(404, "introuvable")
         corps = chemin.read_bytes()
@@ -157,13 +161,13 @@ class Gestionnaire(BaseHTTPRequestHandler):
         url = urlsplit(self.path)
         m = re.fullmatch(r"/polices/([a-z0-9-]+\.(woff2|css))", url.path)
         if m:
-            return self._statique(POLICES / m.group(1), "font/woff2" if m.group(2) == "woff2" else "text/css; charset=utf-8")
+            return self._statique(POLICES, m.group(1), "font/woff2" if m.group(2) == "woff2" else "text/css; charset=utf-8")
         m = re.fullmatch(r"/logos/([a-z0-9-]{1,40})", url.path)
         if m:
             fichier = self.logos.chemin(m.group(1))
             if not fichier:
                 return self._erreur(404, "introuvable")
-            return self._statique(fichier[0], fichier[1], bac_a_sable=True)
+            return self._statique(self.logos.dossier, fichier[0], fichier[1], bac_a_sable=True)
         if url.path == "/api/sante":
             bon, raison = synchro.sante(self.journal)
             return self._json(200 if bon else 503, {"etat": "ok" if bon else "degrade", "raison": raison, "version": VERSION})

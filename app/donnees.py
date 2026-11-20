@@ -15,6 +15,16 @@ STATUTS = ("idee", "retenu", "achete")
 CHAMPS = {"url": 2048, "nom": 200, "note": 1000, "img": 2048}
 
 
+def dans(dossier: Path, nom: str) -> Path:
+    """Chemin de `nom` dans `dossier`, refusé (ValueError) s'il en sort : `..`, chemin absolu,
+    lien symbolique vers l'extérieur. Sert à tout nom de fichier dérivé d'une requête."""
+    base = os.path.realpath(dossier)
+    chemin = os.path.realpath(os.path.join(base, nom))
+    if not chemin.startswith(base + os.sep):
+        raise ValueError("chemin hors du dossier autorisé")
+    return Path(chemin)
+
+
 def _lire(chemin: Path, defaut):
     try:
         return json.loads(chemin.read_text("utf-8"))

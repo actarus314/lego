@@ -41,9 +41,27 @@ def _format(corps: bytes) -> str | None:
             return ext
     if corps[:4] == b"RIFF" and corps[8:12] == b"WEBP":
         return "webp"
-    if re.match(rb"\s*(<\?xml[^>]*>\s*)?(<!--.*?-->\s*)*<svg\b", corps[:2000], re.S):
+    if _est_svg(corps[:2000]):
         return "svg"
     return None
+
+
+def _est_svg(debut: bytes) -> bool:
+    """Prologue XML et commentaires facultatifs, puis `<svg`. Lecture d'un seul passage, sans
+    retour arrière : une expression régulière à répétition imbriquée prenait un temps
+    exponentiel sur une suite de commentaires sans `<svg`."""
+    s = debut.lstrip()
+    if s.startswith(b"<?xml"):
+        fin = s.find(b">")
+        if fin < 0:
+            return False
+        s = s[fin + 1:].lstrip()
+    while s.startswith(b"<!--"):
+        fin = s.find(b"-->", 4)
+        if fin < 0:
+            return False
+        s = s[fin + 3:].lstrip()
+    return re.match(rb"<svg\b", s) is not None
 
 
 def _candidats(site: str) -> list[str]:
@@ -88,12 +106,12 @@ class Logos:
         """{slug: adresse} des logos présents, pour la page."""
         return {s: f"logos/{s}?v={e['le'][:10]}" for s, e in self.etat().items() if e.get("fichier")}
 
-    def chemin(self, s: str) -> tuple[Path, str] | None:
+    def chemin(self, s: str) -> tuple[str, str] | None:
+        """(nom du fichier dans `dossier`, type) du logo `s` ; le serveur vérifie le chemin."""
         e = self.etat().get(s)
-        if not e or not e.get("fichier"):
+        if not e or not e.get("fichier") or e.get("format") not in TYPES:
             return None
-        p = self.dossier / e["fichier"]
-        return (p, TYPES[e["format"]]) if p.is_file() else None
+        return e["fichier"], TYPES[e["format"]]
 
     def actualiser(self, age_max_j: float = 30) -> dict:
         """Récupère les logos absents ou de plus de `age_max_j` jours. Rend {lus, echecs}."""

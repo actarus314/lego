@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.request
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from app import acces, lien
 from app.donnees import Depot
+from app.index import Index
 
 RACINE = Path(__file__).resolve().parent.parent
 
@@ -69,6 +71,11 @@ class Lien(unittest.TestCase):
             lien.recuperer("file:///etc/passwd")
         with self.assertRaises(lien.LienRefuse):
             lien.recuperer("http://user:pass@example.com/")
+
+    def test_ports_web_seulement(self):
+        for url in ("https://example.com:8443/", "http://example.com:22/", "https://example.com:0/"):
+            with self.assertRaises(lien.LienRefuse, msg=url):
+                lien.recuperer(url)
 
     def test_tls_minimum(self):
         import ssl
@@ -129,6 +136,25 @@ PRODUIT_KBS = {
     "variants": [{"price": "184.95", "available": True, "sku": "MK13199"}],
     "images": [{"src": "https://cdn.shopify.com/p.jpg"}], "published_at": "2026-10-01T10:00:00+02:00"}
 SOURCE_KBS = {"id": "kbs", "nom": "KBS", "hote": "kbs-shop.com", "prefixe": "/en", "devise": "EUR", "pays_boutique": "Allemagne"}
+
+
+class CheminsSurs(unittest.TestCase):
+    def test_dans(self):
+        from app.donnees import dans
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(dans(Path(d), "a.json"), Path(os.path.realpath(d)) / "a.json")
+            for nom in ("../a.json", "/etc/passwd", "x/../../a", "", "."):
+                with self.assertRaises(ValueError, msg=nom):
+                    dans(Path(d), nom)
+            os.symlink("/etc", os.path.join(d, "lien"))
+            with self.assertRaises(ValueError):
+                dans(Path(d), "lien/passwd")
+
+    def test_fichier_de_source(self):
+        with tempfile.TemporaryDirectory() as d:
+            i = Index(Path(d))
+            self.assertEqual(i.fichier("../../kbs").name, "kbs.json")
+            self.assertEqual(i.fichier("../../kbs").parent, Path(os.path.realpath(d)) / "sources")
 
 
 class Normalisation(unittest.TestCase):
@@ -486,7 +512,8 @@ class Serveur(unittest.TestCase):
         G.logos = Logos(Path(cls.tmp.name))
         G.logos.dossier.mkdir(parents=True)
         (G.logos.dossier / "cobi.svg").write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>')
-        (G.logos.dossier / "logos.json").write_text('{"cobi": {"fichier": "cobi.svg", "format": "svg", "le": "2026-11-20T00:00:00"}}')
+        (G.logos.dossier / "logos.json").write_text('{"cobi": {"fichier": "cobi.svg", "format": "svg", "le": "2026-11-20T00:00:00"}, '
+                                                    '"piege": {"fichier": "../../../../etc/passwd", "format": "svg", "le": "2026-11-20T00:00:00"}}')
         G.gardien = acces.Gardien({"bruno": acces.empreinte("motdepasse-b", iterations=1000),
                                    "alice": acces.empreinte("motdepasse-a", iterations=1000)})
         G.masquer = {"bruno"}
@@ -537,14 +564,25 @@ class Serveur(unittest.TestCase):
         self.assertIn("sandbox", h["Content-Security-Policy"])
         self.assertEqual(self.req("GET", "/logos/inconnu")[0], 404)
         self.assertIn(self.req("GET", "/logos/../logos.json")[0], (401, 404))
+        self.assertEqual(self.req("GET", "/logos/piege")[0], 404)
         code, page, _ = self.req("GET", "/", "alice")
-        self.assertIn('"logos": {"cobi": "logos/cobi?v=2026-11-20"}', page)
+        self.assertIn('"logos": {"cobi": "logos/cobi?v=2026-11-20", ', page)
 
     def test_formats_logo(self):
         from app import logos
         self.assertEqual(logos._format(b"\x89PNG\r\n"), "png")
         self.assertEqual(logos._format(b'<?xml version="1.0"?>\n<svg></svg>'), "svg")
         self.assertIsNone(logos._format(b"<html>pas une image</html>"))
+        self.assertEqual(logos._format(b'  <?xml version="1.0"?><!-- a --> <!----><svg viewBox="0 0 1 1"/>'), "svg")
+        self.assertIsNone(logos._format(b"<!-- a --><svgx/>"))
+        self.assertIsNone(logos._format(b"<!-- sans fin <svg>"))
+
+    def test_format_logo_temps_lineaire(self):
+        """Une suite de commentaires sans <svg> se lit d'un seul passage (temps exponentiel avant la v3.8.2)."""
+        from app import logos
+        debut = time.perf_counter()
+        self.assertIsNone(logos._format(b"<!---->" * 285 + b"x"))
+        self.assertLess(time.perf_counter() - debut, 0.1)
 
     def test_page_protegee(self):
         self.assertEqual(self.req("GET", "/")[0], 401)
@@ -566,7 +604,7 @@ class Serveur(unittest.TestCase):
         self.assertEqual(self.req("PUT", "/api/selection/cadeau1", "bruno", {"url": "https://ex.com/a"})[0], 404)
 
     def test_lien_local_refuse(self):
-        code, corps, _ = self.req("GET", "/api/lien?url=http://127.0.0.1:22/", "alice")
+        code, corps, _ = self.req("GET", "/api/lien?url=http://127.0.0.1/", "alice")
         self.assertEqual(code, 422)
         self.assertIn("refusée", corps)
 
