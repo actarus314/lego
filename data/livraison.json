@@ -1,0 +1,14 @@
+{
+ "_note": "Port vers la France des revendeurs vus dans les offres LEGO officiel (fiches BricksValue), lu sur leurs pages officielles le 20/11/2026. « port » : coût sous le seuil ; « gratuit_des » : seuil de port offert ; « estime » : donnée partielle (page sans montant précis, astérisque non détaillé, pages contradictoires). Revendeur absent ou valeur nulle : port non relevé.",
+ "revendeurs": {
+  "LEGO.com": {"port": 5.95, "gratuit_des": 55, "delai": "2 à 5 jours ouvrés", "source": "https://www.lego.com/en-fr/page/shipping-handling"},
+  "King Jouet": {"port": 6.90, "gratuit_des": 79, "delai": "4 jours ouvrés", "source": "https://www.king-jouet.com/pages/livraison-gratuite/livraison-gratuite.htm"},
+  "Galaxus": {"port": 3.90, "gratuit_des": 39, "delai": null, "source": "https://www.galaxus.fr/fr/guide/28"},
+  "Rue du Commerce": {"port": null, "gratuit_des": 39, "delai": null, "source": "https://www.rueducommerce.fr/aide/999-frais-de-port/"},
+  "Smyths Toys": {"port": null, "gratuit_des": 29, "estime": true, "delai": null, "source": "https://www.smythstoys.com/fr/fr-fr/aide-faq"},
+  "JouéClub": {"port": 6.90, "gratuit_des": null, "estime": true, "delai": "2 à 4 jours ouvrés", "source": "https://www.joueclub.fr/contenu/expeditions-et-livraisons.html"},
+  "La Grande Récré": {"port": 6.99, "gratuit_des": null, "delai": "2 à 4 jours ouvrés", "source": "https://www.lagranderecre.fr/la-grande-recre/modal-des-modes-de-livraison.html"},
+  "Fnac": {"port": null, "gratuit_des": null, "delai": "2 à 3 jours", "source": "https://www.fnac.com/livraison"},
+  "Kidinn": {"port": null, "gratuit_des": null, "delai": "expédition sous 30 jours au plus", "source": "https://www.tradeinn.com/kidinn/fr/terms/st"}
+ }
+}

@@ -443,6 +443,9 @@ const DISPO = {vente:["En vente","p-ok"], precommande:["Précommande","p-warn"],
 const plat = t => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const longueur = r => r.dims && r.dims.length ? r.dims[0] : null;
 const total = o => o.prix + (o.port || 0);
+// Classement seulement : un port non relevé compte 7 € (le plus élevé des ports relevés), pour qu'une offre
+// au port inconnu ne passe pas devant une offre au port connu ; l'écran affiche « port non relevé ».
+const rang = o => o.prix + (o.port == null ? 7 : o.port);
 const themeNom = id => (CAT.themes.find(t => t.id === id) || {}).nom || id;
 const ideeParId = id => IDEES.find(x => x.id === id);
 function preparer(){
@@ -638,7 +641,7 @@ const colsI = [
   {key:"nom",label:"Set",val:r => r.nom},
   {key:"pieces",label:"Pièces",val:r => r.pieces,cls:"num",first:"desc"},
   {key:"taille",label:"Taille",val:r => r._lg,cls:"num",first:"desc"},
-  {key:"prix",label:"Prix, port compris",val:r => total(r._meilleure),cls:"num"},
+  {key:"prix",label:"Prix, port compris",val:r => rang(r._meilleure),cls:"num"},
   {key:"act",label:"",cls:"num"},
 ];
 const LARGEURS = ["88px", "auto", "84px", "84px", "230px", "112px"];
@@ -763,7 +766,7 @@ function openFiche(id){
   if (relire) relire.onclick = async () => {
     relire.disabled = true; relire.textContent = "Lecture…";
     const res = await Promise.allSettled(r.offres.filter(x => x.source !== "editorial").map(async x => Object.assign(x, await api("GET", "api/offre?cle=" + encodeURIComponent(x.cle)))));
-    r.offres.sort((a, b) => ({vente:0, precommande:1, epuise:2}[a.dispo] - {vente:0, precommande:1, epuise:2}[b.dispo]) || total(a) - total(b));
+    r.offres.sort((a, b) => ({vente:0, precommande:1, epuise:2}[a.dispo] - {vente:0, precommande:1, epuise:2}[b.dispo]) || rang(a) - rang(b));
     r._meilleure = r.offres[0]; r.dispo = r._meilleure.dispo; r.prix = r._meilleure.prix;
     $("#f-offres").innerHTML = offresHtml(r);
     const ko = res.filter(x => x.status === "rejected").length;
@@ -955,7 +958,7 @@ function vivant(r){
   const set = ideeFor(r.url); if (!set) return null;
   const o = set.offres.find(x => norm(x.url) === norm(r.url)); if (!o) return null;
   const m = set._meilleure;
-  return {set, o, total: total(o), mieux: m !== o && total(m) < total(o) - 0.5 ? m : null};
+  return {set, o, total: total(o), mieux: m !== o && rang(m) < rang(o) - 0.5 ? m : null};
 }
 const prixSel = r => { const v = vivant(r); return v ? v.total : r.prix; };
 const colsS = [

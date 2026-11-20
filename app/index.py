@@ -19,8 +19,26 @@ from .donnees import _ecrire, _lire
 RACINE = Path(__file__).resolve().parent.parent
 VERROU = threading.RLock()
 DISPO_RANG = {"vente": 0, "precommande": 1, "epuise": 2}
+# Pour classer seulement : une offre dont le port n'est pas relevé compte ce port (le plus élevé des
+# ports relevés), pour ne pas passer devant une offre au port connu ; l'écran affiche « port non relevé ».
+PORT_INCONNU = 7.0
 # Ordre de préférence pour le nom affiché d'un set vendu par plusieurs boutiques (anglais avant allemand).
 PREFERENCE_NOM = ["editorial", "kbs", "mouldkingcorp", "bricksvalue", "bausteinreich"]
+
+
+def livraison_revendeurs() -> dict:
+    return json.loads((RACINE / "data" / "livraison.json").read_text("utf-8"))["revendeurs"]
+
+
+def port_revendeur(regle: dict | None, prix: float) -> tuple[float | None, bool]:
+    """(port, estimé) d'une offre selon les conditions du revendeur ; (None, False) si inconnu."""
+    if not regle:
+        return None, False
+    if regle.get("gratuit_des") is not None and prix >= regle["gratuit_des"]:
+        return 0.0, bool(regle.get("estime"))
+    if regle.get("port") is not None:
+        return regle["port"], bool(regle.get("estime"))
+    return None, False
 
 
 def sources_config() -> list[dict]:
@@ -115,13 +133,19 @@ class Index:
         if self._cache and self._cache[0] == cle_cache:
             return self._cache[1]
         conf = {s["id"]: s for s in sources_config()}
+        revendeurs = livraison_revendeurs()
         offres = []
         for sid in actives:
             d = self.lire(sid)
             for o in d.get("offres", []):
                 o.setdefault("releve", d.get("le"))
-                liv = (conf.get(sid) or {}).get("livraison") or {}
-                o["port"], o["delai"], o["port_estime"] = liv.get("port"), liv.get("delai"), liv.get("estime", False)
+                if sid == "bricksvalue":  # place de comparaison : le port dépend du revendeur
+                    regle = revendeurs.get(o["boutique"])
+                    o["port"], o["port_estime"] = port_revendeur(regle, o["prix"])
+                    o["delai"] = (regle or {}).get("delai")
+                else:
+                    liv = (conf.get(sid) or {}).get("livraison") or {}
+                    o["port"], o["delai"], o["port_estime"] = liv.get("port"), liv.get("delai"), liv.get("estime", False)
                 offres.append(o)
         couverts = {_cle_set(o) for o in offres}
         offres += [o for o in editoriales() if _cle_set(o) not in couverts]
@@ -140,7 +164,7 @@ class Index:
 
 
 def _total(o: dict) -> float:
-    return o["prix"] + (o.get("port") or 0)
+    return o["prix"] + (PORT_INCONNU if o.get("port") is None else o["port"])
 
 
 def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
@@ -205,7 +229,8 @@ def editoriales() -> list[dict]:
         out.append({
             "source": "editorial", "boutique": "LEGO.com", "pays": "France", "cle": it["cle"], "url": it["url"],
             "nom": it["nom"], "marque": it["marque"], "numero": n.numero(it.get("ref") or "", it.get("ref")),
-            "prix": it["prix"], "port": None, "delai": None,
+            "prix": it["prix"], "port": port_revendeur(livraison_revendeurs().get("LEGO.com"), it["prix"])[0],
+            "delai": livraison_revendeurs()["LEGO.com"]["delai"],
             "dispo": "vente" if it.get("dispo", True) else "epuise",
             "img": it.get("img"), "pieces": it.get("pcs"), "dims": None,
             "type": "technic" if it.get("type") == "Technic" else "classique",
