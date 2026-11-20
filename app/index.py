@@ -45,6 +45,36 @@ def port_revendeur(regle: dict | None, prix: float) -> tuple[float | None, bool]
     return None, False
 
 
+SERIE_MIN, SERIE_PART = 10, 0.9
+
+
+def _serie(s: dict) -> tuple[str, str] | None:
+    m = re.match(r"[A-Z]*(\d{2})\d{2,}", (s.get("numero") or "").upper())
+    return (s["marque"], m.group(1)) if m else None
+
+
+def types_par_serie(sets: list[dict]) -> None:
+    """Type de briques d'un set sans type, d'après sa série (marque et deux premiers chiffres du numéro) :
+    quand au moins 10 sets de la série ont un type connu et que 90 % d'entre eux ont le même. Mesure du
+    20/11/2026, chaque set connu prédit par les autres de sa série : 240 justes, 6 faux (Mould King 15, 16,
+    17, 19, 20…, CaDA 61, Reobrix 33 et 66). Calculé à chaque reconstruction, sur les données du moment."""
+    par_serie: dict[tuple, dict[str, int]] = {}
+    for s in sets:
+        k = _serie(s)
+        if k and s.get("type"):
+            par_serie.setdefault(k, {}).setdefault(s["type"], 0)
+            par_serie[k][s["type"]] += 1
+    regle = {}
+    for k, c in par_serie.items():
+        total = sum(c.values())
+        t, n = max(c.items(), key=lambda x: x[1])
+        if total >= SERIE_MIN and n / total >= SERIE_PART:
+            regle[k] = t
+    for s in sets:
+        if not s.get("type") and _serie(s) in regle:
+            s["type"] = regle[_serie(s)]
+
+
 def corrections() -> dict:
     """Corrections à la main (`data/corrections.json`), validées : un fichier illisible ou une valeur
     mal formée est ignoré et journalisé, sans priver le catalogue des autres corrections."""
@@ -201,6 +231,7 @@ class Index:
         out = [_set(cle if i == 0 else f"{cle}-{i}", paq, edito, self.tests if i == 0 else None)
                for cle, g in groupes.items() for i, paq in enumerate(_separer(g))]
         out = [s for s in out if s]
+        types_par_serie(out)
         for s in out:
             for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
                 if k in ("nom", "type", "themes", "dims"):

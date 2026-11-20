@@ -27,7 +27,8 @@ MARQUES = {
 # Produits qui ne sont pas des sets : lots, pièces détachées, accessoires, éclairages, vitrines.
 EXCLUS = re.compile(r"\b(bundle|accessor(y|ies)|zubeh[oö]r|partpacks?|einzelsteine|einzelteile|ersatzteile?|"
                     r"paxxs|light(ing)? kit|led[- ]?(set|kit|beleuchtung)|beleuchtung(sset)?|vitrine|display case|"
-                    r"acryl|gutschein|gift card|geschenkkarte|grundplatte|baseplate|sticker)\b", re.I)
+                    r"acryl|gutschein|gift card|geschenkkarte|grundplatte|baseplate|sticker|power function pack|power upgrade|"
+                    r"motor (?:kit|set|pack)|fidget)\b", re.I)
 
 
 def sans_accents(t: str) -> str:

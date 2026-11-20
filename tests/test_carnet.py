@@ -832,5 +832,22 @@ class Robustesse(unittest.TestCase):
         self.assertEqual(len(envois), 2, "message non parti : renvoyé au passage suivant")
 
 
+class TypeParSerie(unittest.TestCase):
+    def test_serie_majoritaire(self):
+        from app.index import types_par_serie
+        sets = [{"marque": "Mould King", "numero": f"170{k:02d}", "type": "technic"} for k in range(9)]
+        sets += [{"marque": "Mould King", "numero": "17099", "type": "classique"},
+                 {"marque": "Mould King", "numero": "17100", "type": None},
+                 {"marque": "Mould King", "numero": "24001", "type": None},
+                 {"marque": "Cobi", "numero": "17101", "type": None}]
+        types_par_serie(sets)
+        self.assertEqual([s["type"] for s in sets[-3:]], ["technic", None, None],
+                         "9 sur 10 dans la série 17 de Mould King : Technic ; rien pour une autre série ou une autre marque")
+        sets[9]["type"] = sets[8]["type"] = "classique"
+        sets[-3]["type"] = None
+        types_par_serie(sets)
+        self.assertIsNone(sets[-3]["type"], "8 sur 10 : sous le seuil de 90 %")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -216,10 +216,11 @@ nav .m-ico{display:none;vertical-align:-3px}
 .r-prog.fini .track i{background:var(--ok)}
 .r-prog .ligne b{color:var(--fg);font-weight:600}
 .r-alerte{color:var(--warn);font-weight:500}
-.r-resume{padding:14px 16px;display:flex;gap:14px 28px;flex-wrap:wrap;align-items:flex-end}
-.r-resume > div{display:grid;gap:2px}
+.r-resume{padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px 28px;align-items:start}
+.r-resume > div{display:grid;gap:2px;align-content:start;min-width:0}
+.r-resume > .large{grid-column:span 2}
 .r-resume b{font-family:var(--display);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.r-resume .sub{white-space:nowrap}
+.r-resume .sub{white-space:normal}
 .r-panne{padding:12px 16px;display:grid;gap:2px;border-color:var(--bad)}
 .r-panne b{color:var(--bad)}
 .r-panne.warn{border-color:var(--warn)} .r-panne.warn b{color:var(--warn)}
@@ -1235,8 +1236,8 @@ function renderSynchro(){
     <div><span class="lbl">Sets au catalogue</span><b>${IDEES.length}</b></div>
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
     <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
-    <div><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>
-    ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}`;
+    ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}
+    <div class="large"><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>`;
   const ea = $("#essai-alertes");
   if (ea) ea.onclick = async () => {
     ea.disabled = true; ea.textContent = "Envoi…";

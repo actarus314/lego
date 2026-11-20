@@ -42,6 +42,46 @@
    "langue": "de",
    "marque_implicite": "LEGO officiel",
    "filtre_tests": true
+  },
+  {
+   "id": "brickfreaks",
+   "nom": "The Brickfreaks",
+   "type": "youtube",
+   "chaine": "UCFn2F8BcLDsYrvtbwkKyg0Q",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UCFn2F8BcLDsYrvtbwkKyg0Q",
+   "langue": "de"
+  },
+  {
+   "id": "brodaty-geek",
+   "nom": "Brodaty Geek",
+   "type": "youtube",
+   "chaine": "UC45BsnPI-VsNgcdMwVwT9lg",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UC45BsnPI-VsNgcdMwVwT9lg",
+   "langue": "pl"
+  },
+  {
+   "id": "brick-me-up-scottie",
+   "nom": "Brick Me Up Scottie",
+   "type": "youtube",
+   "chaine": "UCvBQ7Tl0LQQOf5ukEYHbzAg",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UCvBQ7Tl0LQQOf5ukEYHbzAg",
+   "langue": "en"
+  },
+  {
+   "id": "noppenstein-stube",
+   "nom": "Noppenstein Stube",
+   "type": "youtube",
+   "chaine": "UCHM5-bJB-AJJIOuvxDkBoBQ",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHM5-bJB-AJJIOuvxDkBoBQ",
+   "langue": "de"
+  },
+  {
+   "id": "monster-brick-reviews",
+   "nom": "Monster Brick Reviews",
+   "type": "youtube",
+   "chaine": "UClpxDGXCYB4lCQZ6C1BmT9w",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UClpxDGXCYB4lCQZ6C1BmT9w",
+   "langue": "en"
   }
  ]
 }

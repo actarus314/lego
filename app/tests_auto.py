@@ -41,7 +41,7 @@ LEGO = "LEGO officiel"
 FLUX_ACCEPT = "application/atom+xml,application/rss+xml,application/xml;q=0.9,text/xml;q=0.8,*/*;q=0.5"
 
 # Écritures de marques dans les titres, en plus des alias de normalise.MARQUES.
-ALIAS_TITRES = {"reobricks": "Reobrix", "blue brixx": "BlueBrixx", "mould-king": "Mould King",
+ALIAS_TITRES = {"reobricks": "Reobrix", "xmork": "Mork", "blue brixx": "BlueBrixx", "mould-king": "Mould King",
                 "doublee": "CaDA"}
 _ALIAS = {**n.MARQUES, **ALIAS_TITRES}
 _MARQUES_RE = re.compile(r"(?<!\w)(" + "|".join(re.escape(a) for a in sorted(_ALIAS, key=len, reverse=True))
