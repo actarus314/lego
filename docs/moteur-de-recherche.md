@@ -1,6 +1,6 @@
 # Moteur de recherche — architecture (v3)
 
-État au 19/11/2026 : retenue, en construction. Remplace le catalogue figé de 34 sets par un index de tous les sets pour adultes vendus en France, tenu à jour sans intervention.
+État au 20/11/2026 : en service depuis la v3.0.0. Remplace le catalogue figé de 34 sets par un index de tous les sets pour adultes vendus en France, tenu à jour sans intervention.
 
 ## Objectif
 
@@ -8,7 +8,7 @@ L'onglet principal devient un moteur de recherche : saisie libre et filtres touj
 
 ## Principe : un index local nourri par des connecteurs
 
-Interroger chaque site à chaque frappe serait lent, fragile et impoli. Le service tient un **index local** (un fichier JSON par source dans le dossier de données) que des **connecteurs** remplissent chaque nuit et à la demande. Le navigateur reçoit tout l'index (environ 2000 sets, quelques centaines de Ko compressés) et filtre lui-même : saisie et curseurs instantanés. Ouvrir une fiche relit ses offres en direct.
+Interroger chaque site à chaque frappe serait lent, fragile et impoli. Le service tient un **index local** (un fichier JSON par source dans le dossier de données) que des **connecteurs** remplissent chaque jour et à la demande. Le navigateur reçoit tout l'index, compressé, et filtre lui-même : saisie et curseurs instantanés. Ouvrir une fiche relit ses offres en direct.
 
 | Connecteur | Sources | Apport | Charge pour la source |
 |---|---|---|---|
@@ -17,7 +17,7 @@ Interroger chaque site à chaque frappe serait lent, fragile et impoli. Le servi
 | Rebrickable, export CSV public | rebrickable.com | catalogue LEGO officiel : numéro, nom, thème, pièces, année, photo | 2 fichiers par nuit |
 | BricksValue, fiches publiques | bricksvalue.com/fr | prix LEGO.com France et offres des revendeurs français, retrait | voir ci-dessous |
 
-**BricksValue** : ses conditions interdisent la collecte automatisée sans son accord écrit ; Romain a choisi de l'utiliser pour cet usage personnel, et une demande d'accord est proposée. Une fiche pèse environ 500 Ko et presque toutes changent chaque jour : relire les 864 fiches chaque nuit coûterait 430 Mo par jour à ce site. Le connecteur se limite donc aux sets pour adultes (repérés par Rebrickable : thème et pièces), relit chaque nuit ceux de la sélection, fait tourner les autres sur une semaine, et relit une fiche quand elle est ouverte : quelques dizaines de pages par jour. Désactivé par défaut dans le dépôt public, activé par `.env` ; jamais `/api/`, exclu par robots.txt.
+**BricksValue** : ses conditions interdisent la collecte automatisée sans son accord écrit ; Romain a choisi de l'utiliser pour cet usage personnel, et une demande d'accord est proposée. Une fiche pèse environ 500 Ko et presque toutes changent chaque jour : relire les 864 fiches chaque nuit coûterait 430 Mo par jour à ce site. Le connecteur se limite donc aux sets pour adultes (16 ans et plus, ou 2000 pièces et plus, d'après Rebrickable) et les relit en continu, une fiche à la fois, la plus ancienne d'abord : chacune au moins toutes les 40 heures, celles de la sélection toutes les 22 heures ; une fiche ouverte est relue aussitôt. Désactivé par défaut dans le dépôt public, activé par `.env` ; jamais `/api/`, exclu par robots.txt.
 
 Reportés : Lumibricks et Pantasy (prix en dollars, expédition internationale : conversion et douane à traiter), Cobi et BlueBrixx (pas de catalogue JSON, microdonnées à lire), boutiques officielles CaDA (conditions interdisant la collecte) et Reobrix (rien de lisible). Écartés : LEGO.com (refuse les robots), Reddit (robots.txt), API Amazon et AliExpress (conditions d'accès), Idealo et LeDénicheur (pas d'API).
 
@@ -46,10 +46,6 @@ Les tests indépendants et verdicts des 32 sets restent attachés à leur set. L
 
 La vue « Relevé des prix » devient « Synchronisation » : une ligne par source (dernier passage, produits lus, nouveaux, disparus, erreurs) et le suivi en direct. Le conteneur passe « unhealthy » seulement si la synchronisation programmée est arrêtée ou si toutes les sources échouent : une source en panne ne bloque pas les autres.
 
-## Étapes
+## Versions
 
-1. Normalisation et connecteur Shopify (KBS, Bausteinreich, Mould King).
-2. Index, regroupement des offres, synchronisation par source, API catalogue compressée.
-3. Nouvel onglet de recherche et fiche ; vue Synchronisation.
-4. Rebrickable et BricksValue (LEGO officiel), dimensions KBS.
-5. Logos, relecture, publication v3.0.0.
+Construit de la v3.0.0 à la v3.4 (connecteurs, index, onglet de recherche, synchronisation, LEGO officiel, dimensions, logos, prix du jour dans la sélection) ; le détail de chaque version est dans le CHANGELOG.

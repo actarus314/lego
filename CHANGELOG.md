@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.8.1
+Architecture du moteur de recherche mise à jour : en service, relecture continue des fiches LEGO officiel (40 heures, 22 pour la sélection) au lieu du rythme nocturne prévu, étapes remplacées par un renvoi au CHANGELOG.
+
 ## v3.8.0
 Mots de passe : empreinte PBKDF2-SHA256 à 600 000 itérations (recommandation OWASP), les anciennes empreintes restant valables ; une connexion réussie est retenue 10 minutes en mémoire vive (empreinte HMAC, jamais le mot de passe) pour ne pas refaire le calcul à chaque requête.
 
