@@ -241,6 +241,50 @@ class LegoOfficiel(unittest.TestCase):
             self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[1], min(synchro.PAS_MAX, synchro.CIBLE_H * 3600 / 2))
 
 
+class AlertesSelection(unittest.TestCase):
+    def test_changements(self):
+        from app import alertes as al
+        avant = {"total": 200.0, "dispo": "vente", "boutique": "KBS", "retrait": None, "mieux": None}
+        apres = {"total": 180.0, "dispo": "vente", "boutique": "KBS", "retrait": "Retrait prévu d’ici le 2026-12-31",
+                 "mieux": ["Galaxus", 150.0, "https://g/x"]}
+        l = al.changements("Venator", avant, apres)
+        self.assertEqual(len(l), 3)
+        self.assertIn("180.00 € chez KBS, au lieu de 200.00 €", l[0])
+        self.assertEqual(al.changements("Venator", avant, {**avant, "total": 199.0}), [], "baisse sous le seuil")
+        self.assertIn("épuisé", al.changements("V", avant, {**avant, "dispo": "epuise"})[0])
+        self.assertIn("de nouveau en vente", al.changements("V", {**avant, "dispo": "epuise"}, avant)[0])
+
+    def test_verification_et_destinataires(self):
+        import os
+        from app import alertes as al
+        from app.index import Index
+        from app.sources import shopify
+        env = os.environ.get("ALERTES")
+        os.environ["ALERTES"] = "julie=courriel:julie@exemple.fr;romain=courriel:romain@exemple.fr,signal:+33600000000"
+        try:
+            self.assertEqual(al.destinataires()["romain"], [("courriel", "romain@exemple.fr"), ("signal", "+33600000000")])
+            with tempfile.TemporaryDirectory() as tmp:
+                i, d = Index(Path(tmp)), Depot(Path(tmp))
+                o = shopify.offre(PRODUIT_KBS, SOURCE_KBS)
+                i.enregistrer("kbs", [o])
+                d.enregistrer("a1", {"url": o["url"] + "/", "nom": "Pirate Ship", "prix": 184.95, "statut": "retenu"}, "julie")
+                d.enregistrer("a2", {"url": o["url"], "nom": "Déjà acheté", "prix": 184.95, "statut": "achete"}, "julie")
+                A = al.Alertes(Path(tmp), i, d, lambda: ["kbs"])
+                envois = []
+                self.assertEqual(A.verifier(lambda *a: envois.append(a)), {}, "premier passage : référence, sans alerte")
+                i.enregistrer("kbs", [{**o, "prix": 150.0}])
+                r = A.verifier(lambda *a: envois.append(a))
+                self.assertEqual(sorted(r), ["julie", "romain"])
+                self.assertEqual(len(envois), 2)
+                self.assertIn("Pirate Ship : 154.95 € chez KBS, au lieu de 189.90 €", envois[0][2])
+                self.assertNotIn("Déjà acheté", envois[0][2])
+        finally:
+            if env is None:
+                os.environ.pop("ALERTES", None)
+            else:
+                os.environ["ALERTES"] = env
+
+
 class Synchronisation(unittest.TestCase):
     def setUp(self):
         from app import synchro

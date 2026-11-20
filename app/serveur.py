@@ -11,6 +11,8 @@ Routes :
   PUT    /api/selection/<id>     ajoute ou modifie un produit
   DELETE /api/selection/<id>     retire un produit
   GET    /api/lien?url=…         lit une page produit (nom, prix, photo, pièces)
+  GET    /api/alertes            canaux d'alerte du compte connecté (adresses masquées)
+  POST   /api/alertes/essai      envoie un message d'essai sur ces canaux
 """
 from __future__ import annotations
 
@@ -26,7 +28,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, lien, logos as logos_mod, normalise, synchro
+from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, synchro
 from .donnees import Depot
 from .index import Index
 
@@ -48,6 +50,12 @@ def injecter(page: str, catalogue: list, mode: dict, nonce: str) -> str:
     return page.replace("<script>", f'<script nonce="{nonce}">')
 
 
+def _masquer(adresse: str) -> str:
+    """j…@exemple.fr : l'adresse reste reconnaissable sans être affichée en entier."""
+    nom, arobase, domaine = adresse.partition("@")
+    return (nom[:1] + "…" + arobase + domaine) if arobase else (adresse[:3] + "…" + adresse[-2:])
+
+
 class Gestionnaire(BaseHTTPRequestHandler):
     server_version = "carnet-briques"
     sys_version = ""
@@ -55,6 +63,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
     index: Index
     journal: synchro.Journal
     logos: logos_mod.Logos
+    alertes: alertes_mod.Alertes
     gardien: acces.Gardien | None
     masquer: set[str]
 
@@ -180,6 +189,10 @@ class Gestionnaire(BaseHTTPRequestHandler):
             except (OSError, ValueError):
                 log.info("relecture d'offre en échec", exc_info=True)
                 return self._erreur(422, "Relecture impossible : boutique injoignable ou réponse illisible")
+        if url.path == "/api/alertes":
+            canaux = alertes_mod.destinataires().get(compte, [])
+            return self._json(200, {"canaux": [{"canal": c, "adresse": _masquer(a)} for c, a in canaux],
+                                    "comptes": len(alertes_mod.destinataires())})
         if url.path == "/api/lien":
             cible = (parse_qs(url.query).get("url") or [""])[0]
             try:
@@ -224,6 +237,14 @@ class Gestionnaire(BaseHTTPRequestHandler):
         compte = self._compte()
         if not compte:
             return
+        if urlsplit(self.path).path == "/api/alertes/essai":
+            if not alertes_mod.destinataires().get(compte):
+                return self._erreur(409, "aucun canal d'alerte pour ce compte")
+            erreurs = alertes_mod.envoyer(compte, "Carnet de briques : essai des alertes",
+                                          "Les alertes de la sélection arriveront ici.")
+            if erreurs:
+                return self._json(502, {"erreur": "; ".join(erreurs), "erreurs": erreurs})
+            return self._json(200, {"erreurs": []})
         if urlsplit(self.path).path == "/api/synchro":
             try:
                 corps = self._corps_json()
@@ -263,6 +284,9 @@ def main():
     Gestionnaire.journal = synchro.Journal(donnees)
     Gestionnaire.logos = logos_mod.Logos(donnees)
     Gestionnaire.logos.demarrer()
+    Gestionnaire.alertes = alertes_mod.Alertes(donnees, Gestionnaire.index, Gestionnaire.depot,
+                                               lambda: [s["id"] for s in synchro.actives()])
+    Gestionnaire.alertes.demarrer()
     heures = float(os.environ.get("RELEVE_HEURES", "24"))
     synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
     if heures > 0:

@@ -1089,8 +1089,10 @@ const colsH = [
 async function chargerCatalogue(){
   try { CAT = await api("GET", "api/catalogue"); preparer(); renderAll(); } catch (e) { toast("Catalogue indisponible : " + e.message, true); }
 }
+let ALERTES = null;
 async function chargerSynchro(){
   try { R = await api("GET", "api/synchro"); } catch (e) { toast("Synchronisation illisible : " + e.message, true); return; }
+  if (!ALERTES) try { ALERTES = await api("GET", "api/alertes"); } catch { ALERTES = {canaux: []}; }
   renderSynchro();
   if (R.etat.en_cours) suivre();
 }
@@ -1161,7 +1163,14 @@ function renderSynchro(){
     <div><span class="lbl">Sets au catalogue</span><b>${IDEES.length}</b></div>
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
     <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
+    <div><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>
     ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}`;
+  const ea = $("#essai-alertes");
+  if (ea) ea.onclick = async () => {
+    ea.disabled = true; ea.textContent = "Envoi…";
+    try { await api("POST", "api/alertes/essai"); ea.textContent = "Essai envoyé"; }
+    catch (e) { ea.textContent = "Échec de l’envoi"; toast("Essai des alertes : " + e.message, true); }
+  };
   sortable("t-sources", colsR, lignes, sR, r => `<tr>
     <td class="wide" data-k="Source"><span class="name">${esc(r.nom)}</span></td>
     <td data-k="Résultat"><span class="pill ${r.etat === "ok" ? "p-ok" : r.etat === "echec" ? "p-warn" : "p-neutral"}">${r.etat === "ok" ? "Lue" : r.etat === "echec" ? "Échec" : "Jamais lue"}</span></td>

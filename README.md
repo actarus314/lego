@@ -36,6 +36,10 @@ Les tests indépendants et verdicts de `data/catalogue.json` s'attachent aux set
 
 La synchronisation se suit dans la page (bouton en haut à droite) : avancement, résultat par source, relance des échecs, historique. `/api/sante` répond 503 quand la synchronisation programmée est arrêtée, quand toutes les sources ont échoué ou quand aucune n'a réussi depuis deux périodes : le conteneur passe alors « unhealthy ». Une page lue par lien ne peut viser qu'une adresse publique.
 
+### Alertes sur la sélection
+
+Chaque heure, le service compare l'état du jour de chaque produit suivi de la sélection (retrouvé dans l'index par l'adresse de l'offre choisie) au dernier état connu : baisse de prix (2 € et 2 % au moins, port compris), rupture, retour en vente, retrait annoncé, offre moins chère ailleurs. Les changements partent en un seul message par compte, aux canaux de la variable `ALERTES` (courriel par un serveur SMTP déclaré dans le `.env`). Un produit « Acheté » ne déclenche rien. La vue Synchronisation montre les canaux du compte connecté et envoie un message d'essai.
+
 ### Logos des marques
 
 Le service récupère l'icône du site officiel de chaque marque listée dans `data/marques.json` (page d'accueil : apple-touch-icon, puis la plus grande icône, puis `/favicon.ico` ; adresse directe quand le site refuse les robots), une fois par mois, et la garde dans `logos/` du dossier de données. Les images sont vérifiées par leur signature et servies sans script ni ressource externe. Une marque sans site connu garde une pastille à initiales. Le dépôt ne contient aucun logo.

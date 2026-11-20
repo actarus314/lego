@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.5.0
+Alertes sur la sélection par courriel : baisse de prix, rupture, retour en vente, retrait annoncé, offre moins chère ailleurs, vérifiées chaque heure, un message par compte (variables ALERTES et SMTP_*) ; essai depuis la vue Synchronisation.
+
 ## v3.4.1
 Port des revendeurs LEGO officiel relevé sur leurs pages officielles (LEGO.com 5.95 €, offert dès 55 € ; King Jouet ; Galaxus ; seuils de Rue du Commerce et Smyths ; JouéClub et La Grande Récré) ; une offre au port inconnu ne passe plus devant une offre au port connu.
 
