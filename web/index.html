@@ -158,7 +158,7 @@ td.ph{width:152px}
 select.status{height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:12.5px var(--body);padding:0 6px}
 /* Recherche : filtres fixes à gauche, résultats à droite */
 .rech{display:grid;grid-template-columns:292px minmax(0,1fr);gap:20px;align-items:start}
-.filtres{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(100dvh - 88px);overflow:auto;display:grid;gap:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
+.filtres{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(100dvh - 88px);overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
 .filtres .q{height:36px;width:100%;border:1px solid var(--line);background:var(--sunk);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
 .fbloc{display:grid;gap:6px}
 .fbloc > .lbl{display:flex;justify-content:space-between;gap:8px}
@@ -179,7 +179,7 @@ nav .m-ico{display:none;vertical-align:-3px}
 .ico-type{width:16px;height:16px;flex:none;color:currentColor}
 #t-idees{table-layout:fixed}
 .fhaut{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.fhaut select{height:30px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 6px;font:13px var(--body);min-width:0}
+.fhaut select{flex:1 1 auto;height:30px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 6px;font:13px var(--body);min-width:0}
 .voir{display:none}
 .alerte-l{color:var(--warn)}
 .res-tete{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
@@ -256,6 +256,7 @@ dialog::backdrop{background:rgba(10,15,22,.55)}
 .galerie button[aria-pressed="true"]{border-color:#1f4fa8;box-shadow:0 0 0 1px #1f4fa8}
 .galerie button:focus-visible{outline:2px solid #1f4fa8;outline-offset:2px}
 .galerie img{width:100%;height:100%;object-fit:contain}
+.galerie svg{width:24px;height:24px}
 details.autres > summary{list-style:none;cursor:pointer;display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);padding:6px 4px}
 details.autres > summary::-webkit-details-marker{display:none}
 details.autres > summary svg{transition:transform .15s}
@@ -539,12 +540,18 @@ const norm = u => { try { const x = new URL(u); return (x.hostname.replace(/^www
 const ideeFor = u => IDEES.find(r => r.offres.some(o => norm(o.url) === norm(u)));
 const thumbUrl = (u, w) => u && u.includes("cdn.shopify.com") ? u + (u.includes("?") ? "&" : "?") + "width=" + w : u;
 const BRICK = '<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="20" rx="4" fill="var(--faint)"/><g fill="var(--card)"><circle cx="8" cy="10" r="2.6"/><circle cx="18" cy="10" r="2.6"/><circle cx="8" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/></g></svg>';
-const thumb = (src, alt) => `<span class="thumb">${src ? `<img src="${esc(thumbUrl(safeUrl(src), 240))}" alt="${esc(alt)}" loading="lazy">` : BRICK}</span>`;
+const thumb = (src, alt, secours) => { src = src || secours; if (secours === src) secours = "";
+  return `<span class="thumb">${src ? `<img src="${esc(thumbUrl(safeUrl(src), 240))}" alt="${esc(alt)}" loading="lazy"${secours ? ` data-secours="${esc(thumbUrl(safeUrl(secours), 240))}"` : ""}>` : BRICK}</span>`; };
 const gauge = n => `<span class="gauge g${n}" aria-label="Fiabilité ${n} sur 3">${[1,2,3].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</span>`;
 const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } }, set(k,v){ try { localStorage.setItem(k,v); return localStorage.getItem(k) === v; } catch { return false; } } };
 function toast(msg, err){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, Math.max(err ? 4500 : 2200, msg.length * 60)); }
 
-document.addEventListener("error", e => { const t = e.target; if (t.tagName === "IMG" && t.closest(".thumb")) t.replaceWith(document.createRange().createContextualFragment(BRICK)); }, true);
+/* Photo qui ne s'affiche pas : photo de secours, sinon brique (grande photo de la fiche : voir openFiche) */
+const brique = () => document.createRange().createContextualFragment(BRICK);
+document.addEventListener("error", e => { const t = e.target; if (t.tagName !== "IMG") return;
+  if (t.dataset.secours){ const s = t.dataset.secours; delete t.dataset.secours; t.src = s; return; }
+  if (t.closest(".thumb") || t.closest(".galerie")) t.replaceWith(brique());
+}, true);
 
 /* ---------- Thème ---------- */
 const THEMES = ["auto","light","dark"], THEME_LBL = {auto:"automatique",light:"clair",dark:"sombre"};
@@ -809,6 +816,8 @@ function openFiche(id){
     relire.textContent = ko ? `${ko} offre${ko > 1 ? "s" : ""} non relue${ko > 1 ? "s" : ""}` : "Prix à jour";
     renderIdees();
   };
+  const sansPhoto = p => { p.hidden = true; p.dataset.ko = "1"; if (!p.parentElement.querySelector(":scope > svg")) p.after(brique()); };
+  const photo0 = $("#f-photo"); if (photo0) photo0.onerror = () => sansPhoto(photo0);   // photo refusée au navigateur
   if (MODE.serveur) api("GET", "api/fiche?id=" + encodeURIComponent(r.id)).then(d => {
     if (!dlg.open || $("#f-titre")?.textContent !== r.nom) return;
     const imgs = (d.images || []).filter(Boolean);
@@ -827,6 +836,16 @@ function openFiche(id){
       };
       prec.hidden = suiv.hidden = compte.hidden = false;
       compte.textContent = `1 / ${imgs.length}`;
+      const retirer = () => {   // photo qui ne s'affiche pas : retirée du défilement, la suivante prend sa place
+        imgs.splice(cur, 1); gal.querySelectorAll("button")[cur]?.remove();
+        gal.querySelectorAll("button").forEach((b, j) => { b.dataset.i = j; b.setAttribute("aria-label", `Photo ${j + 1} sur ${imgs.length}`); });
+        if (imgs.length < 2) gal.hidden = prec.hidden = suiv.hidden = compte.hidden = true;
+        if (!imgs.length) return sansPhoto(photo);
+        photo.hidden = false; delete photo.dataset.ko; grande.querySelector(":scope > svg")?.remove();
+        montrer(cur);
+      };
+      photo.onerror = retirer;
+      if (photo.dataset.ko) retirer();   // grande photo déjà en échec avant l'arrivée de la galerie
       prec.onclick = () => montrer(cur - 1);
       suiv.onclick = () => montrer(cur + 1);
       gal.onclick = e => { const b = e.target.closest("button[data-i]"); if (b) montrer(+b.dataset.i); };
@@ -1079,7 +1098,7 @@ function renderSel(){
   sortable("t-sel", colsS, rows, sS, r => {
     const shop = shopFor(r.url), known = ideeFor(r.url);
     return `<tr>
-      <td class="ph">${known ? `<a href="#" data-open="${known.id}" aria-label="Fiche de ${esc(r.nom)}">${thumb(r.img, r.nom)}</a>` : thumb(r.img, r.nom)}</td>
+      <td class="ph">${known ? `<a href="#" data-open="${known.id}" aria-label="Fiche de ${esc(r.nom)}">${thumb(r.img_ecartee ? "" : r.img, r.nom, known.img)}</a>` : thumb(r.img_ecartee ? "" : r.img, r.nom)}</td>
       <td class="full" data-k="Produit"><a class="name" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom || r.url)}</a>
         <div class="sub">${shop ? `${esc(shop.nom)} · ${esc(shop.delai)}${shop.douane ? " · douane possible" : ""}` : esc(hostOf(r.url))}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pcs ?? "—"}</span></td>
@@ -1263,6 +1282,7 @@ function renderSynchro(){
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
     <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
     ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}
+    ${R.photos && R.photos.total ? `<div><span class="lbl">Photos trouvées</span><b>${R.photos.trouvees} / ${R.photos.total}</b><span class="sub">${[R.photos.ecartees ? `${R.photos.ecartees} introuvable${R.photos.ecartees > 1 ? "s" : ""}` : "", R.photos.non_verifiables ? `${R.photos.non_verifiables} non vérifiable${R.photos.non_verifiables > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</span></div>` : ""}
     <div class="large"><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>`;
   const ea = $("#essai-alertes");
   if (ea) ea.onclick = async () => {

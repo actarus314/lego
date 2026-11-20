@@ -24,6 +24,7 @@ TAILLE_MAX = 3 * 1024 * 1024
 DELAI = 12
 REDIRECTIONS_MAX = 4
 PORTS = (80, 443)  # ports web standard : une boutique n'en emploie pas d'autre
+ENTETES_LUS = ("Cross-Origin-Resource-Policy",)  # lu pour savoir si une photo peut s'afficher sur un autre site
 AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 
 
@@ -42,6 +43,7 @@ class Reponse:
     type: str
     corps: bytes
     attente: str | None = None
+    entetes: dict | None = None   # en-têtes de ENTETES_LUS présents dans la réponse, noms en minuscules
 
 
 def _ip_publique(ip: str) -> bool:
@@ -78,7 +80,9 @@ def _chemin(p) -> str:
     return chemin + (("?" + quote(p.query, safe="/%:@!$&'()*+,;=~-._?")) if p.query else "")
 
 
-def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
+def _get(url: str, accept: str, entetes: dict | None = None, max_octets: int | None = None) -> Reponse:
+    """Une requête GET, sans suivre de redirection. `max_octets` : n'en lire que ce début, sans
+    dépassement ni décompression (essai d'une photo dont le site ignore l'en-tête Range)."""
     p = urlsplit(url)
     if p.scheme not in ("http", "https") or not p.hostname:
         raise LienRefuse("seuls les liens http et https sont acceptés")
@@ -106,6 +110,9 @@ def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
         r = conn.getresponse()
         if 300 <= r.status < 400 and r.getheader("Location"):
             return Reponse(urljoin(url, r.getheader("Location")), r.status, "", b"")
+        if max_octets:
+            return Reponse(url, r.status, r.getheader("Content-Type", ""), r.read(max_octets), r.getheader("Retry-After"),
+                           {k.lower(): r.getheader(k) for k in ENTETES_LUS if r.getheader(k)})
         corps = r.read(TAILLE_MAX + 1)
         if len(corps) > TAILLE_MAX:
             raise LienRefuse("page trop volumineuse")
@@ -117,19 +124,20 @@ def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
                 raise LienRefuse("réponse compressée illisible") from e
             if len(corps) > TAILLE_MAX:
                 raise LienRefuse("page trop volumineuse")
-        return Reponse(url, r.status, r.getheader("Content-Type", ""), corps, r.getheader("Retry-After"))
+        return Reponse(url, r.status, r.getheader("Content-Type", ""), corps, r.getheader("Retry-After"),
+                       {k.lower(): r.getheader(k) for k in ENTETES_LUS if r.getheader(k)})
     finally:
         sock.close()
 
 
 def recuperer(url: str, accept: str = "text/html,application/json;q=0.9,*/*;q=0.5",
-              entetes: dict | None = None) -> Reponse:
+              entetes: dict | None = None, statuts: tuple[int, ...] = (200,), max_octets: int | None = None) -> Reponse:
     for _ in range(REDIRECTIONS_MAX + 1):
-        r = _get(url, accept, entetes)
-        if 300 <= r.statut < 400:
+        r = _get(url, accept, entetes, max_octets)
+        if 300 <= r.statut < 400 and r.url != url:   # redirection ; un 3xx sans Location est refusé plus bas
             url = r.url
             continue
-        if r.statut != 200:
+        if r.statut not in statuts:
             e = LienRefuse(f"le site a répondu {r.statut}")
             e.statut, e.attente = r.statut, r.attente
             raise e

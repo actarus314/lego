@@ -178,7 +178,9 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if url.path == "/":
             return self._page(compte)
         if url.path == "/api/selection":
-            return self._json(200, [s for s in self.depot.selection() if self._visible(compte, s)])
+            ecartees = self.index.photos.ecartees()  # photo écartée : la page montre celle du catalogue
+            return self._json(200, [({**s, "img_ecartee": True} if s.get("img") in ecartees else s)
+                                    for s in self.depot.selection() if self._visible(compte, s)])
         if url.path == "/api/catalogue":
             cat = self._catalogue()  # photos et liens de tests servis à l'ouverture d'une fiche (/api/fiche)
             cat["sets"] = [{k: v for k, v in x.items() if k not in ("images", "liens_tests")} for x in cat["sets"]]
@@ -188,6 +190,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
             return self._json(200, {"etat": synchro.etat(), "dernier": d.get("dernier"),
                                     "historique": d.get("historique", []), "sources": synchro.actives(),
                                     "rotation": synchro.etat_rotation(self.index),
+                                    "photos": self.index.photos.resume(),
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
             cle = (parse_qs(url.query).get("cle") or [""])[0]
@@ -295,6 +298,15 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self.wfile.write(corps)
 
 
+def photos_a_verifier() -> list[str]:
+    """Photos principales des sets, puis celles de la sélection, puis les galeries."""
+    idx = Gestionnaire.index
+    idx.sets([s["id"] for s in synchro.actives()])
+    principales, galeries = idx.photos_brutes
+    choisies = [x.get("img") for x in Gestionnaire.depot.selection() if x.get("img")]
+    return list(dict.fromkeys(principales + choisies + galeries))
+
+
 def main():
     logging.basicConfig(level=reglage("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
     donnees = Path(reglage("CHEMIN_DONNEES", "/donnees"))
@@ -314,6 +326,8 @@ def main():
     Gestionnaire.surveillance = surveillance.Surveillance(donnees, Gestionnaire.journal, Gestionnaire.index)
     Gestionnaire.surveillance.demarrer()
     heures = float(reglage("RELEVE_HEURES", "24"))
+    if heures > 0:   # vérification continue des photos (photos.py)
+        Gestionnaire.index.photos.demarrer(photos_a_verifier)
     synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
     if heures > 0:
         synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])

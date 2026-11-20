@@ -17,6 +17,7 @@ from urllib.parse import urlsplit
 
 from . import normalise as n
 from .tests_auto import Tests
+from .photos import Photos, adresses as adresses_photos, appliquer as appliquer_photos
 from .donnees import _ecrire, _lire, dans
 
 RACINE = Path(__file__).resolve().parent.parent
@@ -135,6 +136,8 @@ class Index:
         self.dossier = Path(dossier) / "sources"
         self._cache: tuple[float, list] | None = None
         self.tests = Tests(Path(dossier))   # liens de tests indépendants (voir tests_auto.py)
+        self.photos = Photos(Path(dossier))  # photos vérifiées (voir photos.py)
+        self.photos_brutes: tuple[list[str], list[str]] = ([], [])
 
     def fichier(self, source_id: str) -> Path:
         return dans(self.dossier, f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json")
@@ -193,7 +196,7 @@ class Index:
     def sets(self, actives: list[str]) -> list[dict]:
         intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
             "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json")] + [
-            self.dossier.parent / "livraison_lue.json"]
+            self.dossier.parent / "livraison_lue.json", self.photos.fichier]
         cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
                      self.tests.signature())
         if self._cache and self._cache[0] == cle_cache:
@@ -236,6 +239,8 @@ class Index:
             for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
                 if k in ("nom", "type", "themes", "dims"):
                     s[k] = v
+        self.photos_brutes = adresses_photos(out)
+        appliquer_photos(out, self.photos.ecartees())
         self._cache = (cle_cache, out)
         return out
 

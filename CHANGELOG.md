@@ -1,5 +1,11 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.10.2
+- Photos vérifiées en continu par le service (`app/photos.py`) : chaque photo du catalogue et de la sélection est essayée (4 Ko, sans référent, comme la page) ; une photo introuvable est remplacée par la suivante du set. Écartée aussitôt si son site en interdit l'affichage ailleurs ou si elle n'est pas en https ; après deux constats d'absence à un jour d'écart (404, 410, page à la place de l'image) ; après des échecs passagers trois jours différents. Refus (401, 403) : photo gardée, comptée « non vérifiable ». Site laissé jusqu'au passage suivant après trois échecs de suite ou un 429 ; passage horaire de 20 minutes au plus. Cas d'origine : Concorde (10318), dont la photo Rebrickable répond 404 (seule photo introuvable sur 2450 essayées sur un catalogue de 887 sets) ; la photo de BricksValue la remplace.
+- Page : une photo qui ne s'affiche pas cède la place à la suivante de la galerie, puis à la brique ; dans la sélection, à la photo du catalogue (la photo enregistrée reste inchangée). Vue Synchronisation : « Photos trouvées ».
+- Filtres de la recherche : plus de barre de défilement horizontale (la liste de tri et « Réinitialiser » élargissaient la colonne de 4 px).
+- Lecture d'un lien : statuts acceptés au choix, lecture bornée, réponse de redirection sans adresse refusée au lieu de boucler.
+
 ## v3.10.1
 Vignettes de la liste agrandies (128 × 96 sur ordinateur, 96 × 72 sur téléphone) et montrées entières : une photo haute ou carrée était rognée. Fiche : défilement des photos par flèches, glissement du doigt ou flèches du clavier, compteur « 2 / 3 » annoncé aux lecteurs d'écran, zone photo de hauteur constante.
 

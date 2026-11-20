@@ -472,7 +472,7 @@ class Encodage(unittest.TestCase):
         reel = lien._get
         appels = []
 
-        def faux_get(url, accept, entetes=None):
+        def faux_get(url, accept, entetes=None, max_octets=None):
             appels.append(url)
             if len(appels) == 1:
                 return lien.Reponse("http://127.0.0.1/secret", 302, "", b"")

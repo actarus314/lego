@@ -43,6 +43,7 @@ Les tests indépendants et verdicts des 32 sets restent attachés à leur set. S
 - Plus de titre : la saisie libre en tête (nom, numéro, marque, thème en français).
 - Filtres toujours visibles au défilement (colonne fixe sur ordinateur, barre fixe dépliable sur téléphone) : thèmes ; marques par leur logo ; type de briques par une icône (brique ou poutre Technic) ; curseur de prix plafond ; curseur de taille (plus grande dimension) ; disponibilité.
 - Résultat : photo, logo, nom, pièces, taille, meilleur prix port compris, nombre de boutiques, fraîcheur ; fiche : offres relues en direct, tests, achat.
+- Photos : liens vers les sources, vérifiés en continu par le service ; photo introuvable remplacée par la suivante du set (README, « Photos des sets »).
 - Logos : icônes des sites des marques récupérées par le service dans son dossier de données (rien dans le dépôt) ; pastille aux initiales sinon.
 
 ## Suivi et santé

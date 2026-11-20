@@ -61,13 +61,17 @@ Signal retire un appareil relié resté 30 jours sans connexion : le conteneur r
 
 Entretien : signal-cli doit suivre les changements des serveurs Signal ; mettre à jour `SIGNAL_IMAGE_TAG` au moins tous les trois mois, à chaque nouvelle version de l'image. Un envoi Signal en échec n'empêche pas les autres canaux.
 
+### Photos des sets
+
+Les photos restent chez leurs sources (lien seulement). Le service vérifie chaque photo du catalogue et de la sélection toutes les heures, par lots (4 Ko lus, sans référent, comme la page) ; une photo écartée est remplacée par la suivante du set. Écartée : dès le premier constat si son site en interdit l'affichage ailleurs (`Cross-Origin-Resource-Policy`) ou si elle n'est pas en https ; au second constat d'absence à un jour d'écart (404, 410, page à la place de l'image) ; après des échecs passagers trois jours différents. Un refus (401, 403) ne distingue pas un blocage des robots d'un refus au navigateur : la photo est gardée et comptée « non vérifiable » dans la vue Synchronisation. Revérification : 30 jours pour une photo trouvée, 7 pour une photo écartée. Un site qui échoue trois fois de suite ou répond 429 est laissé jusqu'au passage suivant. Dans la page, une photo qui ne s'affiche pas cède la place à la suivante de la galerie, puis à la brique. Limite : une photo gardée par le service mais refusée au navigateur donne la brique dans la liste des résultats (la liste ne reçoit qu'une photo par set).
+
 ### Logos des marques
 
 Le service récupère l'icône du site officiel de chaque marque listée dans `data/marques.json` (adresse directe si elle est déclarée, puis page d'accueil : la plus grande icône déclarée, mesurée dans le fichier, logo de la page, `/favicon.ico`), une fois par mois, et la garde dans `logos/` du dossier de données. Un échec est réessayé au bout de 1, 3, 7 puis 30 jours. Les images sont vérifiées par leur signature et servies sans script ni ressource externe. Une marque sans site connu garde une pastille à initiales. Le dépôt ne contient aucun logo.
 
 ### Données
 
-Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `dimensions_<source>.json` et `reference_lego.json` (caches).
+Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `photos.json` (photos vérifiées), `dimensions_<source>.json` et `reference_lego.json` (caches).
 
 ## Développement
 
