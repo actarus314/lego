@@ -8,26 +8,26 @@ services:
     restart: unless-stopped
     ports:
       - "${ADRESSE_ECOUTE:-127.0.0.1}:${PORT_HOTE:-8080}:8080"
-    # Réglages du service : transmis par leur nom depuis le .env, valeur par défaut dans le code
-    # (une variable absente ou vide prend cette valeur). Voir .env.example.
+    # Réglages du service. ${VAR} : obligatoire. ${VAR:-} : facultatif ; vide, le code prend sa valeur par
+    # défaut ou la fonction reste éteinte. Un canal d'ALERTES sans ses réglages empêche le démarrage.
     environment:
-      - UTILISATEURS
-      - AUTH_DESACTIVEE
-      - ACHATS_MASQUES_POUR
-      - RELEVE_HEURES
-      - SOURCES
-      - ALERTES
-      - ADRESSE_PUBLIQUE
-      - SMTP_HOTE
-      - SMTP_PORT
-      - SMTP_SECURITE
-      - SMTP_UTILISATEUR
-      - SMTP_MOT_DE_PASSE
-      - SMTP_EXPEDITEUR
-      - SIGNAL_URL
-      - SIGNAL_NUMERO
-      - JOURNAL
-      - TZ=${TZ:-Europe/Paris}
+      UTILISATEURS: ${UTILISATEURS}
+      AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-}
+      ACHATS_MASQUES_POUR: ${ACHATS_MASQUES_POUR:-}
+      RELEVE_HEURES: ${RELEVE_HEURES:-}
+      SOURCES: ${SOURCES:-}
+      ALERTES: ${ALERTES:-}
+      ADRESSE_PUBLIQUE: ${ADRESSE_PUBLIQUE:-}
+      SMTP_HOTE: ${SMTP_HOTE:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURITE: ${SMTP_SECURITE:-}
+      SMTP_UTILISATEUR: ${SMTP_UTILISATEUR:-}
+      SMTP_MOT_DE_PASSE: ${SMTP_MOT_DE_PASSE:-}
+      SMTP_EXPEDITEUR: ${SMTP_EXPEDITEUR:-}
+      SIGNAL_URL: ${SIGNAL_URL:-}
+      SIGNAL_NUMERO: ${SIGNAL_NUMERO:-}
+      JOURNAL: ${JOURNAL:-}
+      TZ: ${TZ:-Europe/Paris}
     volumes:
       - ${DOSSIER_DONNEES:-./donnees}:/donnees
     read_only: true

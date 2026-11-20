@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.2
+Compose : réglages du service de nouveau écrits en interpolation, lisible par Dockhand (« ${VAR} » obligatoire pour UTILISATEURS, « ${VAR:-} » facultatif, la valeur par défaut restant dans le code) ; un nom seul était signalé comme variable inutilisée. Clés Signal à garder hors du dossier de données du service.
+
 ## v3.7.1
 Compose : réglages du service transmis par leur seul nom, valeurs par défaut dans le code, une ligne vide du .env valant comme absente ; valeurs par défaut du compose gardées seulement quand elles fonctionnent telles quelles (volume Docker pour Signal). .env.example : obligatoire actif, facultatif en commentaire. Démarrage refusé si un canal d'ALERTES manque de ses réglages ; port SMTP 465 par défaut avec ssl.
 
