@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.7
+README, Signal : liste des groupes lisible, un groupe par ligne (nom, identifiant).
+
 ## v3.7.6
 README, Signal : commandes avec le port de PORT_SIGNAL au lieu de 8081 en dur, curl qui affiche ses erreurs.
 

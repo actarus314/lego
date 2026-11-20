@@ -47,7 +47,7 @@ Le conteneur [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-
 1. Dans le `.env` : `COMPOSE_PROFILES=signal` et `SIGNAL_NUMERO=+33…` (numéro du compte). Les clés de l'appareil relié vont dans un volume Docker ; pour un dossier de l'hôte à la place, à côté du dossier de données (que le service Carnet voit) et non dedans : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`, puis `DOSSIER_SIGNAL=/docker/lego/signal` et `DOSSIER_DONNEES=/docker/lego/donnees`. Redéployer.
 2. Depuis un poste du réseau, tunnel vers l'API (ouverte sur 127.0.0.1 seulement) : `ssh -L <port>:127.0.0.1:<port> <hôte>`, `<port>` étant `PORT_SIGNAL` (8081 par défaut), puis ouvrir `http://127.0.0.1:<port>/v1/qrcodelink?device_name=Carnet%20de%20briques`.
 3. Dans Signal sur le téléphone : Réglages, Appareils reliés, « + », scanner le QR code.
-4. Créer le groupe dans Signal, puis relever son identifiant : `curl -sS http://127.0.0.1:<port>/v1/groups/+33…` (numéro de `SIGNAL_NUMERO` ; champ `id`, de la forme `group.…` ; si le groupe manque, relancer après `curl -sS http://127.0.0.1:<port>/v1/receive/+33…`).
+4. Créer le groupe dans Signal, puis relever son identifiant (numéro de `SIGNAL_NUMERO`) : `curl -sS http://127.0.0.1:<port>/v1/groups/+33… | python3 -c 'import json,sys; [print(g["name"], g["id"], sep="  ") for g in json.load(sys.stdin)]'` (un groupe par ligne : nom, puis identifiant `group.…` ; si le groupe manque, relancer après `curl -sS http://127.0.0.1:<port>/v1/receive/+33…`).
 5. Dans `ALERTES`, le groupe pour chaque compte : `julie=signal:group.…;romain=signal:group.…,courriel:…`. Une même destination ne reçoit chaque message qu'une fois. Redéployer.
 6. « Envoyer un essai » dans la vue Synchronisation.
 
