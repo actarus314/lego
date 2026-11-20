@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.10.1
+Vignettes de la liste agrandies (128 × 96 sur ordinateur, 96 × 72 sur téléphone) et montrées entières : une photo haute ou carrée était rognée. Fiche : défilement des photos par flèches, glissement du doigt ou flèches du clavier, compteur « 2 / 3 » annoncé aux lecteurs d'écran, zone photo de hauteur constante.
+
 ## v3.10.0
 - Type de briques par série (marque et deux premiers chiffres du numéro), calculé sur les données : 9 sets sur 10 au moins d'un même type dans une série d'au moins 10 sets connus ; validé à 240 justes pour 6 faux. Types relevés sur les photos pour 46 cas nets que rien d'autre ne tranchait (`data/corrections.json`). Sets sans type : 107 → 32.
 - Tests indépendants : cinq chaînes ajoutées (The Brickfreaks, Brodaty Geek, Brick Me Up Scottie, Monster Brick Reviews, Noppenstein Stube ; amorce de 6276 liens au total), alias « XMORK ». Sets alternatifs avec au moins un test : 90 → 244 (Mould King 45 → 152 sur 598, Reobrix 1 → 19, CaDA 25 → 35, Cobi 13 → 19, Sembo, Guly, Panlos et Mork de 0 à 2).
