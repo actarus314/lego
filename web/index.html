@@ -100,6 +100,7 @@ td.num .sub{white-space:normal}
 .name{font-weight:600;color:var(--fg)}
 .nb{all:unset;cursor:pointer;font-weight:600;color:var(--fg)} .nb:hover{color:var(--accent);text-decoration:underline} .nb:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .sub{color:var(--muted);font-size:12.5px}
+@media (min-width:821px){.nw{white-space:nowrap}}  /* en cartes, la cellule Prix est trop étroite : coupure libre */
 .empty{padding:28px;text-align:center;color:var(--muted)}
 .thumb{width:128px;height:96px;border-radius:8px;background:var(--sunk);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
 .thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
@@ -290,7 +291,7 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   nav{overflow-x:auto;scrollbar-width:none} nav::-webkit-scrollbar{display:none}
   thead{display:none} table,tbody,tr,td{display:block;width:100%}
   tr{padding:12px 14px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;align-items:start}
-  .has-ph tr{grid-template-columns:96px minmax(0,1fr) minmax(0,1fr)}
+  .has-ph tr{grid-template-columns:128px minmax(0,1fr) minmax(0,1fr)}
   tr:last-child{border-bottom:0}
   td{border:0;padding:0;text-align:left!important;min-width:0}
   .pill{white-space:normal;height:auto;min-height:22px}
@@ -314,13 +315,13 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   dialog{overflow:auto}
 }
 @media (max-width:480px){nav .m-ico{display:inline}nav .t-long{display:none}
-  #t-idees tr{display:grid;grid-template-columns:100px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl prix" "ph act act prix";gap:2px 12px;padding:10px 12px}
+  #t-idees tr{display:grid;grid-template-columns:100px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl tl" "ph prix prix prix" "ph act act act";gap:2px 12px;padding:10px 12px}
   #t-idees td[data-k]::before{display:none}
-  #t-idees td.ph{grid-area:ph;grid-row:1/4}
+  #t-idees td.ph{grid-area:ph;grid-row:1/5}
   #t-idees td[data-k="Set"]{grid-area:set}
   #t-idees td[data-k="Pièces"]{grid-area:pc;align-self:start}
   #t-idees td[data-k="Taille"]{grid-area:tl;align-self:start}
-  #t-idees td[data-k="Prix"]{grid-area:prix;text-align:right!important;align-self:start}
+  #t-idees td[data-k="Prix"]{grid-area:prix;align-self:start}
   #t-idees td.wide:last-child{grid-area:act}
   #t-idees .thumb{width:96px;height:72px}
   .brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
@@ -671,7 +672,7 @@ const colsI = [
   {key:"prix",label:"Prix, port compris",val:r => rang(r._meilleure),cls:"num"},
   {key:"act",label:"",cls:"num"},
 ];
-const LARGEURS = ["120px", "auto", "84px", "84px", "230px", "112px"];
+const LARGEURS = ["152px", "auto", "84px", "84px", "230px", "112px"];
 let MARQUES_ORD = [];
 function renderIdees(){
   const toks = jetons(), rows = filtrer(null, toks);
@@ -717,7 +718,7 @@ function renderIdees(){
         <div class="sub">${[...r.themes.map(themeNom), nbTests(r) ? `${nbTests(r)} test${nbTests(r) > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
       <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
-      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span>${o.port ? `<div class="sub">${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port</div>` : o.port === 0 ? '<div class="sub">port offert</div>' : '<div class="sub">port non relevé</div>'}<div class="sub">${esc(o.boutique)} · ${o.delai ? esc(o.delai) : "délai non relevé"}${nbB > 1 ? ` · ${nbB} boutiques` : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
+      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span><div class="sub">${[o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé", o.delai ? esc(o.delai) : "délai non relevé"].map(x => `<span class="nw">${x}</span>`).join(" · ")}</div><div class="sub">${[esc(o.boutique), nbB > 1 ? `${nbB} boutiques` : ""].filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(" · ")}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
   }, vide);

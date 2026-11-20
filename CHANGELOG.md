@@ -1,5 +1,9 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.10.4
+- Liste des résultats : la colonne des vignettes suit leur nouvelle taille (152 px, 128 px en cartes) ; la vignette ne chevauche plus le nom du set (colonne restée à 120 px en v3.10.1). Même correctif dans la sélection en cartes.
+- Colonne Prix : deux lignes stables, « port · délai » puis « boutique · nombre de boutiques », coupées seulement entre deux éléments (plus de « 12 / boutiques ») ; au téléphone, le prix passe sous la taille, sur toute la largeur de la carte.
+
 ## v3.10.3
 - Photos : une photo dite absente une fois, en attente du second constat, passe derrière les autres photos du set au lieu de rester en tête une journée ; sans autre photo, elle reste montrée. Cas d'origine : Concorde (10318), photo Rebrickable en 404.
 
