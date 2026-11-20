@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.5
+Dossiers de l'hôte : un seul dossier par pile, un sous-dossier par service (/docker/lego/donnees, /docker/lego/signal), décrit dans .env.example et le README.
+
 ## v3.7.4
 Test de cohérence des valeurs par défaut : compose, .env.example et code doivent porter la même valeur ; une variable du compose sans valeur ni exigence est refusée. Chemin interne des données renommé CHEMIN_DONNEES, pour ne plus partager le nom du dossier de l'hôte (DOSSIER_DONNEES).
 
