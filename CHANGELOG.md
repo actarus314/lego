@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.9.1
+Lecture des fiches BricksValue : données structurées reconnues par leur contexte schema.org exact (alerte d'analyse de code sur un test de sous-chaîne).
+
 ## v3.9.0
 Mécanisation, sans IA :
 - Classement : type de briques d'après la catégorie de la boutique, les étiquettes de Mould King mesurées contre les catégories de KBS et la marque (285 sets sans type sur 851 avant, 107 après) ; six thèmes ajoutés (Fleurs et décoration, Noël, Films, séries et jeux, Répliques d'armes et de sabres, Animaux et dinosaures, Robots et mechas), mots composés allemands reconnus, étiquettes comparées par mot entier (139 sets sans thème avant, 30 après) ; dimensions écrites une à une dans le texte lues (Mould King : 253 sets avec dimensions sur 532, contre 112).

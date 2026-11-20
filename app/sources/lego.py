@@ -70,6 +70,9 @@ def fiches() -> dict[str, str]:
     return out
 
 
+SCHEMA_ORG = ("https://schema.org", "https://schema.org/", "http://schema.org", "http://schema.org/")
+
+
 def _objets(texte: str, debut: str):
     """Objets JSON qui commencent par `debut` dans un texte (page ou réponse de données)."""
     dec = json.JSONDecoder()
@@ -90,7 +93,7 @@ def _produit(page: str) -> dict | None:
             candidats.append(json.loads(bloc.strip()))
         except ValueError:
             continue
-    candidats += [o for o in _objets(page, '{"@context"') if isinstance(o, dict) and "schema.org" in str(o.get("@context"))]
+    candidats += [o for o in _objets(page, '{"@context"') if isinstance(o, dict) and o.get("@context") in SCHEMA_ORG]
     for d in candidats:
         for g in d.get("@graph", [d]) if isinstance(d, dict) else d:
             if isinstance(g, dict) and g.get("@type") == "Product":
