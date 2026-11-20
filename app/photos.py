@@ -92,6 +92,10 @@ class Photos:
     def ecartees(self) -> set[str]:
         return {u for u, e in self.etat().items() if e.get("etat") == "morte"}
 
+    def douteuses(self) -> set[str]:
+        """Photos dites absentes une fois, en attente du second constat : placées après les autres."""
+        return {u for u, e in self.etat().items() if e.get("etat") == "doute"}
+
     def resume(self) -> dict:
         compte: dict[str, int] = {}
         for e in self.etat().values():
@@ -200,15 +204,17 @@ class Photos:
         threading.Thread(target=boucle, name="photos", daemon=True).start()
 
 
-def appliquer(sets: list[dict], ecartees: set[str]) -> None:
-    """Retire des sets les photos écartées : la première photo restante devient la photo du set."""
-    if not ecartees:
+def appliquer(sets: list[dict], ecartees: set[str], douteuses: set[str] = frozenset()) -> None:
+    """Retire des sets les photos écartées et place les douteuses après les autres : la première
+    photo restante devient la photo du set."""
+    if not ecartees and not douteuses:
         return
     for s in sets:
         toutes = list(dict.fromkeys(([s["img"]] if s.get("img") else []) + (s.get("images") or [])))
-        if not any(u in ecartees for u in toutes):
+        if not any(u in ecartees or u in douteuses for u in toutes):
             continue
-        restantes = [u for u in toutes if u not in ecartees]
+        restantes = [u for u in toutes if u not in ecartees and u not in douteuses] + \
+                    [u for u in toutes if u in douteuses and u not in ecartees]
         s["img"] = restantes[0] if restantes else None
         if len(restantes) > 1:
             s["images"] = restantes

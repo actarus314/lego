@@ -192,6 +192,13 @@ class Appliquer(unittest.TestCase):
         self.assertIsNone(sets[1]["img"])
         self.assertEqual(sets[2], {"img": "https://ok/y.jpg"})
 
+    def test_photo_douteuse_apres_les_autres(self):
+        s = [{"img": "https://rb/10318-1.jpg", "images": ["https://rb/10318-1.jpg", "https://bv/10318.png"]},
+             {"img": "https://rb/seule.jpg"}]
+        photos.appliquer(s, set(), {"https://rb/10318-1.jpg", "https://rb/seule.jpg"})
+        self.assertEqual(s[0], {"img": "https://bv/10318.png", "images": ["https://bv/10318.png", "https://rb/10318-1.jpg"]})
+        self.assertEqual(s[1], {"img": "https://rb/seule.jpg"})   # sans autre photo : gardée
+
     def test_index_adresses_avant_retrait_et_cache_invalide(self):
         idx = index_mod.Index(Path(tempfile.mkdtemp()))
         idx.enregistrer("kbs", [{"cle": "kbs:a", "source": "kbs", "boutique": "KBS", "pays": "Allemagne",

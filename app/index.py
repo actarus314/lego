@@ -240,7 +240,7 @@ class Index:
                 if k in ("nom", "type", "themes", "dims"):
                     s[k] = v
         self.photos_brutes = adresses_photos(out)
-        appliquer_photos(out, self.photos.ecartees())
+        appliquer_photos(out, self.photos.ecartees(), self.photos.douteuses())
         self._cache = (cle_cache, out)
         return out
 
