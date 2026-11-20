@@ -9,7 +9,7 @@ suivies une à une, chacune revérifiée.
 """
 from __future__ import annotations
 
-import gzip
+import zlib
 import html
 import http.client
 import ipaddress
@@ -18,7 +18,7 @@ import re
 import socket
 import ssl
 from dataclasses import dataclass
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import quote, urljoin, urlsplit
 
 TAILLE_MAX = 3 * 1024 * 1024
 DELAI = 12
@@ -70,25 +70,37 @@ def contexte_tls() -> ssl.SSLContext:
     return ctx
 
 
+def _chemin(p) -> str:
+    """Chemin et requête en ASCII : les caractères non ASCII et les espaces sont encodés (UTF-8),
+    les séquences %XX déjà présentes et les séparateurs d'URL sont gardés tels quels. http.client
+    refuse un chemin non ASCII (UnicodeEncodeError) et un saut de ligne y ouvrirait une injection."""
+    chemin = quote(p.path or "/", safe="/%:@!$&'()*+,;=~-._")
+    return chemin + (("?" + quote(p.query, safe="/%:@!$&'()*+,;=~-._?")) if p.query else "")
+
+
 def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
     p = urlsplit(url)
     if p.scheme not in ("http", "https") or not p.hostname:
         raise LienRefuse("seuls les liens http et https sont acceptés")
     if p.username or p.password:
         raise LienRefuse("lien avec identifiants refusé")
-    port = p.port or (443 if p.scheme == "https" else 80)
+    port = p.port if p.port is not None else (443 if p.scheme == "https" else 80)  # « :0 » est refusé, pas remplacé
     if port not in PORTS:
         raise LienRefuse("seuls les ports 80 et 443 sont acceptés")
-    ip = resoudre(p.hostname, port)
-    chemin = (p.path or "/") + (f"?{p.query}" if p.query else "")
+    try:
+        hote = p.hostname.encode("idna").decode("ascii")  # nom de domaine accentué : forme ASCII
+    except UnicodeError as e:
+        raise LienRefuse(f"nom de domaine invalide : {p.hostname}") from e
+    ip = resoudre(hote, port)
+    chemin = _chemin(p)
     sock = socket.create_connection((ip, port), timeout=DELAI)
     try:
         if p.scheme == "https":
-            sock = contexte_tls().wrap_socket(sock, server_hostname=p.hostname)
-        conn = http.client.HTTPConnection(p.hostname, port, timeout=DELAI)
+            sock = contexte_tls().wrap_socket(sock, server_hostname=hote)
+        conn = http.client.HTTPConnection(hote, port, timeout=DELAI)
         conn.sock = sock
         conn.request("GET", chemin, headers={
-            "Host": p.netloc.split("@")[-1], "User-Agent": AGENT,
+            "Host": (f"[{hote}]" if ":" in hote else hote) + (f":{p.port}" if p.port is not None else ""), "User-Agent": AGENT,
             "Accept": accept, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7", "Accept-Encoding": "gzip",
             **(entetes or {})})
         r = conn.getresponse()
@@ -98,7 +110,11 @@ def _get(url: str, accept: str, entetes: dict | None = None) -> Reponse:
         if len(corps) > TAILLE_MAX:
             raise LienRefuse("page trop volumineuse")
         if r.getheader("Content-Encoding", "").lower() == "gzip":
-            corps = gzip.decompress(corps)[:TAILLE_MAX + 1]
+            # décompression bornée : une petite réponse compressée ne peut pas occuper toute la mémoire
+            try:
+                corps = zlib.decompressobj(16 + zlib.MAX_WBITS).decompress(corps, TAILLE_MAX + 1)
+            except zlib.error as e:
+                raise LienRefuse("réponse compressée illisible") from e
             if len(corps) > TAILLE_MAX:
                 raise LienRefuse("page trop volumineuse")
         return Reponse(url, r.status, r.getheader("Content-Type", ""), corps, r.getheader("Retry-After"))

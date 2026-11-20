@@ -1,5 +1,5 @@
 {
- "_note": "Thèmes du moteur de recherche. Un produit reçoit un thème si une de ses étiquettes de boutique contient un des termes de « etiquettes », ou si son nom contient un des « mots » (mot entier, sans accents ni casse). Les mots servent aussi de dictionnaire à la recherche libre : chercher « bateau » trouve les produits du thème Marine. Liste à compléter librement.",
+ "_note": "Thèmes du moteur de recherche. Un produit reçoit un thème si une de ses étiquettes de boutique contient un des termes de « etiquettes » comme mot entier, ou si son nom contient un des « mots » (mot entier, sans accents ni casse ; un astérisque en tête accepte un mot composé qui finit par ce terme, par exemple « *panzer » pour Jagdpanzer, un astérisque en fin un mot qui commence par lui). Les mots servent aussi de dictionnaire à la recherche libre : chercher « bateau » trouve les produits du thème Marine. Liste à compléter librement.",
  "themes": [
   {
    "id": "aerospatial",
@@ -8,9 +8,13 @@
     "thema-luftfahrt",
     "aviation",
     "aircraft",
+    "aircrafts",
     "raumfahrt",
     "weltraum",
-    "flugzeug"
+    "flugzeug",
+    "flugzeuge",
+    "space exploration",
+    "starships"
    ],
    "mots": [
     "avion",
@@ -86,7 +90,17 @@
     "apollo 11",
     "saturn",
     "lunar lander",
-    "module lunaire"
+    "module lunaire",
+    "*flugzeug",
+    "*jet",
+    "raketenflugzeug",
+    "komet",
+    "nighthawk",
+    "f-117",
+    "gunship",
+    "at-at",
+    "*raumschiff",
+    "valor-class"
    ]
   },
   {
@@ -167,7 +181,10 @@
     "famous cars",
     "sportwagen",
     "rc auto",
-    "technik auto"
+    "technik auto",
+    "off-road",
+    "motorcycle",
+    "motorrad"
    ],
    "mots": [
     "voiture",
@@ -215,7 +232,30 @@
     "land rover",
     "defender",
     "gt",
-    "coupe"
+    "coupe",
+    "moto",
+    "motorcycle",
+    "motorbike",
+    "*motorrad",
+    "motorroller",
+    "scooter",
+    "bike",
+    "fahrrad",
+    "velo",
+    "buggy",
+    "atv",
+    "quad",
+    "suv",
+    "4x4",
+    "cabrio",
+    "convertible",
+    "droptop",
+    "limousine",
+    "oldtimer",
+    "taxi",
+    "cruiser motorcycle",
+    "coutach",
+    "countach"
    ]
   },
   {
@@ -230,7 +270,10 @@
     "transport and logistics",
     "agriculture",
     "baustelle",
-    "baumaschine"
+    "baumaschine",
+    "mini heavy duty",
+    "modern fleet",
+    "forestry"
    ],
    "mots": [
     "excavator",
@@ -277,7 +320,21 @@
     "camion-poubelle",
     "concrete mixer",
     "betonmischer",
-    "toupie"
+    "toupie",
+    "forstfahrzeug",
+    "*bagger",
+    "*kran",
+    "*lkw",
+    "olraffinerie",
+    "olpumpe",
+    "ollager",
+    "refinery",
+    "raffinerie",
+    "baufahrzeug",
+    "nutzfahrzeug",
+    "rettungsfahrzeug",
+    "feuerwehrfahrzeug",
+    "*kipper"
    ]
   },
   {
@@ -285,9 +342,13 @@
    "nom": "Architecture",
    "etiquettes": [
     "thema-architektur",
-    "architecture",
     "modular buildings",
-    "gebaude"
+    "gebaude",
+    "architektur",
+    "landmarks",
+    "street view",
+    "mini city & decor",
+    "strassen und platze"
    ],
    "mots": [
     "house",
@@ -332,7 +393,41 @@
     "windmuhle",
     "moulin",
     "boulangerie",
-    "baeckerei"
+    "baeckerei",
+    "*moschee",
+    "mosque",
+    "mosquee",
+    "hagia sophia",
+    "triumphbogen",
+    "arc de triomphe",
+    "flatiron",
+    "*haus",
+    "restaurant",
+    "shop",
+    "*laden",
+    "store",
+    "boutique",
+    "saloon",
+    "barbershop",
+    "market",
+    "markt",
+    "cabin",
+    "cabane",
+    "hutte",
+    "*hutte",
+    "baumhaus",
+    "treehouse",
+    "bridge",
+    "brucke",
+    "pont",
+    "*brucke",
+    "village",
+    "dorf",
+    "town",
+    "stadt",
+    "*garten",
+    "bibliothek",
+    "library"
    ]
   },
   {
@@ -340,8 +435,11 @@
    "nom": "Trains",
    "etiquettes": [
     "thema-zuege",
-    "rail",
-    "eisenbahn"
+    "eisenbahn",
+    "railway",
+    "trains",
+    "steam locomotives",
+    "rails"
    ],
    "mots": [
     "train",
@@ -366,8 +464,9 @@
    "nom": "Militaire",
    "etiquettes": [
     "thema-militaer",
-    "military",
-    "militar"
+    "militar",
+    "tanks",
+    "military vehicles"
    ],
    "mots": [
     "tank",
@@ -386,7 +485,22 @@
     "warship",
     "kubelwagen",
     "jeep militaire",
-    "halftrack"
+    "halftrack",
+    "*panzer",
+    "panzer*",
+    "jagdtiger",
+    "tiger",
+    "sd.kfz",
+    "sdkfz",
+    "flak",
+    "*morser",
+    "grille",
+    "*kanone",
+    "kampfpanzer",
+    "t-72",
+    "t-34",
+    "zugmaschine",
+    "panzerspahwagen"
    ]
   },
   {
@@ -399,7 +513,6 @@
    ],
    "mots": [
     "engine",
-    "motor",
     "moteur",
     "v8",
     "v12",
@@ -426,6 +539,246 @@
     "machine a ecrire",
     "pinball",
     "flipper"
+   ]
+  },
+  {
+   "id": "fleurs",
+   "nom": "Fleurs et décoration",
+   "etiquettes": [
+    "botanicals",
+    "flowers",
+    "pflanzen"
+   ],
+   "mots": [
+    "fleur",
+    "fleurs",
+    "flower",
+    "flowers",
+    "*blume",
+    "*blumen",
+    "blumenstrauss",
+    "*strauss",
+    "bouquet",
+    "rose",
+    "roses",
+    "orchid",
+    "orchidee",
+    "*orchidee",
+    "lily",
+    "lys",
+    "peony",
+    "pivoine",
+    "sunflower",
+    "tournesol",
+    "daisy",
+    "marguerite",
+    "tulip",
+    "tulipe",
+    "bonsai",
+    "plant",
+    "plante",
+    "*pflanze",
+    "potted",
+    "vase",
+    "wreath",
+    "couronne",
+    "*kranz",
+    "blossom",
+    "bloom",
+    "floral",
+    "succulent",
+    "kaktus",
+    "cactus",
+    "money tree",
+    "eucalyptus",
+    "wall art",
+    "wall decor",
+    "aquarium"
+   ]
+  },
+  {
+   "id": "noel",
+   "nom": "Noël",
+   "etiquettes": [
+    "christmas",
+    "weihnachten"
+   ],
+   "mots": [
+    "noel",
+    "christmas",
+    "xmas",
+    "*weihnacht*",
+    "weihnachtsbaum",
+    "santa",
+    "santa claus",
+    "pere noel",
+    "weihnachtsmann",
+    "reindeer",
+    "renne",
+    "rentier",
+    "sleigh",
+    "traineau",
+    "schlitten",
+    "advent",
+    "avent",
+    "adventskalender"
+   ]
+  },
+  {
+   "id": "films",
+   "nom": "Films, séries et jeux",
+   "etiquettes": [
+    "movie",
+    "anime",
+    "film",
+    "movies-tv-games",
+    "star wars"
+   ],
+   "mots": [
+    "movie",
+    "film",
+    "anime",
+    "spongebob",
+    "patrick",
+    "sandy cheeks",
+    "harry potter",
+    "batman",
+    "superhero",
+    "superhelden",
+    "marvel",
+    "avengers",
+    "jurassic",
+    "ghostbusters",
+    "back to the future",
+    "retour vers le futur",
+    "delorean",
+    "transformers",
+    "gundam",
+    "zelda",
+    "mario",
+    "pokemon",
+    "minecraft",
+    "the mandalorian",
+    "mandalorian",
+    "at-at",
+    "lightsaber",
+    "sabre laser",
+    "laserschwert",
+    "vader"
+   ]
+  },
+  {
+   "id": "repliques",
+   "nom": "Répliques d'armes et de sabres",
+   "etiquettes": [
+    "weapon",
+    "toy gun",
+    "lightsabers",
+    "katana",
+    "waffen"
+   ],
+   "mots": [
+    "katana",
+    "sword",
+    "epee",
+    "*schwert",
+    "saber",
+    "sabre",
+    "lightsaber",
+    "blade",
+    "rifle",
+    "fusil",
+    "gewehr",
+    "gun",
+    "pistol",
+    "pistole",
+    "pistolet",
+    "revolver",
+    "granatenwerfer",
+    "grenade launcher",
+    "life-sized replica",
+    "qbz-95",
+    "ak-47",
+    "desert eagle",
+    "glock"
+   ]
+  },
+  {
+   "id": "animaux",
+   "nom": "Animaux et dinosaures",
+   "etiquettes": [
+    "tiere",
+    "dinosaur",
+    "creatures",
+    "dinosaurier"
+   ],
+   "mots": [
+    "animal",
+    "animaux",
+    "*tier",
+    "tiere",
+    "bird",
+    "oiseau",
+    "*vogel",
+    "parrot",
+    "perroquet",
+    "papagei",
+    "lory",
+    "robin",
+    "peacock",
+    "paon",
+    "butterfly",
+    "papillon",
+    "*schmetterling",
+    "panda",
+    "chat",
+    "*katze",
+    "chien",
+    "*hund",
+    "horse",
+    "cheval",
+    "*pferd",
+    "dinosaur",
+    "dinosaure",
+    "*saurier",
+    "*saurus",
+    "t-rex",
+    "trex",
+    "velociraptor",
+    "fossil",
+    "fossile",
+    "turtle",
+    "tortue",
+    "*schildkrote",
+    "whale",
+    "baleine",
+    "dragon",
+    "drache",
+    "owl",
+    "hibou",
+    "eule"
+   ]
+  },
+  {
+   "id": "robots",
+   "nom": "Robots et mechas",
+   "etiquettes": [
+    "robots",
+    "mecha",
+    "robots and mecha"
+   ],
+   "mots": [
+    "robot",
+    "*roboter",
+    "mecha",
+    "mech",
+    "humanoid",
+    "humanoider",
+    "android",
+    "cyborg",
+    "exoskeleton",
+    "gundam",
+    "sentinel"
    ]
   }
  ]

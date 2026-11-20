@@ -1,5 +1,16 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.9.0
+Mécanisation, sans IA :
+- Classement : type de briques d'après la catégorie de la boutique, les étiquettes de Mould King mesurées contre les catégories de KBS et la marque (285 sets sans type sur 851 avant, 107 après) ; six thèmes ajoutés (Fleurs et décoration, Noël, Films, séries et jeux, Répliques d'armes et de sabres, Animaux et dinosaures, Robots et mechas), mots composés allemands reconnus, étiquettes comparées par mot entier (139 sets sans thème avant, 30 après) ; dimensions écrites une à une dans le texte lues (Mould King : 253 sets avec dimensions sur 532, contre 112).
+- Noms seulement en allemand traduits mot à mot (`data/glossaire.json`), nom d'origine cherchable. Corrections à la main dans `data/corrections.json` (réunir, séparer, imposer nom, type, thèmes, dimensions).
+- LEGO officiel : fiches BricksValue lues par leur réponse de données (58 Ko au lieu de 675 Ko), accord de BricksValue du 20/11/2026 ; date de chaque prix = jour du dernier relevé du revendeur chez BricksValue, et non l'heure de lecture.
+- Tests indépendants : liens rattachés par marque et numéro, sans verdict (Held der Steine, Merlin's Bricks, steine-kanal.de, StoneWars, Promobricks ; amorce de 2652 liens, flux relus chaque jour) ; 1437 liens sur 898 sets, aucun faux positif sur 55 contrôlés à la main.
+- Fiche : « Relire les prix » en une requête (une lecture par fiche BricksValue au lieu d'une par revendeur) ; au-delà de trois offres, les autres repliées ; galerie de photos ; « Rechercher des tests sur le web » (DuckDuckGo) à la place de la recherche YouTube ; vignettes de la liste plus grandes.
+- Onglet Boutiques : revendeurs vus dans l'index ajoutés à la liste écrite à la main, nombre de sets en vente par boutique.
+- Surveillance (`ALERTES_SERVICE`) : message à l'administrateur quand le service se dégrade ou se rétablit, quand une source lit nettement moins que d'habitude, quand un montant de livraison disparaît de sa page (relue chaque semaine ; port de KBS relu sur sa ligne « France » et appliqué) ; points à vérifier dans la vue Synchronisation ; copie quotidienne de la sélection (14 jours).
+- Logos : 12 marques ajoutées, plus grande icône mesurée dans le fichier, logo de la page en secours, nouvel essai après 1, 3, 7 puis 30 jours. Lien : chemin non ASCII encodé, port 0 refusé.
+
 ## v3.8.2
 Sécurité, d'après l'analyse de code : reconnaissance des logos SVG réécrite en un seul passage (l'ancienne expression régulière prenait un temps exponentiel sur une suite de commentaires, ce qu'un site de marque aurait pu exploiter pour bloquer la mise à jour des logos) ; lecture d'un lien limitée aux ports 80 et 443 ; tout nom de fichier dérivé d'une requête (polices, logos, index des sources) vérifié dans son dossier après résolution des chemins ; reconnaissance des offres KBS par le nom d'hôte du lien.
 

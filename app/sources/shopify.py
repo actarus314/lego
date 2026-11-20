@@ -73,8 +73,9 @@ def offre(p: dict, source: dict) -> dict | None:
         "prix": prix, "devise": source.get("devise", "EUR"),
         "dispo": n.disponibilite(any(x.get("available") for x in variantes), tags, titre),
         "img": images[0].get("src") if images else None,
+        "images": [i["src"] for i in images[1:8] if i.get("src")],
         "pieces": nb, "dims": dims,
-        "type": n.type_briques(p.get("product_type") or "", tags, titre),
+        "type": n.type_briques(p.get("product_type") or "", tags, titre, marque),
         "themes": n.themes(titre, tags, p.get("product_type") or ""),
         "publie": (p.get("published_at") or p.get("created_at") or "")[:10] or None,
     }

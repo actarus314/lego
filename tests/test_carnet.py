@@ -11,7 +11,7 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 from app import acces, lien
-from app.donnees import Depot
+from app.donnees import Depot, _ecrire
 from app.index import Index
 
 RACINE = Path(__file__).resolve().parent.parent
@@ -263,8 +263,31 @@ class LegoOfficiel(unittest.TestCase):
         self.assertTrue(d["adulte"])
         o = {x["boutique"]: x for x in d["offres"]}
         self.assertEqual((o["Amazon.fr"]["prix"], o["Amazon.fr"]["dispo"], o["LEGO.com"]["dispo"]), (807.49, "vente", "epuise"))
-        self.assertEqual((o["LEGO.com"]["numero"], o["LEGO.com"]["img"], o["LEGO.com"]["themes"]), ("75192", "https://r/75192.jpg", ["aerospatial"]))
+        self.assertEqual((o["LEGO.com"]["numero"], o["LEGO.com"]["img"], o["LEGO.com"]["themes"]), ("75192", "https://r/75192.jpg", ["aerospatial", "films"]))
         self.assertEqual(o["LEGO.com"]["retrait"], "Retrait prévu d’ici le 2026-12-31")
+
+    def test_fiche_donnees_rsc(self):
+        """Réponse de données de la fiche : offres, photos et jour du dernier relevé de chaque revendeur."""
+        from app.sources import lego
+        produit = json.loads(FICHE_BV.split('json">')[1].split("</script>")[0])
+        rsc = ('0:["$","script",null,' + json.dumps(produit) + ']\n5f:["$","$L78",null,{"series":{"days":['
+               '{"t":1795046400000,"lego":84999,"amazon":null},{"t":1795132800000,"lego":null,"amazon":80749}],'
+               '"stores":["lego","amazon"],"stats":{}}}]')
+        appels = []
+        vrai = lien.recuperer
+
+        def faux(url, **k):
+            appels.append((url, k.get("entetes")))
+            return lien.Reponse(url, 200, "text/x-component", rsc.encode())
+        lien.recuperer = faux
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon", None)
+        finally:
+            lien.recuperer = vrai
+        self.assertEqual(appels, [("https://bricksvalue.com/fr/set/75192-millennium-falcon?_rsc", {"RSC": "1"})])
+        o = {x["boutique"]: x for x in d["offres"]}
+        self.assertEqual((o["Amazon.fr"]["releve"], o["LEGO.com"]["releve"]), ("2026-11-20", "2026-11-19"))
+        self.assertEqual((o["LEGO.com"]["releve_par"], o["LEGO.com"]["images"]), ("BricksValue", ["https://cdn.x/75192.png"]))
 
     def test_rotation(self):
         import time as t
@@ -607,6 +630,206 @@ class Serveur(unittest.TestCase):
         code, corps, _ = self.req("GET", "/api/lien?url=http://127.0.0.1/", "alice")
         self.assertEqual(code, 422)
         self.assertIn("refusée", corps)
+
+
+class Surveillance(unittest.TestCase):
+    def journal(self, lus):
+        return {"historique": [{"sources": [{"id": "kbs", "nom": "KBS", "etat": "ok", "lus": n, "dims": n}]} for n in lus]}
+
+    def test_baisse_de_lecture(self):
+        from app import surveillance as sv
+        self.assertEqual(sv.baisses(self.journal([290, 299, 301, 298])), {})
+        b = sv.baisses(self.journal([150, 299, 301, 298]))
+        self.assertEqual(set(b), {"kbs:lus", "kbs:dims"})
+        self.assertIn("150 sets lus", b["kbs:lus"])
+        self.assertEqual(sv.baisses(self.journal([150, 299])), {}, "pas d'alerte sans au moins deux passages de référence")
+        self.assertIn("bricksvalue:erreurs", sv.baisses({}, {"lues": 100, "erreurs": 30}))
+
+    def test_messages_et_copie(self):
+        from app import surveillance as sv, synchro
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "selection.json").write_text("[]")
+            envois = []
+            j = synchro.Journal(Path(d))
+            s = sv.Surveillance(Path(d), j, Index(Path(d)), envoi=lambda sujet, texte: envois.append(sujet) or [], relire_livraison=False)
+            vrai = synchro.sante
+            try:
+                synchro.sante = lambda journal, m=None: (False, "toutes les sources en échec")
+                s.verifier(); s.verifier()
+                synchro.sante = lambda journal, m=None: (True, "ok")
+                s.verifier()
+            finally:
+                synchro.sante = vrai
+            self.assertEqual(envois, ["Carnet de briques : service dégradé", "Carnet de briques : service rétabli"])
+            j.enregistrer({"le": "x", "portee": "toutes", "sources": [{"id": "kbs", "nom": "KBS", "etat": "ok", "lus": 300, "dims": 300}]})
+            j.enregistrer({"le": "x", "portee": "toutes", "sources": [{"id": "kbs", "nom": "KBS", "etat": "ok", "lus": 300, "dims": 300}]})
+            j.enregistrer({"le": "x", "portee": "toutes", "sources": [{"id": "kbs", "nom": "KBS", "etat": "ok", "lus": 100, "dims": 100}]})
+            synchro.sante = lambda journal, m=None: (True, "ok")
+            try:
+                s.verifier(); s.verifier()
+            finally:
+                synchro.sante = vrai
+            self.assertEqual(envois[2:], ["Carnet de briques : 2 points à vérifier"], "une baisse n'est signalée qu'une fois")
+            for jour in range(20):
+                s.copier_selection(1795132800 + jour * 86400)
+            self.assertEqual(len(list((Path(d) / "sauvegardes").glob("selection-*.json"))), 14)
+
+
+class Classement(unittest.TestCase):
+    def test_type_de_briques(self):
+        from app import normalise as n
+        self.assertEqual(n.type_briques("Brickbuild-Set", ["Technik Sets"]), "classique", "catégorie de la boutique d'abord")
+        self.assertEqual(n.type_briques("Building Toys", ["Construction & Heavy Duty"], "Mould King 17106 Crawler Crane"), "technic")
+        self.assertEqual(n.type_briques("Building Toys", ["Botanicals And Home Decor"], "Mould King 10290 Vine"), "classique")
+        self.assertEqual(n.type_briques("", [], "Cobi 2670 Panzer", "Cobi"), "classique")
+        self.assertIsNone(n.type_briques("Building Toys", ["Robots and Mecha"], "Mould King 93012 Sentinel", "Mould King"))
+
+    def test_themes_mots_composes_et_etiquettes(self):
+        from app import normalise as n
+        self.assertIn("militaire", n.themes("Cobi Jagdpanzer IV/70 Wintertarnung"))
+        self.assertIn("architecture", n.themes("Wange Blaue Moschee Istanbul"))
+        self.assertIn("fleurs", n.themes("Mould King 24100 Amber Bloom Bouquet Flower Building Set"))
+        self.assertNotIn("architecture", n.themes("Mould King 24133 Semi Truck Building Set"), "« Building Set » n'est pas un bâtiment")
+        self.assertEqual(n.themes("Mould King 12054 Steam Locomotive", ["Architecture And Rail"]), ["trains"],
+                         "une étiquette mêlant deux sujets ne classe pas, le nom tranche")
+        self.assertNotIn("robots", n.themes("Mould King Forklift", ["Mechanical"]), "étiquette comparée par mot entier")
+
+    def test_dimensions_dans_le_texte(self):
+        from app import normalise as n
+        self.assertEqual(n.dimensions("At 44 cm long with four-wheel suspension"), [44.0])
+        self.assertEqual(n.dimensions("Measuring 43 cm wide and 48 cm tall."), [48.0, 43.0])
+        self.assertEqual(n.dimensions('it measures 16.7" (42.5 cm) long'), [42.5])
+        self.assertIsNone(n.dimensions("Circular display track included (approx. 71cm loop)"))
+
+
+class Corrections(unittest.TestCase):
+    def test_regrouper_separer_imposer(self):
+        from app import index as ix
+        offre = lambda cle, num, marque="Mould King": {"source": cle.split(":")[0], "boutique": "B", "pays": "Allemagne", "cle": cle,
+                                                     "url": "https://x/" + cle, "nom": f"{marque} {num} Truck", "marque": marque,
+                                                     "numero": num, "prix": 100.0, "dispo": "vente", "themes": [], "type": None}
+        vrai = ix.corrections
+        with tempfile.TemporaryDirectory() as d:
+            i = Index(Path(d))
+            i.enregistrer("kbs", [offre("kbs:a", "17001"), offre("kbs:b", "17002"), offre("kbs:c", "17003")])
+            i.enregistrer("mouldkingcorp", [offre("mouldkingcorp:a", "17001")])
+            try:
+                ix.corrections = lambda: {"regrouper": [["kbs:b", "kbs:c"]], "separer": ["mouldkingcorp:a"],
+                                          "sets": {"mould-king-17001": {"type": "technic", "nom": "Camion"}}}
+                i._cache = None
+                sets = {s["id"]: s for s in i.sets(["kbs", "mouldkingcorp"])}
+            finally:
+                ix.corrections = vrai
+        groupes = sorted(sorted(o["cle"] for o in s["offres"]) for s in sets.values() if s["offres"][0]["source"] != "editorial")
+        self.assertEqual(groupes, [["kbs:a"], ["kbs:b", "kbs:c"], ["mouldkingcorp:a"]])
+        self.assertEqual((sets["mould-king-17001"]["type"], sets["mould-king-17001"]["nom"]), ("technic", "Camion"))
+
+
+class Relecture(unittest.TestCase):
+    def test_une_lecture_par_fiche(self):
+        from app import synchro
+        with tempfile.TemporaryDirectory() as d:
+            i = Index(Path(d))
+            _ecrire(i.fichier("bricksvalue"), {"offres": [], "fiches": {"75192": {"url": "https://bricksvalue.com/fr/set/75192-x", "lu": None}}})
+            lus = []
+            vrai = synchro.lire_une
+
+            def faux(index, num, url):
+                lus.append(num)
+                return [{"cle": "bricksvalue:75192:lego-com", "prix": 849.99, "dispo": "vente", "releve": "2026-11-20"}]
+            synchro.lire_une = faux
+            try:
+                r = synchro.relire(i, ["bricksvalue:75192:lego-com", "bricksvalue:75192:amazon-fr", "inconnue:x"])
+            finally:
+                synchro.lire_une = vrai
+        self.assertEqual(lus, ["75192"])
+        self.assertEqual(r["bricksvalue:75192:lego-com"]["releve"], "2026-11-20")
+        self.assertIn("erreur", r["bricksvalue:75192:amazon-fr"])
+        self.assertIn("erreur", r["inconnue:x"])
+
+
+class Relecture2(unittest.TestCase):
+    def test_doublons_bornes_et_pause(self):
+        from app import synchro
+        appels = []
+        vrai = synchro.offre_directe
+        synchro.offre_directe = lambda index, cle: appels.append(cle) or {"prix": 10.0, "dispo": "vente", "releve": "x"}
+        synchro._RELUES.clear()
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                i = Index(Path(d))
+                synchro.relire(i, ["kbs:a"] * 30 + ["kbs:b"])
+                synchro.relire(i, ["kbs:a"])
+                synchro.relire(i, [f"kbs:p{k}" for k in range(60)])
+        finally:
+            synchro.offre_directe = vrai
+            synchro._RELUES.clear()
+        self.assertEqual(appels[:2], ["kbs:a", "kbs:b"], "une clé répétée n'est lue qu'une fois")
+        self.assertEqual(len(appels), 2 + synchro.RELIRE_MAX, "relue à l'instant : pas de seconde lecture ; 40 offres au plus")
+
+    def test_poignee_refusee(self):
+        from app import synchro
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(synchro.LienRefuse):
+                synchro.offre_directe(Index(Path(d)), "kbs:../../admin?x=1")
+
+    def test_revendeur_et_date(self):
+        from app.sources import lego
+        r = {"lego": "2026-11-20", "amazon": "2026-11-19", "amazonwarehouse": "2026-11-10"}
+        self.assertEqual([lego._releve_pour(x, r) for x in ("LEGO.com", "Amazon Warehouse", "Amazon.fr", "Fnac")],
+                         ["2026-11-20", "2026-11-10", "2026-11-19", None])
+
+
+class Livraison(unittest.TestCase):
+    def test_port_lu_vraisemblable(self):
+        from app import livraison as lv
+        self.assertEqual(lv.port_du_pays("Finland 7,95 € 1–3 working days France 4,95 € 1–3 working days", "France"), 4.95)
+        self.assertEqual(lv.montants("ab 55 € gratuit, sinon 5,95€ ou €3.90"), {55.0, 5.95, 3.9})
+        pages = [{"nom": "KBS", "url": "https://x", "attendus": [4.95], "motif_pays": "France", "source_id": "kbs", "port_ecrit": 4.95}]
+        vrai_pages, vrai_rec = lv.pages, lv.lien.recuperer
+        try:
+            lv.pages = lambda: pages
+            for texte, attendu in (("France 59,00 € dès 99 €", None), ("France 5,95 €", 5.95)):
+                lv.lien.recuperer = lambda url, **k: lv.lien.Reponse(url, 200, "text/html", texte.encode())
+                with tempfile.TemporaryDirectory() as d:
+                    lv.relire(Path(d), pause=0)
+                    self.assertEqual(lv.ports_lus(Path(d)).get("kbs"), attendu)
+                    if attendu is None:
+                        self.assertIn("livraison-douteux:KBS", lv.ecarts(Path(d)), "montant invraisemblable : signalé, non appliqué")
+        finally:
+            lv.pages, lv.lien.recuperer = vrai_pages, vrai_rec
+
+
+class Robustesse(unittest.TestCase):
+    def test_corrections_illisibles_ou_mal_formees(self):
+        from app import index as ix
+        vrai = ix.RACINE
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "data").mkdir()
+            for f in ("themes.json",):
+                (Path(d) / "data" / f).write_text((vrai / "data" / f).read_text("utf-8"), "utf-8")
+            (Path(d) / "data" / "corrections.json").write_text('{"sets": {"a": {"themes": "trains", "type": "technic"}},}')
+            try:
+                ix.RACINE = Path(d)
+                self.assertEqual(ix.corrections(), {}, "JSON invalide : ignoré")
+                (Path(d) / "data" / "corrections.json").write_text('{"sets": {"a": {"themes": "trains", "type": "technic", "nom": 3}}}')
+                self.assertEqual(ix.corrections()["sets"], {"a": {"type": "technic"}}, "valeurs mal formées écartées")
+            finally:
+                ix.RACINE = vrai
+
+    def test_surveillance_reessaie_si_envoi_en_echec(self):
+        from app import surveillance as sv, synchro
+        with tempfile.TemporaryDirectory() as d:
+            envois = []
+            s = sv.Surveillance(Path(d), synchro.Journal(Path(d)), Index(Path(d)),
+                                envoi=lambda sujet, texte: envois.append(sujet) or ["courriel : TimeoutError"], relire_livraison=False)
+            vrai = synchro.sante
+            try:
+                synchro.sante = lambda journal, m=None: (False, "toutes les sources en échec")
+                s.verifier(); s.verifier()
+            finally:
+                synchro.sante = vrai
+        self.assertEqual(len(envois), 2, "message non parti : renvoyé au passage suivant")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,47 @@
+{
+ "_note": "Sources de tests indépendants (vidéos, articles) rattachées aux sets par marque et numéro, sans aucun verdict synthétisé. type : youtube (flux Atom d'une chaîne, 15 dernières vidéos ; « chaine » sert à l'outil d'amorçage pour l'historique complet) ou rss (flux WordPress). marque_implicite : blog consacré à une seule marque, dont les titres peuvent ne pas la nommer. filtre_tests : blog d'actualités et d'offres, dont seuls les articles dont le titre annonce un test, un avis ou une comparaison sont gardés.",
+ "sources": [
+  {
+   "id": "held-der-steine",
+   "nom": "Held der Steine",
+   "type": "youtube",
+   "chaine": "UC_EZd3lsmxudu3IQzpTzOgw",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UC_EZd3lsmxudu3IQzpTzOgw",
+   "langue": "de"
+  },
+  {
+   "id": "merlins-bricks",
+   "nom": "Merlin's Bricks",
+   "type": "youtube",
+   "chaine": "UCQWjplolL--Fli80obFH39A",
+   "flux": "https://www.youtube.com/feeds/videos.xml?channel_id=UCQWjplolL--Fli80obFH39A",
+   "langue": "en"
+  },
+  {
+   "id": "steine-kanal",
+   "nom": "steine-kanal.de",
+   "type": "rss",
+   "flux": "https://steine-kanal.de/feed/",
+   "langue": "de",
+   "filtre_tests": true
+  },
+  {
+   "id": "stonewars",
+   "nom": "StoneWars",
+   "type": "rss",
+   "flux": "https://stonewars.de/feed/",
+   "langue": "de",
+   "marque_implicite": "LEGO officiel",
+   "filtre_tests": true
+  },
+  {
+   "id": "promobricks",
+   "nom": "PROMOBRICKS",
+   "type": "rss",
+   "flux": "https://promobricks.de/feed/",
+   "langue": "de",
+   "marque_implicite": "LEGO officiel",
+   "filtre_tests": true
+  }
+ ]
+}

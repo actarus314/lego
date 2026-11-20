@@ -28,7 +28,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, synchro
+from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, surveillance, synchro, tests_auto
 from .reglage import reglage
 from .donnees import Depot, dans
 from .index import Index
@@ -65,6 +65,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
     journal: synchro.Journal
     logos: logos_mod.Logos
     alertes: alertes_mod.Alertes
+    surveillance: surveillance.Surveillance | None = None
     gardien: acces.Gardien | None
     masquer: set[str]
 
@@ -179,12 +180,15 @@ class Gestionnaire(BaseHTTPRequestHandler):
         if url.path == "/api/selection":
             return self._json(200, [s for s in self.depot.selection() if self._visible(compte, s)])
         if url.path == "/api/catalogue":
-            return self._json_compresse(self._catalogue())
+            cat = self._catalogue()  # photos et liens de tests servis à l'ouverture d'une fiche (/api/fiche)
+            cat["sets"] = [{k: v for k, v in x.items() if k not in ("images", "liens_tests")} for x in cat["sets"]]
+            return self._json_compresse(cat)
         if url.path == "/api/synchro":
             d = self.journal.lire()
             return self._json(200, {"etat": synchro.etat(), "dernier": d.get("dernier"),
                                     "historique": d.get("historique", []), "sources": synchro.actives(),
-                                    "rotation": synchro.etat_rotation(self.index)})
+                                    "rotation": synchro.etat_rotation(self.index),
+                                    "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
             cle = (parse_qs(url.query).get("cle") or [""])[0]
             try:
@@ -194,6 +198,18 @@ class Gestionnaire(BaseHTTPRequestHandler):
             except (OSError, ValueError):
                 log.info("relecture d'offre en échec", exc_info=True)
                 return self._erreur(422, "Relecture impossible : boutique injoignable ou réponse illisible")
+        if url.path == "/api/relire":
+            cles = [c for c in (parse_qs(url.query).get("cle") or []) if re.fullmatch(r"[a-z0-9_-]{1,40}:[A-Za-z0-9._:-]{1,200}", c)]
+            if not cles:
+                return self._erreur(400, "aucune offre à relire")
+            return self._json(200, synchro.relire(self.index, cles))
+        if url.path == "/api/fiche":
+            sid = (parse_qs(url.query).get("id") or [""])[0]
+            s = next((x for x in self._catalogue()["sets"] if x["id"] == sid), None)
+            if not s:
+                return self._erreur(404, "set introuvable")
+            return self._json(200, {"images": s.get("images") or ([s["img"]] if s.get("img") else []),
+                                    "liens_tests": s.get("liens_tests", [])})
         if url.path == "/api/alertes":
             canaux = alertes_mod.destinataires().get(compte, [])
             return self._json(200, {"canaux": [{"canal": c, "adresse": _masquer(a)} for c, a in canaux],
@@ -295,10 +311,14 @@ def main():
     Gestionnaire.alertes = alertes_mod.Alertes(donnees, Gestionnaire.index, Gestionnaire.depot,
                                                lambda: [s["id"] for s in synchro.actives()])
     Gestionnaire.alertes.demarrer()
+    Gestionnaire.surveillance = surveillance.Surveillance(donnees, Gestionnaire.journal, Gestionnaire.index)
+    Gestionnaire.surveillance.demarrer()
     heures = float(reglage("RELEVE_HEURES", "24"))
     synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
     if heures > 0:
         synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])
+    if heures > 0:   # relève quotidienne des liens de tests indépendants
+        tests_auto.demarrer(Gestionnaire.index.tests)
     port = int(reglage("PORT", "8080"))
     srv = ThreadingHTTPServer(("0.0.0.0", port), Gestionnaire)
     log.info("Carnet de briques %s sur le port %s, données dans %s", VERSION, port, donnees)

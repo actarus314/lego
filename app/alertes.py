@@ -147,7 +147,14 @@ def reglages_manquants() -> list[str]:
         if canal not in CANAUX:
             manque.append(f"canal inconnu dans ALERTES : {canal}")
         manque += [f"{v} (canal {canal})" for v in REQUIS.get(canal, []) if not reglage(v)]
-    if "courriel" in {c for d in destinataires().values() for c, _ in d} and not (
+    from .surveillance import canaux as canaux_service, mal_ecrits
+    manque += [f"ALERTES_SERVICE : « {c} » sans « canal:adresse »" for c in mal_ecrits()]
+    for canal in sorted({c for c, _ in canaux_service()} - {c for d in destinataires().values() for c, _ in d}):
+        if canal not in CANAUX:
+            manque.append(f"canal inconnu dans ALERTES_SERVICE : {canal}")
+        manque += [f"{v} (canal {canal})" for v in REQUIS.get(canal, []) if not reglage(v)]
+    utilises = {c for d in destinataires().values() for c, _ in d} | {c for c, _ in canaux_service()}
+    if "courriel" in utilises and not (
             reglage("SMTP_EXPEDITEUR") or reglage("SMTP_UTILISATEUR")):
         manque.append("SMTP_EXPEDITEUR ou SMTP_UTILISATEUR (canal courriel)")
     return manque

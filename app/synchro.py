@@ -113,7 +113,8 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
                     offres = CONNECTEURS[src["type"]](src, pause=pause, progres=lambda k: _maj(produits=k))
                     if src.get("cartes"):
                         completer_dimensions(index, src, offres, pause)
-                    r.update(etat="ok", lus=len(offres), **index.enregistrer(src["id"], offres))
+                    r.update(etat="ok", lus=len(offres), dims=sum(1 for o in offres if o.get("dims")),
+                             **index.enregistrer(src["id"], offres))
                 log.info("source %s : %s sets (%s nouveaux, %s disparus)", src["nom"], r["lus"], r["nouveaux"], r["disparus"])
             except Exception as e:  # une source en panne n'arrête pas les autres
                 r.update(etat="echec", raison=_raison(e))
@@ -231,9 +232,9 @@ def offre_directe(index: Index, cle: str) -> dict:
         o = next((x for x in offres if x["cle"] == cle), None)
         if not o:
             raise LienRefuse("offre absente de la fiche")
-        return {"prix": o["prix"], "dispo": o["dispo"], "releve": _maintenant()}
+        return {"prix": o["prix"], "dispo": o["dispo"], "releve": o.get("releve"), "releve_par": "BricksValue"}
     src = next((s for s in sources_config() if s["id"] == sid), None)
-    if not src or src["type"] != "shopify" or not handle:
+    if not src or src["type"] != "shopify" or not re.fullmatch(r"[A-Za-z0-9._-]{1,200}", handle or ""):
         raise LienRefuse("offre non relisible en direct")
     url = f"https://{src['hote']}{src.get('prefixe', '')}/products/{handle}.js"
     r = lien.recuperer(url, accept="application/json",
@@ -249,6 +250,65 @@ def offre_directe(index: Index, cle: str) -> dict:
 
 
 LienRefuse = lien.LienRefuse
+
+
+RELIRE_MAX = 40          # offres d'un set relues par une requête (un set LEGO officiel en compte une dizaine)
+RELIRE_PAUSE_S = 60      # une même offre ou fiche n'est pas relue deux fois en moins d'une minute
+_RELUES: dict[str, tuple[float, dict]] = {}
+
+
+def _recent(cle: str) -> dict | None:
+    t = _RELUES.get(cle)
+    return t[1] if t and time.time() - t[0] < RELIRE_PAUSE_S else None
+
+
+def _retenir(cle: str, valeur: dict) -> dict:
+    if len(_RELUES) > 2000:
+        _RELUES.clear()
+    _RELUES[cle] = (time.time(), valeur)
+    return valeur
+
+
+def relire(index: Index, cles: list[str]) -> dict[str, dict]:
+    """Relit les offres d'un set : une lecture par fiche BricksValue (elle donne toutes les offres
+    LEGO officiel du set), une par produit de boutique. Rend {clé: champs relus, ou {"erreur": …}}."""
+    out: dict[str, dict] = {}
+    fiches: dict[str, list[str]] = {}
+    cles = list(dict.fromkeys(cles))[:RELIRE_MAX]
+    for cle in cles:
+        sid, _, reste = cle.partition(":")
+        if sid == "bricksvalue":
+            fiches.setdefault(reste.split(":")[0], []).append(cle)
+        else:
+            try:
+                recent = _recent(cle)
+                out[cle] = recent if recent else _retenir(cle, offre_directe(index, cle))
+            except LienRefuse as e:
+                out[cle] = {"erreur": e.public}
+            except Exception:  # réseau, réponse tronquée ou illisible
+                log.info("relecture de %s en échec", cle, exc_info=True)
+                out[cle] = {"erreur": "boutique injoignable ou réponse illisible"}
+    for num, liste in fiches.items():
+        etat = (index.lire("bricksvalue").get("fiches") or {}).get(num)
+        try:
+            if not etat:
+                raise LienRefuse("fiche inconnue")
+            if _age_h(etat.get("lu"), time.time()) * 3600 < RELIRE_PAUSE_S:  # lue à l'instant : pas de seconde lecture
+                offres = {o["cle"]: o for o in index.lire("bricksvalue").get("offres", []) if o["cle"].startswith(f"bricksvalue:{num}:")}
+            else:
+                offres = {o["cle"]: o for o in lire_une(index, num, etat["url"])}
+        except LienRefuse as e:
+            out.update({c: {"erreur": e.public} for c in liste})
+            continue
+        except Exception:
+            log.info("relecture de la fiche %s en échec", num, exc_info=True)
+            out.update({c: {"erreur": "BricksValue injoignable ou réponse illisible"} for c in liste})
+            continue
+        for c in liste:
+            o = offres.get(c)
+            out[c] = ({"prix": o["prix"], "dispo": o["dispo"], "releve": o.get("releve"), "releve_par": "BricksValue"}
+                      if o else {"erreur": "offre retirée de la fiche"})
+    return out
 
 
 # ----- LEGO officiel : liste des fiches (chaque nuit) et rotation continue -----

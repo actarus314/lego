@@ -8,6 +8,7 @@ passage réussi, date de première apparition de chaque produit). Le catalogue �
 from __future__ import annotations
 
 import json
+import logging
 import re
 import threading
 import time
@@ -15,9 +16,11 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from . import normalise as n
+from .tests_auto import Tests
 from .donnees import _ecrire, _lire, dans
 
 RACINE = Path(__file__).resolve().parent.parent
+log = logging.getLogger("index")
 VERROU = threading.RLock()
 DISPO_RANG = {"vente": 0, "precommande": 1, "epuise": 2}
 # Pour classer seulement : une offre dont le port n'est pas relevé compte ce port (le plus élevé des
@@ -40,6 +43,33 @@ def port_revendeur(regle: dict | None, prix: float) -> tuple[float | None, bool]
     if regle.get("port") is not None:
         return regle["port"], bool(regle.get("estime"))
     return None, False
+
+
+def corrections() -> dict:
+    """Corrections à la main (`data/corrections.json`), validées : un fichier illisible ou une valeur
+    mal formée est ignoré et journalisé, sans priver le catalogue des autres corrections."""
+    try:
+        brut = json.loads((RACINE / "data" / "corrections.json").read_text("utf-8"))
+    except FileNotFoundError:
+        return {}
+    except ValueError:
+        log.exception("data/corrections.json illisible : corrections ignorées")
+        return {}
+    themes = {t["id"] for t in n.themes_disponibles()}
+    valide = {"nom": lambda v: isinstance(v, str) and v.strip(),
+              "type": lambda v: v in ("technic", "classique"),
+              "themes": lambda v: isinstance(v, list) and all(x in themes for x in v),
+              "dims": lambda v: isinstance(v, list) and 0 < len(v) <= 3 and all(isinstance(x, (int, float)) and x > 0 for x in v)}
+    sets = {}
+    for sid, champs in (brut.get("sets") or {}).items():
+        for k, v in (champs or {}).items() if isinstance(champs, dict) else ():
+            if k in valide and valide[k](v):
+                sets.setdefault(sid, {})[k] = v
+            else:
+                log.warning("correction ignorée pour %s : %s = %r", sid, k, v)
+    listes = lambda x: [c for c in x if isinstance(c, str)] if isinstance(x, list) else []
+    return {"regrouper": [listes(g) for g in brut.get("regrouper") or [] if isinstance(g, list)],
+            "separer": listes(brut.get("separer")), "sets": sets}
 
 
 def sources_config() -> list[dict]:
@@ -74,6 +104,7 @@ class Index:
     def __init__(self, dossier: Path):
         self.dossier = Path(dossier) / "sources"
         self._cache: tuple[float, list] | None = None
+        self.tests = Tests(Path(dossier))   # liens de tests indépendants (voir tests_auto.py)
 
     def fichier(self, source_id: str) -> Path:
         return dans(self.dossier, f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json")
@@ -104,7 +135,8 @@ class Index:
             maintenant = time.strftime("%Y-%m-%dT%H:%M:%S")
             for o in offres:
                 o["depuis"] = vus.setdefault(o["cle"], aujourd_hui)
-                o["releve"] = maintenant
+                o["lu"] = maintenant
+                o.setdefault("releve", maintenant)  # date du relevé donnée par la source, sinon celle de la lecture
             d["offres"] = [o for o in d.get("offres", []) if not o["cle"].startswith(prefixe)] + offres
             d.setdefault("fiches", {})[prefixe.rstrip(":").split(":")[-1]] = etat_fiche
             _ecrire(self.fichier(source_id), d)
@@ -129,12 +161,17 @@ class Index:
 
     # ----- catalogue regroupé -----
     def sets(self, actives: list[str]) -> list[dict]:
-        cle_cache = tuple(sorted(actives)), max((self.fichier(s).stat().st_mtime for s in actives
-                                                  if self.fichier(s).exists()), default=0)
+        intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
+            "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json")] + [
+            self.dossier.parent / "livraison_lue.json"]
+        cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
+                     self.tests.signature())
         if self._cache and self._cache[0] == cle_cache:
             return self._cache[1]
         conf = {s["id"]: s for s in sources_config()}
         revendeurs = livraison_revendeurs()
+        from .livraison import ports_lus
+        lus = ports_lus(self.dossier.parent)  # port relu sur la page de livraison (ligne « France 4,95 € »)
         offres = []
         for sid in actives:
             d = self.lire(sid)
@@ -146,20 +183,28 @@ class Index:
                     o["delai"] = (regle or {}).get("delai")
                 else:
                     liv = (conf.get(sid) or {}).get("livraison") or {}
-                    o["port"], o["delai"], o["port_estime"] = liv.get("port"), liv.get("delai"), liv.get("estime", False)
+                    o["port"], o["delai"], o["port_estime"] = lus.get(sid, liv.get("port")), liv.get("delai"), liv.get("estime", False)
                 offres.append(o)
         couverts = {_cle_set(o) for o in offres}
         offres += [o for o in editoriales() if _cle_set(o) not in couverts]
+        corr = corrections()
+        force = {c: "corr|" + g[0] for g in corr.get("regrouper", []) if g for c in g}
+        force.update({c: c for c in corr.get("separer", [])})
         groupes: dict[str, list[dict]] = {}
         for o in offres:
-            groupes.setdefault(_cle_set(o), []).append(o)
+            groupes.setdefault(force.get(o["cle"]) or _cle_set(o), []).append(o)
         edito = {e["cle"]: e for e in editorial()}
         for e in editorial():
             if e.get("cle_numero"):
                 edito.setdefault(e["cle_numero"], e)
-        out = [_set(cle if i == 0 else f"{cle}-{i}", paq, edito)
+        # liens de tests rattachés par numéro : à la première variante seulement (la plus riche en pièces)
+        out = [_set(cle if i == 0 else f"{cle}-{i}", paq, edito, self.tests if i == 0 else None)
                for cle, g in groupes.items() for i, paq in enumerate(_separer(g))]
         out = [s for s in out if s]
+        for s in out:
+            for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
+                if k in ("nom", "type", "themes", "dims"):
+                    s[k] = v
         self._cache = (cle_cache, out)
         return out
 
@@ -168,7 +213,7 @@ def _total(o: dict) -> float:
     return o["prix"] + (PORT_INCONNU if o.get("port") is None else o["port"])
 
 
-def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
+def _set(cle: str, offres: list[dict], edito: dict, tests: Tests | None = None) -> dict | None:
     offres.sort(key=lambda o: (DISPO_RANG[o["dispo"]], _total(o)))
     ed = next((edito[o["cle"]] for o in offres if o["cle"] in edito), None)
     if ed is None and offres[0].get("numero"):
@@ -181,8 +226,14 @@ def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
     else:
         themes = sorted({t for o in offres for t in o.get("themes", [])})
     actifs = [o["prix"] for o in offres if o["dispo"] != "epuise"]
+    nom = (ed or {}).get("nom") or n.nom_court(premier("nom"))
+    origine = None
+    if not ed and next((o["source"] for o in par_pref if o.get("nom")), None) == "bausteinreich":
+        traduit = n.traduire_de(nom)  # nom seulement en allemand : traduction mot à mot (data/glossaire.json)
+        if traduit and traduit != nom:
+            nom, origine = traduit, nom
     s = {
-        "id": _slug(cle), "nom": (ed or {}).get("nom") or n.nom_court(premier("nom")),
+        "id": _slug(cle), "nom": nom,
         "marque": meilleure["marque"], "numero": premier("numero"),
         "themes": themes, "type": premier("type"), "pieces": premier("pieces"),
         "dims": (ed or {}).get("dims") or premier("dims"), "img": premier("img"),
@@ -190,14 +241,30 @@ def _set(cle: str, offres: list[dict], edito: dict) -> dict | None:
         "depuis": min((o.get("depuis") or "9999") for o in offres),
         "ecart": len(actifs) > 1 and max(actifs) > 1.4 * min(actifs),
         "offres": [{k: o.get(k) for k in ("source", "boutique", "pays", "cle", "url", "prix", "port", "port_estime",
-                                           "delai", "dispo", "releve")} for o in offres],
+                                           "delai", "dispo", "releve", "releve_par")} for o in offres],
     }
+    images = []
+    for o in par_pref:
+        for u in ([o.get("img")] if o.get("img") else []) + (o.get("images") or []):
+            if u and u not in images:
+                images.append(u)
+    if len(images) > 1:
+        s["images"] = images
+    if origine:
+        s["nom_origine"] = origine
     if premier("retrait"):
         s["retrait"] = premier("retrait")
     if ed:
         for k in ("tests", "avis", "tags"):
             if ed.get(k):
                 s[k] = ed[k]
+    if tests:
+        liens = tests.pour(s["marque"], *dict.fromkeys(o.get("numero") for o in offres))
+        deja = {t.get("url") for t in s.get("tests", [])}
+        liens = [x for x in liens if x["url"] not in deja]
+        if liens:   # tests indépendants rattachés par script : liens seulement, aucun verdict
+            s["liens_tests"] = liens
+            s["nb_tests"] = len(liens)
     return s
 
 

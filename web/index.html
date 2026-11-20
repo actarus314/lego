@@ -101,10 +101,10 @@ td.num .sub{white-space:normal}
 .nb{all:unset;cursor:pointer;font-weight:600;color:var(--fg)} .nb:hover{color:var(--accent);text-decoration:underline} .nb:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .sub{color:var(--muted);font-size:12.5px}
 .empty{padding:28px;text-align:center;color:var(--muted)}
-.thumb{width:64px;height:48px;border-radius:8px;background:var(--sunk);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none}
+.thumb{width:96px;height:72px;border-radius:8px;background:var(--sunk);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none}
 .thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
 .thumb svg{width:26px;height:26px;opacity:.5}
-td.ph{width:88px}
+td.ph{width:120px}
 .big{font-family:var(--display);font-size:15px;font-weight:600}
 
 .pill{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
@@ -186,7 +186,7 @@ nav .m-ico{display:none;vertical-align:-3px}
 .res-tete p{margin:0;color:var(--muted)}
 .ligne-marque{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .f-barre{display:none}
-@media (max-width:900px){
+@media (max-width:1100px){
   .rech{grid-template-columns:1fr}
   .f-barre{display:flex;gap:8px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:5;background:var(--bg);padding-block:10px;margin-top:-10px}
   .f-barre .q{flex:1;min-width:0;height:36px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
@@ -222,6 +222,7 @@ nav .m-ico{display:none;vertical-align:-3px}
 .r-resume .sub{white-space:nowrap}
 .r-panne{padding:12px 16px;display:grid;gap:2px;border-color:var(--bad)}
 .r-panne b{color:var(--bad)}
+.r-panne.warn{border-color:var(--warn)} .r-panne.warn b{color:var(--warn)}
 .p-info{background:var(--f-type-soft);color:var(--f-type)}
 .pq{position:relative;display:inline-flex}
 .pq[data-pourquoi]:hover::after,.pq[data-pourquoi]:focus-within::after{content:attr(data-pourquoi);position:absolute;top:calc(100% + 6px);right:0;background:var(--fg);color:var(--bg);font-size:12px;line-height:1.4;padding:5px 9px;border-radius:6px;white-space:nowrap;z-index:20;pointer-events:none}
@@ -242,7 +243,19 @@ dialog{border:0;padding:0;border-radius:16px;background:var(--card);color:var(--
 dialog::backdrop{background:rgba(10,15,22,.55)}
 .fiche{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
 .fiche-img{background:#fff;display:grid;place-items:center;min-height:300px;border-right:1px solid var(--line);border-radius:16px 0 0 16px;overflow:hidden}
-.fiche-img img{width:100%;height:100%;max-height:440px;object-fit:contain}
+.fiche-img{grid-template-rows:minmax(0,1fr) auto;align-content:stretch}
+.fiche-img .grande{display:grid;place-items:center;min-height:0}
+.fiche-img .grande img{width:100%;height:100%;max-height:440px;object-fit:contain}
+.galerie{display:flex;flex-wrap:wrap;gap:6px;padding:8px;justify-content:center;border-top:1px solid var(--line);background:#fff}
+.galerie button{all:unset;cursor:pointer;width:52px;height:40px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;background:#fff}
+.galerie button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.galerie button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.galerie img{width:100%;height:100%;object-fit:contain}
+details.autres > summary{list-style:none;cursor:pointer;display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);padding:6px 4px}
+details.autres > summary::-webkit-details-marker{display:none}
+details.autres > summary svg{transition:transform .15s}
+details.autres[open] > summary svg{transform:rotate(180deg)}
+.liens-tests{display:grid;gap:4px;font-size:13px}
 .fiche-body{padding:20px 22px;display:grid;gap:14px;align-content:start;overflow:auto;max-height:calc(100dvh - 32px)}
 .fiche-body .offres-t{display:grid;gap:4px}
 .fiche-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
@@ -271,7 +284,7 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   nav{overflow-x:auto;scrollbar-width:none} nav::-webkit-scrollbar{display:none}
   thead{display:none} table,tbody,tr,td{display:block;width:100%}
   tr{padding:12px 14px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;align-items:start}
-  .has-ph tr{grid-template-columns:72px minmax(0,1fr) minmax(0,1fr)}
+  .has-ph tr{grid-template-columns:96px minmax(0,1fr) minmax(0,1fr)}
   tr:last-child{border-bottom:0}
   td{border:0;padding:0;text-align:left!important;min-width:0}
   .pill{white-space:normal;height:auto;min-height:22px}
@@ -288,12 +301,12 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   .search{width:100%}
   .fiche{grid-template-columns:1fr}
   .fiche-img{border-right:0;border-bottom:1px solid var(--line);border-radius:16px 16px 0 0;min-height:200px}
-  .fiche-img img{max-height:260px}
+  .fiche-img .grande img{max-height:260px}
   .fiche-body{max-height:none}
   dialog{overflow:auto}
 }
 @media (max-width:480px){nav .m-ico{display:inline}nav .t-long{display:none}
-  #t-idees tr{display:grid;grid-template-columns:64px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl prix" "ph act act prix";gap:2px 12px;padding:10px 12px}
+  #t-idees tr{display:grid;grid-template-columns:88px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl prix" "ph act act prix";gap:2px 12px;padding:10px 12px}
   #t-idees td[data-k]::before{display:none}
   #t-idees td.ph{grid-area:ph;grid-row:1/4}
   #t-idees td[data-k="Set"]{grid-area:set}
@@ -301,7 +314,7 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   #t-idees td[data-k="Taille"]{grid-area:tl;align-self:start}
   #t-idees td[data-k="Prix"]{grid-area:prix;text-align:right!important;align-self:start}
   #t-idees td.wide:last-child{grid-area:act}
-  #t-idees .thumb{width:60px;height:46px}
+  #t-idees .thumb{width:84px;height:64px}
   .brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
 @media (max-width:380px){nav a{padding:8px 3px;font-size:12.5px}.bar{gap:6px}.brand svg{width:22px;height:22px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -451,7 +464,7 @@ const ideeParId = id => IDEES.find(x => x.id === id);
 function preparer(){
   IDEES = CAT.sets;
   for (const r of IDEES){
-    r._txt = plat([r.nom, r.marque, r.numero, r.type === "technic" ? "technic" : r.type === "classique" ? "classique" : "", ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
+    r._txt = plat([r.nom, r.nom_origine || "", r.marque, r.numero, r.type === "technic" ? "technic" : r.type === "classique" ? "classique" : "", ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
     r._th = r.themes.length ? r.themes : ["autres"];
     r._ty = r.type || "inconnu";
     r._lg = longueur(r);
@@ -519,7 +532,7 @@ const norm = u => { try { const x = new URL(u); return (x.hostname.replace(/^www
 const ideeFor = u => IDEES.find(r => r.offres.some(o => norm(o.url) === norm(u)));
 const thumbUrl = (u, w) => u && u.includes("cdn.shopify.com") ? u + (u.includes("?") ? "&" : "?") + "width=" + w : u;
 const BRICK = '<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="20" rx="4" fill="var(--faint)"/><g fill="var(--card)"><circle cx="8" cy="10" r="2.6"/><circle cx="18" cy="10" r="2.6"/><circle cx="8" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/></g></svg>';
-const thumb = (src, alt) => `<span class="thumb">${src ? `<img src="${esc(thumbUrl(safeUrl(src), 160))}" alt="${esc(alt)}" loading="lazy">` : BRICK}</span>`;
+const thumb = (src, alt) => `<span class="thumb">${src ? `<img src="${esc(thumbUrl(safeUrl(src), 240))}" alt="${esc(alt)}" loading="lazy">` : BRICK}</span>`;
 const gauge = n => `<span class="gauge g${n}" aria-label="Fiabilité ${n} sur 3">${[1,2,3].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</span>`;
 const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } }, set(k,v){ try { localStorage.setItem(k,v); return localStorage.getItem(k) === v; } catch { return false; } } };
 function toast(msg, err){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, Math.max(err ? 4500 : 2200, msg.length * 60)); }
@@ -644,7 +657,7 @@ const colsI = [
   {key:"prix",label:"Prix, port compris",val:r => rang(r._meilleure),cls:"num"},
   {key:"act",label:"",cls:"num"},
 ];
-const LARGEURS = ["88px", "auto", "84px", "84px", "230px", "112px"];
+const LARGEURS = ["120px", "auto", "84px", "84px", "230px", "112px"];
 let MARQUES_ORD = [];
 function renderIdees(){
   const toks = jetons(), rows = filtrer(null, toks);
@@ -687,7 +700,7 @@ function renderIdees(){
       <td class="ph">${thumb(r.img, r.nom)}</td>
       <td class="full" data-k="Set"><button type="button" class="name nb">${esc(r.nom)}</button>
         <div class="sub ligne-marque">${logo(r.marque)}<span>${esc(r.marque)}${r.numero ? " " + esc(r.numero) : ""}</span>${r.type ? typeIco(r.type) : ""}${r.avis ? `<span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</div>
-        <div class="sub">${r.themes.map(themeNom).join(" · ")}</div></td>
+        <div class="sub">${[...r.themes.map(themeNom), nbTests(r) ? `${nbTests(r)} test${nbTests(r) > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
       <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
       <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span>${o.port ? `<div class="sub">${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port</div>` : o.port === 0 ? '<div class="sub">port offert</div>' : '<div class="sub">port non relevé</div>'}<div class="sub">${esc(o.boutique)} · ${o.delai ? esc(o.delai) : "délai non relevé"}${nbB > 1 ? ` · ${nbB} boutiques` : ""}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
@@ -726,23 +739,34 @@ sI.render = renderIdees;
 
 /* ---------- Fiche ---------- */
 const dlg = $("#fiche");
-const court = d => { if (!d) return ""; const x = new Date(d); return x.toLocaleDateString("fr-FR", {day:"numeric", month:"short"}) + " " + x.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}); };
-function offresHtml(r){
-  return `<table class="offres">${r.offres.map(o => {
-    const info = [o.pays && o.pays !== "France" ? o.pays : "", o.delai || ""].filter(Boolean).join(" · ");
-    return `<tr>
+const court = d => { if (!d) return ""; const x = new Date(d); return x.toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) + " " + x.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}); };
+const nbTests = r => (r.tests || []).length + (r.nb_tests || 0);
+const datesLisibles = t => String(t || "").replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, (m, a, mo, j) => new Date(`${a}-${mo}-${j}T12:00:00`).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"}));
+const CHEVRON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const OFFRES_VUES = 3;
+const releveLbl = o => !o.releve ? "non daté" : o.releve.length === 10 ? new Date(o.releve + "T12:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) : court(o.releve);
+function ligneOffre(o){
+  const info = [o.pays && o.pays !== "France" ? o.pays : "", o.delai || ""].filter(Boolean).join(" · ");
+  return `<tr>
     <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a>${info ? `<div class="sub">${esc(info)}</div>` : ""}</td>
     <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
     <td class="num"><b>${eur(o.prix)}</b><div class="sub">${portLbl(o)}</div></td>
-    <td class="num sub">${o.releve ? esc(court(o.releve)) : "prix du 19 nov."}</td></tr>`; }).join("")}</table>`;
+    <td class="num sub">${o.source === "editorial" && !o.releve ? "prix du 19 novembre" : esc(releveLbl(o))}</td></tr>`;
 }
+function offresHtml(r){
+  // Les meilleures offres d'abord ; au-delà de trois, les autres se replient (un set LEGO officiel en a parfois dix).
+  const vues = r.offres.slice(0, r.offres.length > OFFRES_VUES + 1 ? OFFRES_VUES : r.offres.length), reste = r.offres.slice(vues.length);
+  return `<table class="offres">${vues.map(ligneOffre).join("")}</table>${reste.length ? `<details class="autres"${OUVERT_AUTRES ? " open" : ""}><summary>${reste.length} autres offres${CHEVRON}</summary><table class="offres">${reste.map(ligneOffre).join("")}</table></details>` : ""}`;
+}
+let OUVERT_AUTRES = false;
 function openFiche(id){
   const r = ideeParId(id); if (!r) return;
+  OUVERT_AUTRES = false;
   const o = r._meilleure, c = cents(o.prix, r.pieces), tests = r.tests || [];
   const inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url)));
-  const qTests = encodeURIComponent(`${r.marque === "LEGO officiel" ? "LEGO" : r.marque} ${r.numero || ""} ${r.nom} review`);
+  const qTests = encodeURIComponent(`"${r.marque === "LEGO officiel" ? "LEGO" : r.marque}" ${r.numero || r.nom} test OR review OR avis`);
   dlg.innerHTML = `<div class="fiche">
-    <div class="fiche-img">${r.img ? `<img src="${esc(thumbUrl(r.img, 900))}" alt="${esc(r.nom)}">` : BRICK}</div>
+    <div class="fiche-img"><div class="grande">${r.img ? `<img id="f-photo" src="${esc(thumbUrl(safeUrl(r.img), 900))}" alt="${esc(r.nom)}">` : BRICK}</div><div class="galerie" id="f-galerie" hidden></div></div>
     <div class="fiche-body">
       <div class="fiche-top"><div><div class="lbl ligne-marque">${logo(r.marque)} ${esc(r.marque)}${r.numero ? " · " + esc(r.numero) : ""}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
         <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -752,9 +776,9 @@ function openFiche(id){
         <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
         <div class="fact"><span class="lbl">Briques</span><b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b></div>
       </div>
-      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(r.retrait)}</span>` : ""}</div>
-      <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.length ? tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("") : '<span class="sub">Aucun test relevé pour ce set.</span>'}
-        <a href="https://www.youtube.com/results?search_query=${qTests}" target="_blank" rel="noopener">Chercher des tests sur YouTube</a></div>
+      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(datesLisibles(r.retrait))}</span>` : ""}</div>
+      <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("")}<div class="liens-tests" id="f-liens"></div>
+        <a class="btn small" href="https://duckduckgo.com/?q=${qTests}&kl=fr-fr&ia=web" target="_blank" rel="noopener">Rechercher des tests sur le web</a></div>
       <div class="fiche-actions">
         <a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">Voir chez ${esc(o.boutique)}</a>
         <button class="btn" id="f-add" ${inSel ? "disabled" : ""}>${inSel ? "Dans la sélection" : "Ajouter à la sélection"}</button>
@@ -762,17 +786,37 @@ function openFiche(id){
     </div></div>`;
   $("#f-close").onclick = () => dlg.close();
   $("#f-add").onclick = e => { addFromIdee(r.id); e.currentTarget.disabled = true; e.currentTarget.textContent = "Dans la sélection"; };
+  $("#f-offres").addEventListener("toggle", e => { if (e.target.matches("details.autres")) OUVERT_AUTRES = e.target.open; }, true);
   const relire = $("#f-relire");
   if (relire) relire.onclick = async () => {
     relire.disabled = true; relire.textContent = "Lecture…";
-    const res = await Promise.allSettled(r.offres.filter(x => x.source !== "editorial").map(async x => Object.assign(x, await api("GET", "api/offre?cle=" + encodeURIComponent(x.cle)))));
+    const a_relire = r.offres.filter(x => x.source !== "editorial");
+    let res = {};
+    try { res = await api("GET", "api/relire?" + a_relire.map(x => "cle=" + encodeURIComponent(x.cle)).join("&")); } catch { res = {}; }
+    let ko = 0;
+    for (const x of a_relire){ const v = res[x.cle]; if (!v || v.erreur) ko++; else Object.assign(x, v); }
     r.offres.sort((a, b) => ({vente:0, precommande:1, epuise:2}[a.dispo] - {vente:0, precommande:1, epuise:2}[b.dispo]) || rang(a) - rang(b));
     r._meilleure = r.offres[0]; r.dispo = r._meilleure.dispo; r.prix = r._meilleure.prix;
     $("#f-offres").innerHTML = offresHtml(r);
-    const ko = res.filter(x => x.status === "rejected").length;
-    relire.textContent = ko ? `${ko} boutique${ko > 1 ? "s" : ""} injoignable${ko > 1 ? "s" : ""}` : "Prix à jour";
+    relire.textContent = ko ? `${ko} offre${ko > 1 ? "s" : ""} non relue${ko > 1 ? "s" : ""}` : "Prix à jour";
     renderIdees();
   };
+  if (MODE.serveur) api("GET", "api/fiche?id=" + encodeURIComponent(r.id)).then(d => {
+    if (!dlg.open || $("#f-titre")?.textContent !== r.nom) return;
+    const imgs = (d.images || []).filter(Boolean);
+    const gal = $("#f-galerie"), photo = $("#f-photo");
+    if (imgs.length > 1 && gal && photo){
+      gal.innerHTML = imgs.map((u, i) => `<button type="button" data-i="${i}" aria-label="Photo ${i + 1} sur ${imgs.length}" aria-pressed="${i === 0}"><img src="${esc(thumbUrl(safeUrl(u), 120))}" alt="" loading="lazy"></button>`).join("");
+      gal.hidden = false;
+      gal.onclick = e => { const b = e.target.closest("button[data-i]"); if (!b) return;
+        photo.src = thumbUrl(safeUrl(imgs[+b.dataset.i]), 900);
+        gal.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); };
+    }
+    const liens = d.liens_tests || [];
+    const ligneLien = t => `<div><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.titre)}</a> <span class="d">${esc([t.source, t.date ? datesLisibles(t.date) : ""].filter(Boolean).join(" · "))}</span></div>`;
+    const vus = liens.slice(0, liens.length > 4 ? 3 : liens.length), reste = liens.slice(vus.length);
+    if (liens.length) $("#f-liens").innerHTML = vus.map(ligneLien).join("") + (reste.length ? `<details class="autres"><summary>${reste.length} autres tests${CHEVRON}</summary><div class="liens-tests">${reste.map(ligneLien).join("")}</div></details>` : "");
+  }).catch(() => {});
   dlg.showModal();
 }
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
@@ -787,20 +831,46 @@ const colsB = [
   {key:"douane",label:"Douane",val:r => r.douane == null ? null : r.douane ? 1 : 0,cls:"hide-m"},
   {key:"boite",label:"Boîte d'origine",val:r => r.boite,cls:"hide-l"},
   {key:"prix",label:"Prix",val:r => r.prix,cls:"hide-m"},
+  {key:"sets",label:"Sets",val:r => r.sets,first:"desc",cls:"num"},
   {key:"fiab",label:"Fiabilité",val:r => r.fiab,first:"desc"},
 ];
 const PRIX_LBL = ["€","€€","€€€"];
+const hoteDe = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+const UE = new Set(["France","Allemagne","Belgique","Pays-Bas","Luxembourg","Italie","Espagne","Autriche","Pologne","Danemark","Suède","Finlande","Irlande","Portugal","Tchéquie"]);
+function lignesBoutiques(){
+  // Liste écrite à la main, complétée par les boutiques et revendeurs vus dans l'index (nombre de sets en vente).
+  const parHote = new Map();
+  for (const r of IDEES) for (const o of r.offres){
+    if (o.source === "editorial" || o.dispo === "epuise") continue;
+    const h = hoteDe(o.url); if (!h) continue;
+    const e = parHote.get(h) || {sets:new Set(), offre:o}; e.sets.add(r.id); parHote.set(h, e);
+  }
+  const lignes = BOUTIQUES.map(b => {
+    const n = [...parHote].filter(([h]) => h === b.host || h.endsWith("." + b.host)).reduce((t, [, e]) => t + e.sets.size, 0);
+    return {...b, sets: n};
+  });
+  const connus = h => BOUTIQUES.some(b => h === b.host || h.endsWith("." + b.host));
+  for (const [h, e] of parHote){
+    if (connus(h)) continue;
+    const o = e.offre, pays = o.pays || "France";
+    lignes.push({nom:o.boutique, host:h, url:"https://" + h, pays, zone:pays === "Chine" ? "chine" : UE.has(pays) ? "ue" : "entrepot",
+      delai:o.delai || "Non relevé", dmin:parseInt(o.delai) || null, douane:null, boite:"Non relevé", fiab:null, prix:null,
+      points:[], sets:e.sets.size});
+  }
+  return lignes;
+}
 function renderBoutiques(){
-  const rows = BOUTIQUES.filter(r => (!fB.zones.size || fB.zones.has(r.zone)) && (!fB.sansDouane || r.douane === false));
+  const rows = lignesBoutiques().filter(r => (!fB.zones.size || fB.zones.has(r.zone)) && (!fB.sansDouane || r.douane === false));
   sortable("t-boutiques", colsB, rows, sB, r => `<tr>
-      <td class="wide" data-k="Boutique"><a class="name" href="${r.url}" target="_blank" rel="noopener">${esc(r.nom)}</a> <span class="sub">· ${esc(r.pays)}</span>
+      <td class="wide" data-k="Boutique"><a class="name" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom)}</a> <span class="sub">· ${esc(r.pays)}</span>
         <div class="tags" style="margin-top:4px">${r.points.map(p => `<span class="tag">${esc(p)}</span>`).join("")}</div></td>
       <td data-k="Origine"><span class="pill ${r.zone === "chine" ? "p-warn" : r.zone === "ue" ? "p-ok" : "p-neutral"}">${ZONES[r.zone]}</span></td>
-      <td class="num" data-k="Délai">${esc(r.delai)}</td>
+      <td class="num ok-wrap" data-k="Délai">${esc(r.delai)}</td>
       <td class="hide-m" data-k="Douane">${r.douane == null ? '<span class="pill p-neutral">Non relevé</span>' : r.douane ? '<span class="pill p-warn">Possible</span>' : '<span class="pill p-ok">Non</span>'}</td>
       <td class="hide-l" data-k="Boîte d'origine">${esc(r.boite)}</td>
-      <td class="hide-m num" data-k="Prix">${PRIX_LBL[r.prix] || "€"}</td>
-      <td data-k="Fiabilité">${gauge(r.fiab)}</td>
+      <td class="hide-m num" data-k="Prix">${r.prix == null ? "—" : PRIX_LBL[r.prix] || "€"}</td>
+      <td class="num" data-k="Sets">${r.sets || "—"}</td>
+      <td data-k="Fiabilité">${r.fiab == null ? '<span class="sub" style="white-space:nowrap">Non évaluée</span>' : gauge(r.fiab)}</td>
     </tr>`, "Aucune boutique ne correspond aux filtres.");
 }
 filterGroups($("#f-boutiques"), [
@@ -1061,7 +1131,7 @@ function route(){
   document.querySelectorAll("nav a").forEach(a => a.dataset.tab === t ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
 }
 window.addEventListener("hashchange", route);
-function renderAll(){ renderIdees(); renderSel(); renderMarques(); }
+function renderAll(){ renderIdees(); renderSel(); renderMarques(); renderBoutiques(); }
 $("#ver").textContent = MODE.version && MODE.version !== "dev" ? "v" + MODE.version.replace(/^v/, "") : "";
 $("#pied").textContent = MODE.serveur ? "Prix à vérifier sur le site avant d'acheter."
   : `Prix et disponibilités relevés le ${MODE.catalogue_du || "19 novembre 2026"} · à vérifier sur le site avant d'acheter.`;
@@ -1126,7 +1196,7 @@ function renderSynchro(){
   const enEchec = lignes.filter(x => x.etat === "echec");
   const arret = e.heures > 0 && !e.programme_actif;
   const dot = $("#r-dot");
-  dot.hidden = !(run || arret || enEchec.length);
+  dot.hidden = !(run || arret || enEchec.length || (R.baisses || []).length);
   dot.className = "dot" + (run ? " run" : arret || (lignes.length && enEchec.length === lignes.length) ? " bad" : "");
   $("#r-ico").setAttribute("aria-label", "Synchronisation" + (run ? " : en cours" : arret ? " : programmée arrêtée" : enEchec.length ? ` : ${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec` : ""));
   if (d){
@@ -1139,9 +1209,11 @@ function renderSynchro(){
   re.disabled = run || !enEchec.length;
   re.textContent = enEchec.length ? `Relancer les échecs (${enEchec.length})` : "Relancer les échecs";
   pourquoi("#pq-echecs", run ? "Synchronisation en cours" : !enEchec.length ? "Aucune source en échec" : "");
-  const panne = $("#r-panne");
-  panne.hidden = !arret;
-  panne.innerHTML = arret ? '<b>Synchronisation programmée arrêtée</b><span class="sub">Plus de mise à jour automatique · redémarrage du conteneur nécessaire</span>' : "";
+  const panne = $("#r-panne"), baisses = R.baisses || [];
+  panne.hidden = !(arret || baisses.length);
+  panne.classList.toggle("warn", !arret);
+  panne.innerHTML = (arret ? '<b>Synchronisation programmée arrêtée</b><span class="sub">Plus de mise à jour automatique · redémarrage du conteneur nécessaire</span>' : "")
+    + (baisses.length ? `<b>À vérifier</b>${baisses.map(b => `<span class="sub">${esc(b)}</span>`).join("")}` : "");
   const prog = $("#r-prog");
   prog.hidden = !(run || rFin);
   prog.classList.toggle("fini", !run && !!rFin);

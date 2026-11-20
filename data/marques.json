@@ -1,5 +1,5 @@
 {
- "_note": "Site officiel (ou distributeur officiel) de chaque marque, dont le service récupère l'icône comme logo, gardée dans son dossier de données. « icone » : adresse directe d'une image, quand le site refuse les robots. Une marque absente garde sa pastille à initiales.",
+ "_note": "Site officiel (ou boutique de la marque) de chaque marque, dont le service récupère l'icône comme logo, gardée dans son dossier de données. « icone » : adresse directe d'une image, essayée avant les icônes du site (à renseigner quand le site n'en déclare pas de lisible). Une marque absente garde sa pastille à initiales (aucun site officiel trouvé : TGL, Xinzhuan). Une marque ajoutée ici est récupérée au passage suivant.",
  "marques": {
   "LEGO officiel": {
    "site": "lego.com",
@@ -38,6 +38,42 @@
   },
   "Funwhole": {
    "site": "funwhole.com"
+  },
+  "CaDA": {
+   "site": "cadatoys.com"
+  },
+  "Bole Brick": {
+   "site": "bolebricks.com"
+  },
+  "Xingbao": {
+   "site": "xingbao.org"
+  },
+  "Wange": {
+   "site": "wangetoys.com"
+  },
+  "Panlos": {
+   "site": "panlos.com"
+  },
+  "Sembo": {
+   "site": "semboblock.com"
+  },
+  "MOYU": {
+   "site": "moyudiy.com"
+  },
+  "Rastar": {
+   "site": "rastar.com"
+  },
+  "Kazi": {
+   "site": "kazi.ai"
+  },
+  "Gobricks": {
+   "site": "gobricks.net"
+  },
+  "iM.Master": {
+   "site": "immastertech.com"
+  },
+  "Ausini": {
+   "site": "ausini.com"
   }
  }
 }

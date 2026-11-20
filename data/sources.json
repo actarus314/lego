@@ -13,7 +13,9 @@
    "actif": true,
    "livraison": {
     "port": 4.95,
-    "delai": "1 à 3 jours ouvrés"
+    "delai": "1 à 3 jours ouvrés",
+    "page": "https://kbs-shop.com/en/policies/shipping-policy",
+    "motif_pays": "France"
    },
    "cartes": "/collections/all"
   },
@@ -29,7 +31,8 @@
    "livraison": {
     "port": 9.95,
     "estime": true,
-    "delai": null
+    "delai": null,
+    "page": "https://www.bausteinreich.de/policies/shipping-policy"
    }
   },
   {
@@ -44,7 +47,8 @@
    "actif": true,
    "livraison": {
     "port": 0,
-    "delai": "15 à 25 jours"
+    "delai": "15 à 25 jours",
+    "page": "https://mouldkingcorp.com/policies/shipping-policy"
    }
   },
   {

@@ -84,6 +84,13 @@ _DIM_LONG = re.compile(r"(?:about|approximately|nearly|around|etwa|ca\.?|rund|en
                        + r"\s*cm\s*(?:long|lang|de long|high|hoch|tall|de haut|wide|breit)", re.I)
 
 
+_DIM_APRES = re.compile(_NB + r"\s*cm\)?\s*(?:long|tall|high|wide|in length|in height|in width|length|height|width|"
+                        r"lang|hoch|breit|de long|de haut|de large)\b", re.I)
+_DIM_VERBE = re.compile(r"(?:measures?|measuring|stands?|standing(?: at)?|reaches|spans?|spanning|all|misst)\s+(?:in at\s+)?"
+                        r"(?:about |approx\.? |approximately |nearly |over |around |up to )?"
+                        r"(?:\d{1,3}(?:\.\d)?\s*(?:\"|”|in(?:ches)?)\s*\(\s*)?" + _NB + r"\s*cm\b", re.I)
+
+
 def dimensions(t: str) -> list[float] | None:
     """Dimensions en cm, la plus grande en premier ; None si absentes ou nulles."""
     for motif in (_DIM_X, _DIM_LISTE):
@@ -96,7 +103,19 @@ def dimensions(t: str) -> list[float] | None:
     if m:
         v = float(m.group(1).replace(",", "."))
         return [v] if v > 0 else None
-    return None
+    # Dimensions données une à une dans le texte (« At 44 cm long », « stands 53.9 cm tall »,
+    # « Measuring 43 cm wide and 48 cm tall », « 75.7cm Length ») : jusqu'à trois, la plus grande d'abord.
+    vals = [float(x.replace(",", ".")) for x in _DIM_APRES.findall(t or "") + _DIM_VERBE.findall(t or "")]
+    vals = sorted({v for v in vals if 5 <= v <= 300}, reverse=True)[:3]
+    return vals or None
+
+
+def _mot(m: str) -> str:
+    """Motif d'un mot-clé : mot entier ; « *panzer » accepte un mot composé qui finit par « panzer »
+    (Jagdpanzer), « panzer* » un mot qui commence par lui (Panzerspähwagen)."""
+    debut, fin = m.startswith("*"), m.endswith("*")
+    coeur = re.escape(m.strip("*"))
+    return (r"(?<!\w)\w*" if debut else r"(?<!\w)") + coeur + (r"\w*(?!\w)" if fin else r"(?!\w)")
 
 
 @lru_cache(maxsize=1)
@@ -104,17 +123,16 @@ def _themes() -> list[dict]:
     d = json.loads((RACINE / "data" / "themes.json").read_text("utf-8"))
     out = []
     for t in d["themes"]:
-        mots = [sans_accents(m) for m in t["mots"]]
         out.append({"id": t["id"], "nom": t["nom"],
-                    "etiquettes": [sans_accents(e) for e in t["etiquettes"]],
-                    "motif": re.compile(r"(?<!\w)(" + "|".join(re.escape(m) for m in mots) + r")(?!\w)")})
+                    "etiq": re.compile("|".join(r"(?<!\w)" + re.escape(sans_accents(e)) + r"(?!\w)" for e in t["etiquettes"])),
+                    "motif": re.compile("|".join(_mot(sans_accents(m)) for m in t["mots"]))})
     return out
 
 
 def themes_disponibles() -> list[dict]:
     """Thèmes et leurs mots-clés sans accents (la page s'en sert comme dictionnaire de recherche)."""
     d = json.loads((RACINE / "data" / "themes.json").read_text("utf-8"))
-    return [{"id": t["id"], "nom": t["nom"], "mots": sorted({sans_accents(m) for m in t["mots"]})} for t in d["themes"]]
+    return [{"id": t["id"], "nom": t["nom"], "mots": sorted({sans_accents(m).strip("*") for m in t["mots"]})} for t in d["themes"]]
 
 
 def themes(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "") -> list[str]:
@@ -122,16 +140,44 @@ def themes(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "") 
     nom = sans_accents(titre)
     trouves = []
     for t in _themes():
-        if any(e in tag for tag in tags for e in t["etiquettes"]) or t["motif"].search(nom):
+        if any(t["etiq"].search(tag) for tag in tags if tag) or t["motif"].search(nom):
             trouves.append(t["id"])
     return trouves
 
 
-def type_briques(type_produit: str = "", etiquettes: list[str] | tuple = (), titre: str = "") -> str | None:
-    s = sans_accents(" ".join([type_produit, titre, *etiquettes]))
+# Étiquettes de boutique qui désignent un type sans le nommer, retenues après mesure sur les sets dont
+# KBS donne le type (catégorie de produit « Technic set » ou « Brickbuild-Set »), le 20/11/2026 : les
+# étiquettes de Mould King « Construction & Heavy Duty » (35 Technic sur 35), « Motorized Model Building
+# Kit » (19 sur 19), « Transport and Logistics » (16 sur 16) ; « movie and anime » (11 classiques sur
+# 11), « Modular Buildings » (6 sur 6), « Ships And Pirates » (5 sur 5). Les séries « mini » et
+# botaniques de Mould King sont en briques classiques (aucun set Technic dans ces collections).
+_ETIQ_TECHNIC = re.compile(r"^(construction & heavy duty|construction|motorized model building kit|transport and logistics|supercars)$")
+_ETIQ_CLASSIQUE = re.compile(r"^(modular buildings|movie and anime|ships and pirates|mini-world|mini heavy duty|mini famous cars|"
+                             r"mini city & decor|botanicals and home decor)$")
+# Marques qui ne vendent que des briques classiques.
+CLASSIQUE_SEULEMENT = {"Cobi", "Sembo", "Kazi"}
+
+
+def type_briques(type_produit: str = "", etiquettes: list[str] | tuple = (), titre: str = "",
+                 marque: str | None = None) -> str | None:
+    """Technic, classique, ou None si rien ne permet de le dire. Ordre : catégorie de produit de la
+    boutique, mots du nom et des étiquettes, étiquettes mesurées, marque."""
+    pt = sans_accents(type_produit)
+    if re.search(r"techni[ck]", pt):
+        return "technic"
+    if re.search(r"brick|block|baustein", pt):
+        return "classique"
+    s = sans_accents(" ".join([titre, *etiquettes]))
     if re.search(r"techni[ck]", s):
         return "technic"
     if re.search(r"brick ?build|brick building|building brick|klemmbaustein|modular", s):
+        return "classique"
+    tags = [sans_accents(e).strip() for e in etiquettes]
+    if any(_ETIQ_TECHNIC.match(t) for t in tags):
+        return "technic"
+    if any(_ETIQ_CLASSIQUE.match(t) for t in tags):
+        return "classique"
+    if marque in CLASSIQUE_SEULEMENT:
         return "classique"
     return None
 
@@ -185,3 +231,59 @@ def nom_court(nom: str | None) -> str:
         return re.sub(r"\s+", " ", x).strip(" -–|,:;")
     candidats = [c for c in (propre(x) for x in parties) if len(re.sub(r"\W", "", c)) >= 3]
     return max(candidats, key=len) if candidats else t
+
+
+@lru_cache(maxsize=1)
+def _glossaire() -> dict:
+    return json.loads((RACINE / "data" / "glossaire.json").read_text("utf-8"))
+
+
+def _cle_de(mot: str) -> str:
+    return sans_accents(mot.replace("ß", "ss").replace("ẞ", "ss")).strip(",;:()")
+
+
+def traduire_de(nom: str) -> str | None:
+    """Traduction mot à mot d'un nom allemand (`data/glossaire.json`) ; None si aucun nom commun n'est connu.
+    Les mots inconnus (noms propres, modèles) restent tels quels ; un adjectif placé devant un nom passe
+    après lui (« blaues Motorrad » → « moto bleue »), sauf grand, petit… (« Große Moschee » → « Grande mosquée »)."""
+    g = _glossaire()
+    sortie: list[tuple[str, str]] = []  # (mot, nature) : nature nom, adj, lien ou autre
+    connus = 0
+    bruts = (nom or "").split()
+    cles = [_cle_de(b) for b in bruts]
+    expressions = sorted(((e.split(), t) for e, t in g.get("expressions", {}).items()), key=lambda x: -len(x[0]))
+    i = 0
+    while i < len(bruts):
+        brut, k = bruts[i], cles[i]
+        fin = "," if brut.endswith(",") else ""
+        trouve = next(((len(e), t) for e, t in expressions if cles[i:i + len(e)] == e), None)
+        if trouve:
+            sortie.append((trouve[1] + ("," if bruts[i + trouve[0] - 1].endswith(",") else ""), "nom"))
+            connus += 1
+            i += trouve[0]
+            continue
+        i += 1
+        if k in g["mots"]:
+            sortie.append((g["mots"][k] + fin, "nom"))
+            connus += 1
+        elif k in g["adjectifs"]:
+            sortie.append((g["adjectifs"][k] + fin, "adj"))
+        elif k in g["liaisons"]:
+            sortie.append((g["liaisons"][k] + fin, "lien"))
+        else:
+            sortie.append((brut, "autre"))
+    if not connus:
+        return None
+    mots = []
+    i = 0
+    while i < len(sortie):
+        mot, nature = sortie[i]
+        suivant = sortie[i + 1] if i + 1 < len(sortie) else None
+        if nature == "adj" and suivant and suivant[1] == "nom" and mot not in g.get("prefixes", []):
+            mots += [suivant[0], mot]
+            i += 2
+            continue
+        mots.append(mot)
+        i += 1
+    texte = " ".join(mots)
+    return texte[:1].upper() + texte[1:]
