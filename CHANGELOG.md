@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.6.1
+Signal : réception des messages toutes les 6 heures, demandée par le protocole et qui garde le compte actif (pièces jointes ignorées) ; README : code PIN du numéro et ligne à garder ouverte.
+
 ## v3.6.0
 Alertes par Signal : canal « signal:+33… » dans ALERTES, envoyé depuis un numéro dédié par le conteneur signal-cli-rest-api 0.101 du compose (profil signal, lecture seule, aucune capacité) ; inscription du numéro décrite dans le README. Message d'essai : la cause d'un échec s'affiche.
 

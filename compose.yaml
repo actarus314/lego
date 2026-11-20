@@ -47,6 +47,13 @@ services:
     restart: unless-stopped
     environment:
       MODE: native
+      # Réception régulière, demandée par le protocole Signal (clés, sessions) et qui garde le compte actif ;
+      # pièces jointes et autres contenus ignorés.
+      AUTO_RECEIVE_SCHEDULE: "17 */6 * * *"
+      AUTO_RECEIVE_SCHEDULE_IGNORE_ATTACHMENTS: "true"
+      AUTO_RECEIVE_SCHEDULE_IGNORE_STORIES: "true"
+      AUTO_RECEIVE_SCHEDULE_IGNORE_AVATARS: "true"
+      AUTO_RECEIVE_SCHEDULE_IGNORE_STICKERS: "true"
       TZ: ${TZ:-Europe/Paris}
     ports:
       - "127.0.0.1:${PORT_SIGNAL:-8081}:8080"   # inscription du numéro, depuis l'hôte seulement

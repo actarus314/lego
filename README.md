@@ -51,8 +51,11 @@ Les messages partent d'un numéro dédié au service, par le conteneur [signal-c
    `curl -X POST -H 'Content-Type: application/json' -d '{"captcha":"<valeur>"}' http://127.0.0.1:8081/v1/register/+33…`
 5. Code reçu par SMS :
    `curl -X POST http://127.0.0.1:8081/v1/register/+33…/verify/<code>`
-6. Nom affiché (facultatif) : `curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Carnet de briques"}' http://127.0.0.1:8081/v1/profiles/+33…`
-7. « Envoyer un essai » dans la vue Synchronisation. Le premier message arrive comme une demande de contact, à accepter.
+6. Code PIN, qui verrouille l'inscription du numéro sur un autre appareil : `curl -X POST -H 'Content-Type: application/json' -d '{"pin":"<code>"}' http://127.0.0.1:8081/v1/accounts/+33…/pin` (le garder dans le gestionnaire de mots de passe).
+7. Nom affiché (facultatif) : `curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Carnet de briques"}' http://127.0.0.1:8081/v1/profiles/+33…`
+8. « Envoyer un essai » dans la vue Synchronisation. Le premier message arrive comme une demande de contact, à accepter.
+
+Le téléphone n'intervient qu'à l'inscription : la carte SIM peut ensuite dormir (profil eSIM désactivé, par exemple). La ligne, elle, doit rester ouverte : elle sert à réinscrire le numéro si ses clés sont perdues ou si Signal le désinscrit, et un numéro résilié est réattribué par l'opérateur à quelqu'un d'autre, qui pourrait l'inscrire à son tour (le code PIN ne protège plus après 7 jours sans activité du compte). Le conteneur relève les messages reçus toutes les 6 heures, comme le protocole le demande, ce qui garde le compte actif.
 
 Entretien : signal-cli doit suivre les changements des serveurs Signal ; mettre à jour `SIGNAL_IMAGE_TAG` au moins tous les trois mois, à chaque nouvelle version de l'image. Garder un courriel en second canal : un envoi Signal en échec n'empêche pas les autres.
 
