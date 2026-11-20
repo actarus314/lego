@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.3
+Compose : UTILISATEURS exigé par Compose (la pile refuse de démarrer sans) ; valeurs recommandées écrites dans le compose (relevé 24 h, SMTP en ssl sur 465, journal, adresse de Signal) ; facultatifs vides. Courriel en ssl par défaut aussi dans le code.
+
 ## v3.7.2
 Compose : réglages du service de nouveau écrits en interpolation, lisible par Dockhand (« ${VAR} » obligatoire pour UTILISATEURS, « ${VAR:-} » facultatif, la valeur par défaut restant dans le code) ; un nom seul était signalé comme variable inutilisée. Clés Signal à garder hors du dossier de données du service.
 

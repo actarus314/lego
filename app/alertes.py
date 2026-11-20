@@ -95,7 +95,7 @@ def envoyer_courriel(adresse: str, sujet: str, texte: str) -> None:
     hote = reglage("SMTP_HOTE")
     if not hote:
         raise RuntimeError("SMTP_HOTE absent")
-    securite = reglage("SMTP_SECURITE", "starttls")
+    securite = reglage("SMTP_SECURITE", "ssl")
     port = int(reglage("SMTP_PORT", "465" if securite == "ssl" else "587"))
     msg = EmailMessage()
     msg["From"] = reglage("SMTP_EXPEDITEUR") or reglage("SMTP_UTILISATEUR", "")

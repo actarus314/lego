@@ -8,25 +8,26 @@ services:
     restart: unless-stopped
     ports:
       - "${ADRESSE_ECOUTE:-127.0.0.1}:${PORT_HOTE:-8080}:8080"
-    # Réglages du service. ${VAR} : obligatoire. ${VAR:-} : facultatif ; vide, le code prend sa valeur par
-    # défaut ou la fonction reste éteinte. Un canal d'ALERTES sans ses réglages empêche le démarrage.
+    # Réglages du service : ${VAR:?…} obligatoire (la pile refuse de démarrer sans) ; ${VAR:-valeur} valeur
+    # recommandée ; ${VAR:-} facultatif, vide = fonction éteinte. Les réglages d'un canal cité dans ALERTES
+    # (SMTP_HOTE, SIGNAL_NUMERO) ne peuvent pas être exigés ici : le service refuse alors de démarrer et les nomme.
     environment:
-      UTILISATEURS: ${UTILISATEURS}
-      AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-}
+      UTILISATEURS: ${UTILISATEURS:?UTILISATEURS à renseigner (empreintes par python -m app.motdepasse)}
+      AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-0}
       ACHATS_MASQUES_POUR: ${ACHATS_MASQUES_POUR:-}
-      RELEVE_HEURES: ${RELEVE_HEURES:-}
+      RELEVE_HEURES: ${RELEVE_HEURES:-24}
       SOURCES: ${SOURCES:-}
       ALERTES: ${ALERTES:-}
       ADRESSE_PUBLIQUE: ${ADRESSE_PUBLIQUE:-}
       SMTP_HOTE: ${SMTP_HOTE:-}
-      SMTP_PORT: ${SMTP_PORT:-}
-      SMTP_SECURITE: ${SMTP_SECURITE:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURITE: ${SMTP_SECURITE:-ssl}
       SMTP_UTILISATEUR: ${SMTP_UTILISATEUR:-}
       SMTP_MOT_DE_PASSE: ${SMTP_MOT_DE_PASSE:-}
       SMTP_EXPEDITEUR: ${SMTP_EXPEDITEUR:-}
-      SIGNAL_URL: ${SIGNAL_URL:-}
+      SIGNAL_URL: ${SIGNAL_URL:-http://signal:8080}
       SIGNAL_NUMERO: ${SIGNAL_NUMERO:-}
-      JOURNAL: ${JOURNAL:-}
+      JOURNAL: ${JOURNAL:-INFO}
       TZ: ${TZ:-Europe/Paris}
     volumes:
       - ${DOSSIER_DONNEES:-./donnees}:/donnees
