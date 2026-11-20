@@ -808,21 +808,42 @@ $("#nodouane").onclick = e => { fB.sansDouane = !fB.sansDouane; e.currentTarget.
 sB.render = renderBoutiques;
 
 /* ---------- Marques ---------- */
-const sM = {key:null, dir:"asc"};
+const sM = {key:"sets", dir:"desc", def:"sets", defDir:"desc"};
+const mediane = t => { const v = t.filter(x => x != null).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : null; };
+function marquesIndex(){
+  // Une ligne par marque de l'index : nombre de sets, prix médian de la pièce (sets en vente),
+  // thèmes et boutiques les plus fréquents ; la spécialité, la qualité et la note écrites à la main s'y ajoutent.
+  const parM = {};
+  for (const r of IDEES) (parM[r.marque] = parM[r.marque] || []).push(r);
+  const ppp = rs => mediane(rs.filter(r => r.dispo !== "epuise" && r.pieces).map(r => total(r._meilleure) / r.pieces));
+  const pLego = parM["LEGO officiel"] && parM["LEGO officiel"].length >= 5 ? ppp(parM["LEGO officiel"]) : null;
+  const noms = new Set([...Object.keys(parM), ...MARQUES.map(m => m.nom)]);
+  return [...noms].map(nom => {
+    const rs = parM[nom] || [], main = MARQUES.find(m => m.nom === nom) || {}, p = ppp(rs);
+    const freq = vals => Object.entries(compter(rs, vals)).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    return {nom, sets: rs.filter(r => r.dispo !== "epuise").length, total: rs.length, note: main.note,
+      pour: main.pour || freq(r => r.themes).slice(0, 3).map(themeNom).join(", "),
+      briques: main.briques || null, ppp: p,
+      prixLego: nom === "LEGO officiel" ? 100 : p && pLego ? Math.round(p / pLego * 100) : null,
+      ou: rs.length ? freq(r => [...new Set(r.offres.map(o => o.boutique))]).slice(0, 4).join(", ") : main.ou};
+  });
+}
 const colsM = [
   {key:"nom",label:"Marque",val:r => r.nom},
-  {key:"pour",label:"Spécialité",val:r => r.pour},
+  {key:"sets",label:"Sets en vente",val:r => r.sets,cls:"num",first:"desc"},
+  {key:"pour",label:"Spécialité",val:r => r.pour,cls:"hide-m"},
   {key:"briques",label:"Qualité des briques",val:r => ["Moyennes","Bonnes","Très bonnes","Référence"].indexOf(r.briques),first:"desc"},
-  {key:"prixLego",label:"Prix comparé au LEGO officiel",val:r => r.prixLego,cls:"num"},
+  {key:"ppp",label:"Prix de la pièce",val:r => r.ppp,cls:"num"},
   {key:"ou",label:"Où acheter",val:r => r.ou,cls:"hide-m"},
 ];
 function renderMarques(){
-  sortable("t-marques", colsM, MARQUES, sM, r => `<tr>
-    <td class="wide" data-k="Marque"><span class="name">${esc(r.nom)}</span>${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</td>
-    <td class="wide" data-k="Spécialité">${esc(r.pour)}</td>
-    <td data-k="Qualité des briques"><span class="pill ${r.briques === "Moyennes" ? "p-warn" : "p-ok"}">${esc(r.briques)}</span></td>
-    <td class="num ok-wrap" data-k="Prix comparé au LEGO officiel">${r.prixLego === 100 ? "—" : `environ ${r.prixLego} %`}</td>
-    <td class="hide-m" data-k="Où acheter">${esc(r.ou)}</td>
+  sortable("t-marques", colsM, marquesIndex(), sM, r => `<tr>
+    <td class="wide" data-k="Marque"><span class="name ligne-marque">${logo(r.nom)} ${esc(r.nom)}</span>${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</td>
+    <td class="num" data-k="Sets en vente"><span class="big">${r.sets}</span>${r.total > r.sets ? `<div class="sub">${r.total - r.sets} épuisés</div>` : ""}</td>
+    <td class="wide hide-m" data-k="Spécialité">${esc(r.pour || "—")}</td>
+    <td data-k="Qualité des briques">${r.briques ? `<span class="pill ${r.briques === "Moyennes" ? "p-warn" : "p-ok"}">${esc(r.briques)}</span>` : '<span class="pill p-neutral">Non évaluée</span>'}</td>
+    <td class="num ok-wrap" data-k="Prix de la pièce">${r.ppp ? `<span class="big">${(r.ppp * 100).toFixed(1)}</span> centimes` : "—"}${r.prixLego && r.nom !== "LEGO officiel" ? `<div class="sub">environ ${r.prixLego} % du LEGO officiel</div>` : ""}</td>
+    <td class="hide-m" data-k="Où acheter">${esc(r.ou || "—")}</td>
   </tr>`, "");
 }
 sM.render = renderMarques;
@@ -928,11 +949,20 @@ $("#add").addEventListener("submit", e => {
 
 let showBought = false;
 const sS = {key:"statut", dir:"asc", def:"statut", defDir:"asc"};
+function vivant(r){
+  // Offre choisie retrouvée dans l'index (par son adresse) : prix, stock et retrait du jour,
+  // et la meilleure offre du même set si elle est moins chère.
+  const set = ideeFor(r.url); if (!set) return null;
+  const o = set.offres.find(x => norm(x.url) === norm(r.url)); if (!o) return null;
+  const m = set._meilleure;
+  return {set, o, total: total(o), mieux: m !== o && total(m) < total(o) - 0.5 ? m : null};
+}
+const prixSel = r => { const v = vivant(r); return v ? v.total : r.prix; };
 const colsS = [
   {key:"img",label:""},
   {key:"nom",label:"Produit",val:r => r.nom},
   {key:"pcs",label:"Pièces",val:r => r.pcs,cls:"num",first:"desc"},
-  {key:"prix",label:"Prix",val:r => r.prix,cls:"num"},
+  {key:"prix",label:"Prix du jour",val:r => prixSel(r),cls:"num"},
   {key:"note",label:"Note",val:r => r.note,cls:"hide-m"},
   {key:"statut",label:"Statut",val:r => ["retenu","idee","achete"].indexOf(r.statut)},
   {key:"act",label:"",cls:"num"},
@@ -944,7 +974,7 @@ function renderSel(){
   const ret = souhaits.filter(s => s.statut === "retenu");
   $("#stats").innerHTML = `<div><span class="lbl">Idées</span><b>${souhaits.filter(s => s.statut === "idee").length}</b></div>
     <div><span class="lbl">Retenus</span><b>${ret.length}</b></div>
-    <div><span class="lbl">Total retenu</span><b>${eur(ret.reduce((a,s) => a + (s.prix || 0), 0))}</b>${ret.some(s => s.prix == null) ? `<span class="sub">+ ${ret.filter(s => s.prix == null).length} sans prix</span>` : ""}</div>`;
+    <div><span class="lbl">Total retenu</span><b>${eur(ret.reduce((a,s) => a + (prixSel(s) || 0), 0))}</b><span class="sub">${ret.some(s => vivant(s)) ? "prix du jour, port compris quand il est connu" : ""}${ret.some(s => prixSel(s) == null) ? ` · ${ret.filter(s => prixSel(s) == null).length} sans prix` : ""}</span></div>`;
   $("#show-bought").textContent = bought ? `Afficher les achetés (${bought})` : "Afficher les achetés";
   sortable("t-sel", colsS, rows, sS, r => {
     const shop = shopFor(r.url), known = ideeFor(r.url);
@@ -953,7 +983,16 @@ function renderSel(){
       <td class="full" data-k="Produit"><a class="name" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom || r.url)}</a>
         <div class="sub">${shop ? `${esc(shop.nom)} · ${esc(shop.delai)}${shop.douane ? " · douane possible" : ""}` : esc(hostOf(r.url))}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pcs ?? "—"}</span></td>
-      <td class="num" data-k="Prix"><span class="big">${eur(r.prix)}</span></td>
+      <td class="num ok-wrap" data-k="Prix du jour">${(() => {
+        const v = vivant(r);
+        if (!v) return `<span class="big">${eur(r.prix)}</span>${backend === "server" && r.prix != null ? '<div class="sub">prix saisi, non suivi</div>' : ""}`;
+        const o = v.o, ecart = r.prix != null && Math.abs(r.prix - o.prix) >= 0.5;
+        return `<span class="big">${eur(v.total)}</span>
+          <div class="sub">${o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé"}</div>
+          ${ecart ? `<div class="sub">${o.prix < r.prix ? "en baisse" : "en hausse"} : ${eur(r.prix)} à l’ajout</div>` : ""}
+          ${o.dispo !== "vente" ? `<span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span>` : ""}${v.set.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}
+          ${v.mieux ? `<div class="alerte-l">${eur(total(v.mieux))} chez ${esc(v.mieux.boutique)}</div>` : ""}`;
+      })()}</td>
       <td class="hide-m wide note-cell" data-k="Note">${esc(r.note) || '<span style="color:var(--faint)">—</span>'}</td>
       <td data-k="Statut"><select class="status" data-st="${r.id}" aria-label="Statut">${Object.entries(STATUTS).map(([v,l]) => `<option value="${v}" ${r.statut === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
       <td class="num wide"><div class="row-actions"><button class="btn small" data-ed="${r.id}">Modifier</button><button class="btn small ghost" data-del="${r.id}" aria-label="Retirer ${esc(r.nom)}">Retirer</button></div></td>
@@ -1019,7 +1058,7 @@ function route(){
   document.querySelectorAll("nav a").forEach(a => a.dataset.tab === t ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
 }
 window.addEventListener("hashchange", route);
-function renderAll(){ renderIdees(); renderSel(); }
+function renderAll(){ renderIdees(); renderSel(); renderMarques(); }
 $("#ver").textContent = MODE.version && MODE.version !== "dev" ? "v" + MODE.version.replace(/^v/, "") : "";
 $("#pied").textContent = MODE.serveur ? "Prix à vérifier sur le site avant d'acheter."
   : `Prix et disponibilités relevés le ${MODE.catalogue_du || "19 novembre 2026"} · à vérifier sur le site avant d'acheter.`;

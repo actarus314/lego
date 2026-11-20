@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.4.0
+Sélection : prix du jour de l'offre choisie (port compris), stock, retrait annoncé, variation depuis l'ajout et offre moins chère ailleurs ; total des retenus au prix du jour. Onglet Marques tiré de l'index : toutes les marques, sets en vente, prix médian de la pièce comparé au LEGO officiel, boutiques ; notes écrites à la main gardées.
+
 ## v3.3.0
 Logos des marques : icône du site officiel de chaque marque (`data/marques.json`), récupérée par le service une fois par mois et gardée dans son dossier de données, servie isolée (aucun script) ; pastille à initiales pour les marques sans site connu. Le dépôt ne contient aucun logo.
 
