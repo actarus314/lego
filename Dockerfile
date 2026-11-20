@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.title="Carnet de briques" \
       org.opencontainers.image.licenses="AGPL-3.0-only"
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
-    VERSION_APP=${VERSION_APP} PORT=8080 DOSSIER_DONNEES=/donnees
+    VERSION_APP=${VERSION_APP} PORT=8080 CHEMIN_DONNEES=/donnees
 
 WORKDIR /app
 COPY app ./app

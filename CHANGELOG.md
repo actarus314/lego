@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.4
+Test de cohérence des valeurs par défaut : compose, .env.example et code doivent porter la même valeur ; une variable du compose sans valeur ni exigence est refusée. Chemin interne des données renommé CHEMIN_DONNEES, pour ne plus partager le nom du dossier de l'hôte (DOSSIER_DONNEES).
+
 ## v3.7.3
 Compose : UTILISATEURS exigé par Compose (la pile refuse de démarrer sans) ; valeurs recommandées écrites dans le compose (relevé 24 h, SMTP en ssl sur 465, journal, adresse de Signal) ; facultatifs vides. Courriel en ssl par défaut aussi dans le code.
 

@@ -355,6 +355,52 @@ class AlertesSelection(unittest.TestCase):
                 os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
 
 
+class Configuration(unittest.TestCase):
+    """Une valeur par défaut est écrite à trois endroits (compose, exemple de .env, code) : elle reste la même."""
+    INTERNES = {"VERSION_APP", "PORT", "CHEMIN_DONNEES"}   # lues par le code, fixées par l'image
+    PILOTAGE = {"COMPOSE_PROFILES"}                        # lues par Compose lui-même
+
+    def lire(self):
+        import re
+        lignes = [l.split(" #")[0] for l in (RACINE / "compose.yaml").read_text("utf-8").splitlines()
+                  if not l.lstrip().startswith("#")]
+        compose: dict[str, tuple[str, str]] = {}
+        for nom, op, val in re.findall(r"\$\{([A-Z_]+)(?::([-?])([^}]*))?\}", "\n".join(lignes)):
+            self.assertIn(op, ("-", "?"), f"{nom} : ${{{nom}}} sans valeur ni exigence")
+            self.assertEqual(compose.setdefault(nom, (op, val)), (op, val), f"{nom} : deux valeurs dans le compose")
+        exemple = {}
+        for l in (RACINE / ".env.example").read_text("utf-8").splitlines():
+            m = re.match(r"^(# )?([A-Z_]+)=(.*)$", l)
+            if m:
+                exemple[m.group(2)] = (bool(m.group(1)), m.group(3))
+        code = {}
+        for p in (RACINE / "app").rglob("*.py"):
+            for nom, val in re.findall(r'reglage\("([A-Z_]+)", "([^"]*)"', p.read_text("utf-8")):
+                self.assertEqual(code.setdefault(nom, val), val, f"{nom} : deux valeurs par défaut dans le code")
+        return compose, exemple, code
+
+    def test_compose_et_exemple(self):
+        compose, exemple, _ = self.lire()
+        for nom, (op, val) in compose.items():
+            self.assertIn(nom, exemple, f"{nom} absent de .env.example")
+            commente, ex = exemple[nom]
+            if op == "?":
+                self.assertEqual((commente, ex), (False, ""), f"{nom} obligatoire : ligne active et vide")
+            else:
+                self.assertEqual((commente, ex), (True, val), f"{nom} : .env.example ne montre pas « {val} »")
+        self.assertEqual(set(exemple) - set(compose) - self.PILOTAGE, set(), "variables de .env.example hors du compose")
+
+    def test_compose_et_code(self):
+        compose, _, code = self.lire()
+        for nom, val in code.items():
+            if nom in self.INTERNES:
+                continue
+            self.assertIn(nom, compose, f"{nom} lu par le code mais absent du compose")
+            op, defaut = compose[nom]
+            if op == "-":
+                self.assertEqual(val, defaut, f"{nom} : défaut du code « {val} », du compose « {defaut} »")
+
+
 class Synchronisation(unittest.TestCase):
     def setUp(self):
         from app import synchro

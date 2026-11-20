@@ -70,7 +70,7 @@ Bibliothèque standard de Python 3.15 uniquement, aucune dépendance.
 ```sh
 python -m unittest discover -s tests -t .
 UTILISATEURS="essai=$(printf 'essai\nmotdepasse-essai\n' | python -m app.motdepasse | cut -d= -f2)" \
-  DOSSIER_DONNEES=./donnees python -m app.serveur
+  CHEMIN_DONNEES=./donnees python -m app.serveur
 python tools/construire.py 0.0.0 dist/carnet-briques.html   # page autonome
 ```
 

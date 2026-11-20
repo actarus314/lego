@@ -277,7 +277,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
 
 def main():
     logging.basicConfig(level=reglage("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
-    donnees = Path(reglage("DOSSIER_DONNEES", "/donnees"))
+    donnees = Path(reglage("CHEMIN_DONNEES", "/donnees"))
     Gestionnaire.depot = Depot(donnees)
     Gestionnaire.gardien = acces.depuis_env()
     manque = alertes_mod.reglages_manquants()

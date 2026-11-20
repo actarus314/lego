@@ -86,7 +86,7 @@ class Gardien:
 
 def depuis_env() -> Gardien | None:
     """Rend None si l'authentification est volontairement désactivée."""
-    if reglage("AUTH_DESACTIVEE", "").lower() in ("1", "oui", "true"):
+    if reglage("AUTH_DESACTIVEE", "0").lower() in ("1", "oui", "true"):
         return None
     comptes = lire_comptes(reglage("UTILISATEURS", ""))
     if not comptes:
