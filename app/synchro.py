@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 from . import lien
+from .reglage import reglage
 from .donnees import _ecrire, _lire
 from .index import Index, sources_config
 from .sources import lego as lego_src, shopify
@@ -36,7 +37,7 @@ PAS_MIN, PAS_MAX, PAS_AMORCE = 20, 900, 10
 def actives() -> list[dict]:
     """Sources lues : celles de la variable SOURCES si elle est posée, sinon celles marquées actives."""
     conf = sources_config()
-    choix = [x.strip() for x in os.environ.get("SOURCES", "").split(",") if x.strip()]
+    choix = [x.strip() for x in reglage("SOURCES", "").split(",") if x.strip()]
     if choix:
         return [s for s in conf if s["id"] in choix and s["type"] in TYPES]
     return [s for s in conf if s.get("actif") and s["type"] in TYPES]

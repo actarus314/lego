@@ -29,10 +29,11 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, synchro
+from .reglage import reglage
 from .donnees import Depot
 from .index import Index
 
-VERSION = os.environ.get("VERSION_APP", "dev")
+VERSION = reglage("VERSION_APP", "dev")
 RACINE = Path(__file__).resolve().parent.parent
 MODELE = RACINE / "web" / "index.html"
 POLICES = RACINE / "web" / "polices"
@@ -275,11 +276,14 @@ class Gestionnaire(BaseHTTPRequestHandler):
 
 
 def main():
-    logging.basicConfig(level=os.environ.get("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
-    donnees = Path(os.environ.get("DOSSIER_DONNEES", "/donnees"))
+    logging.basicConfig(level=reglage("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
+    donnees = Path(reglage("DOSSIER_DONNEES", "/donnees"))
     Gestionnaire.depot = Depot(donnees)
     Gestionnaire.gardien = acces.depuis_env()
-    Gestionnaire.masquer = {n.strip() for n in os.environ.get("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
+    manque = alertes_mod.reglages_manquants()
+    if manque:
+        raise SystemExit("Réglages obligatoires absents du .env : " + " ; ".join(manque))
+    Gestionnaire.masquer = {n.strip() for n in reglage("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
     Gestionnaire.logos = logos_mod.Logos(donnees)
@@ -287,11 +291,11 @@ def main():
     Gestionnaire.alertes = alertes_mod.Alertes(donnees, Gestionnaire.index, Gestionnaire.depot,
                                                lambda: [s["id"] for s in synchro.actives()])
     Gestionnaire.alertes.demarrer()
-    heures = float(os.environ.get("RELEVE_HEURES", "24"))
+    heures = float(reglage("RELEVE_HEURES", "24"))
     synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
     if heures > 0:
         synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])
-    port = int(os.environ.get("PORT", "8080"))
+    port = int(reglage("PORT", "8080"))
     srv = ThreadingHTTPServer(("0.0.0.0", port), Gestionnaire)
     log.info("Carnet de briques %s sur le port %s, données dans %s", VERSION, port, donnees)
     srv.serve_forever()

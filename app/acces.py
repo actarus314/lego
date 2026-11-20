@@ -12,6 +12,8 @@ import base64
 import hashlib
 import hmac
 import os
+
+from .reglage import reglage
 import secrets
 import threading
 import time
@@ -84,9 +86,9 @@ class Gardien:
 
 def depuis_env() -> Gardien | None:
     """Rend None si l'authentification est volontairement désactivée."""
-    if os.environ.get("AUTH_DESACTIVEE", "").lower() in ("1", "oui", "true"):
+    if reglage("AUTH_DESACTIVEE", "").lower() in ("1", "oui", "true"):
         return None
-    comptes = lire_comptes(os.environ.get("UTILISATEURS", ""))
+    comptes = lire_comptes(reglage("UTILISATEURS", ""))
     if not comptes:
         raise SystemExit("UTILISATEURS est vide : définir au moins un compte (python -m app.motdepasse), "
                          "ou AUTH_DESACTIVEE=1 si l'accès est déjà protégé en amont.")

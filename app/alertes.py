@@ -27,6 +27,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .donnees import _ecrire, _lire
+from .reglage import reglage
 
 log = logging.getLogger("alertes")
 SEUIL_EUROS, SEUIL_PART = 2.0, 0.02  # une baisse compte à partir de 2 € et de 2 %
@@ -44,7 +45,7 @@ def norm(url: str | None) -> str:
 def destinataires() -> dict[str, list[tuple[str, str]]]:
     """{compte: [(canal, adresse), …]} d'après la variable ALERTES."""
     out: dict[str, list[tuple[str, str]]] = {}
-    for bloc in os.environ.get("ALERTES", "").split(";"):
+    for bloc in reglage("ALERTES", "").split(";"):
         compte, _, canaux = bloc.partition("=")
         for c in canaux.split(","):
             canal, _, adresse = c.strip().partition(":")
@@ -91,13 +92,13 @@ def changements(nom: str, avant: dict, apres: dict) -> list[str]:
 
 # ----- canaux -----
 def envoyer_courriel(adresse: str, sujet: str, texte: str) -> None:
-    hote = os.environ.get("SMTP_HOTE")
+    hote = reglage("SMTP_HOTE")
     if not hote:
         raise RuntimeError("SMTP_HOTE absent")
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    securite = os.environ.get("SMTP_SECURITE", "starttls")
+    securite = reglage("SMTP_SECURITE", "starttls")
+    port = int(reglage("SMTP_PORT", "465" if securite == "ssl" else "587"))
     msg = EmailMessage()
-    msg["From"] = os.environ.get("SMTP_EXPEDITEUR") or os.environ.get("SMTP_UTILISATEUR", "")
+    msg["From"] = reglage("SMTP_EXPEDITEUR") or reglage("SMTP_UTILISATEUR", "")
     msg["To"], msg["Subject"] = adresse, sujet
     msg.set_content(texte)
     ctx = ssl.create_default_context()
@@ -107,16 +108,16 @@ def envoyer_courriel(adresse: str, sujet: str, texte: str) -> None:
     with cls(hote, port, timeout=20, **kw) as smtp:
         if securite == "starttls":
             smtp.starttls(context=ctx)
-        if os.environ.get("SMTP_UTILISATEUR"):
-            smtp.login(os.environ["SMTP_UTILISATEUR"], os.environ.get("SMTP_MOT_DE_PASSE", ""))
+        if reglage("SMTP_UTILISATEUR"):
+            smtp.login(reglage("SMTP_UTILISATEUR"), reglage("SMTP_MOT_DE_PASSE", ""))
         smtp.send_message(msg)
 
 
 def envoyer_signal(numero: str, sujet: str, texte: str) -> None:
     """Message Signal par signal-cli-rest-api (conteneur voisin, SIGNAL_URL) depuis le numéro SIGNAL_NUMERO."""
-    base, expediteur = os.environ.get("SIGNAL_URL", "").rstrip("/"), os.environ.get("SIGNAL_NUMERO", "")
+    base, expediteur = reglage("SIGNAL_URL", "http://signal:8080").rstrip("/"), reglage("SIGNAL_NUMERO", "")
     if not base or not expediteur:
-        raise RuntimeError("SIGNAL_URL ou SIGNAL_NUMERO absent")
+        raise RuntimeError("SIGNAL_NUMERO absent")
     p = urlsplit(base)
     if p.scheme not in ("http", "https") or not p.hostname:
         raise RuntimeError("SIGNAL_URL invalide")
@@ -134,6 +135,22 @@ def envoyer_signal(numero: str, sujet: str, texte: str) -> None:
 
 
 CANAUX = {"courriel": envoyer_courriel, "signal": envoyer_signal}
+
+
+REQUIS = {"courriel": ["SMTP_HOTE"], "signal": ["SIGNAL_NUMERO"]}
+
+
+def reglages_manquants() -> list[str]:
+    """Réglages obligatoires des canaux cités dans ALERTES et absents : le service refuse alors de démarrer."""
+    manque = []
+    for canal in sorted({c for d in destinataires().values() for c, _ in d}):
+        if canal not in CANAUX:
+            manque.append(f"canal inconnu dans ALERTES : {canal}")
+        manque += [f"{v} (canal {canal})" for v in REQUIS.get(canal, []) if not reglage(v)]
+    if "courriel" in {c for d in destinataires().values() for c, _ in d} and not (
+            reglage("SMTP_EXPEDITEUR") or reglage("SMTP_UTILISATEUR")):
+        manque.append("SMTP_EXPEDITEUR ou SMTP_UTILISATEUR (canal courriel)")
+    return manque
 
 
 def envoyer(compte: str, sujet: str, texte: str, deja: set | None = None) -> list[str]:
@@ -182,7 +199,7 @@ class Alertes:
         _ecrire(self.fichier, nouveau)
         envoyes: dict[str, list[str]] = {}
         if lignes:
-            adresse = os.environ.get("ADRESSE_PUBLIQUE", "").rstrip("/")
+            adresse = reglage("ADRESSE_PUBLIQUE", "").rstrip("/")
             texte = "\n".join("• " + x for x in lignes) + (f"\n\nSélection : {adresse}/#selection" if adresse else "")
             sujet = f"Carnet de briques : {len(lignes)} changement{'s' if len(lignes) > 1 else ''} dans la sélection"
             deja: set = set()

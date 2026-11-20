@@ -294,6 +294,29 @@ class AlertesSelection(unittest.TestCase):
             else:
                 os.environ["ALERTES"] = env
 
+    def test_reglages_obligatoires(self):
+        import os
+        from app import alertes as al
+        from app.reglage import reglage
+        vieux = {k: os.environ.get(k) for k in ("ALERTES", "SMTP_HOTE", "SMTP_UTILISATEUR", "SMTP_EXPEDITEUR",
+                                                "SIGNAL_NUMERO", "RELEVE_HEURES")}
+        try:
+            for k in vieux:
+                os.environ.pop(k, None)
+            os.environ["RELEVE_HEURES"] = ""
+            self.assertEqual(reglage("RELEVE_HEURES", "24"), "24", "ligne vide du .env = valeur par défaut")
+            self.assertEqual(al.reglages_manquants(), [], "sans alerte, rien d'obligatoire")
+            os.environ["ALERTES"] = "romain=courriel:r@exemple.fr,signal:group.abc,pigeon:x"
+            m = al.reglages_manquants()
+            self.assertIn("SMTP_HOTE (canal courriel)", m)
+            self.assertIn("SIGNAL_NUMERO (canal signal)", m)
+            self.assertIn("canal inconnu dans ALERTES : pigeon", m)
+            os.environ.update(ALERTES="romain=signal:group.abc", SIGNAL_NUMERO="+33600000000")
+            self.assertEqual(al.reglages_manquants(), [])
+        finally:
+            for k, v in vieux.items():
+                os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+
     def test_envoi_signal(self):
         """Requête attendue par signal-cli-rest-api (POST /v2/send) et erreur rendue sur refus."""
         import json as js

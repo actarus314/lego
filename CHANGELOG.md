@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.1
+Compose : réglages du service transmis par leur seul nom, valeurs par défaut dans le code, une ligne vide du .env valant comme absente ; valeurs par défaut du compose gardées seulement quand elles fonctionnent telles quelles (volume Docker pour Signal). .env.example : obligatoire actif, facultatif en commentaire. Démarrage refusé si un canal d'ALERTES manque de ses réglages ; port SMTP 465 par défaut avec ssl.
+
 ## v3.7.0
 Signal : le service est relié comme appareil secondaire du compte de son propriétaire et écrit dans un groupe (« signal:group.… ») ; un groupe cité par deux comptes ne reçoit chaque message qu'une fois. README : liaison par QR code à la place de l'inscription d'un numéro dédié.
 

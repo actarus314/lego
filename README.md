@@ -24,7 +24,7 @@ Image : `ghcr.io/actarus314/lego` (amd64 et arm64), publiée à chaque nouvelle 
    ```
 3. `docker compose up -d`, puis ouvrir `http://<hôte>:<PORT_HOTE>`.
 
-Variables : voir `.env.example`. Le service écoute en HTTP ; l'exposer sur Internet seulement derrière un reverse proxy en HTTPS.
+Variables : voir `.env.example` ; seules ses lignes actives sont obligatoires, les autres montrent leur valeur par défaut. Un canal cité dans `ALERTES` sans ses réglages empêche le démarrage, avec le nom des variables manquantes dans le journal. Le service écoute en HTTP ; l'exposer sur Internet seulement derrière un reverse proxy en HTTPS.
 
 ### Moteur de recherche et synchronisation
 
@@ -44,13 +44,12 @@ Chaque heure, le service compare l'état du jour de chaque produit suivi de la s
 
 Le conteneur [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) du compose (image 0.101, durcie : système de fichiers en lecture seule, aucune capacité) est relié comme appareil secondaire d'un compte Signal existant, comme Signal Desktop, et écrit dans un groupe créé pour les alertes. Les messages partent au nom du titulaire du compte : ses autres appareils ne les notifient pas, d'où un courriel en plus pour lui. Mise en place, une fois :
 
-1. Dossier des clés de l'appareil, à l'utilisateur 1000 : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`.
-2. Dans le `.env` : `COMPOSE_PROFILES=signal`, `DOSSIER_SIGNAL=/docker/lego/signal`, `SIGNAL_NUMERO=+33…` (numéro du compte). Redéployer.
-3. Depuis un poste du réseau, tunnel vers l'API (ouverte sur 127.0.0.1 seulement) : `ssh -L 8081:127.0.0.1:8081 <hôte>`, puis ouvrir `http://127.0.0.1:8081/v1/qrcodelink?device_name=Carnet%20de%20briques`.
-4. Dans Signal sur le téléphone : Réglages, Appareils reliés, « + », scanner le QR code.
-5. Créer le groupe dans Signal, puis relever son identifiant : `curl -s http://127.0.0.1:8081/v1/groups/+33…` (champ `id`, de la forme `group.…` ; si le groupe manque, relancer après `curl -s http://127.0.0.1:8081/v1/receive/+33…`).
-6. Dans `ALERTES`, le groupe pour chaque compte : `julie=signal:group.…;romain=signal:group.…,courriel:…`. Une même destination ne reçoit chaque message qu'une fois. Redéployer.
-7. « Envoyer un essai » dans la vue Synchronisation.
+1. Dans le `.env` : `COMPOSE_PROFILES=signal` et `SIGNAL_NUMERO=+33…` (numéro du compte). Les clés de l'appareil relié vont dans un volume Docker ; pour un dossier de l'hôte à la place : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`, puis `DOSSIER_SIGNAL=/docker/lego/signal`. Redéployer.
+2. Depuis un poste du réseau, tunnel vers l'API (ouverte sur 127.0.0.1 seulement) : `ssh -L 8081:127.0.0.1:8081 <hôte>`, puis ouvrir `http://127.0.0.1:8081/v1/qrcodelink?device_name=Carnet%20de%20briques`.
+3. Dans Signal sur le téléphone : Réglages, Appareils reliés, « + », scanner le QR code.
+4. Créer le groupe dans Signal, puis relever son identifiant : `curl -s http://127.0.0.1:8081/v1/groups/+33…` (champ `id`, de la forme `group.…` ; si le groupe manque, relancer après `curl -s http://127.0.0.1:8081/v1/receive/+33…`).
+5. Dans `ALERTES`, le groupe pour chaque compte : `julie=signal:group.…;romain=signal:group.…,courriel:…`. Une même destination ne reçoit chaque message qu'une fois. Redéployer.
+6. « Envoyer un essai » dans la vue Synchronisation.
 
 Signal retire un appareil relié resté 30 jours sans connexion : le conteneur relève les messages toutes les 6 heures, comme le protocole le demande, ce qui le garde actif. Si le téléphone refuse la liaison (« appareil obsolète »), l'image stable est trop ancienne : mettre `SIGNAL_IMAGE_TAG` sur une construction récente de l'image (signal-cli 0.14.10 ou plus récent).
 
