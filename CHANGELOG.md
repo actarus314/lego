@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.7.0
+Signal : le service est relié comme appareil secondaire du compte de son propriétaire et écrit dans un groupe (« signal:group.… ») ; un groupe cité par deux comptes ne reçoit chaque message qu'une fois. README : liaison par QR code à la place de l'inscription d'un numéro dédié.
+
 ## v3.6.1
 Signal : réception des messages toutes les 6 heures, demandée par le protocole et qui garde le compte actif (pièces jointes ignorées) ; README : code PIN du numéro et ligne à garder ouverte.
 

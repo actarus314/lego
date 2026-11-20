@@ -39,7 +39,8 @@ services:
       - carnet-briques
 
   # Envoi des alertes par Signal (facultatif) : actif seulement avec COMPOSE_PROFILES=signal dans le .env.
-  # L'image tourne sous l'utilisateur 1000 : son dossier de données doit lui appartenir.
+  # Appareil relié au compte Signal (voir README). L'image tourne sous l'utilisateur 1000 : son dossier de
+  # données doit lui appartenir.
   signal:
     image: bbernhard/signal-cli-rest-api:${SIGNAL_IMAGE_TAG:-0.101}
     profiles: [signal]
@@ -56,7 +57,7 @@ services:
       AUTO_RECEIVE_SCHEDULE_IGNORE_STICKERS: "true"
       TZ: ${TZ:-Europe/Paris}
     ports:
-      - "127.0.0.1:${PORT_SIGNAL:-8081}:8080"   # inscription du numéro, depuis l'hôte seulement
+      - "127.0.0.1:${PORT_SIGNAL:-8081}:8080"   # liaison au compte, depuis l'hôte seulement
     volumes:
       - ${DOSSIER_SIGNAL:-./signal}:/home/.local/share/signal-cli
     read_only: true

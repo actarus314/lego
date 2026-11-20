@@ -278,6 +278,16 @@ class AlertesSelection(unittest.TestCase):
                 self.assertEqual(len(envois), 2)
                 self.assertIn("Pirate Ship : 154.95 € chez KBS, au lieu de 189.90 €", envois[0][2])
                 self.assertNotIn("Déjà acheté", envois[0][2])
+                os.environ["ALERTES"] = "julie=signal:group.abc==;romain=signal:group.abc==,courriel:r@exemple.fr"
+                vus = []
+                al.CANAUX["signal"], vieux = (lambda adr, *_: vus.append(adr)), al.CANAUX["signal"]
+                al.CANAUX["courriel"], vieuxc = (lambda adr, *_: vus.append(adr)), al.CANAUX["courriel"]
+                try:
+                    i.enregistrer("kbs", [{**o, "prix": 120.0}])
+                    A.verifier()
+                finally:
+                    al.CANAUX["signal"], al.CANAUX["courriel"] = vieux, vieuxc
+                self.assertEqual(vus, ["group.abc==", "r@exemple.fr"], "groupe commun servi une fois")
         finally:
             if env is None:
                 os.environ.pop("ALERTES", None)

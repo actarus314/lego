@@ -42,22 +42,19 @@ Chaque heure, le service compare l'état du jour de chaque produit suivi de la s
 
 #### Signal
 
-Les messages partent d'un numéro dédié au service, par le conteneur [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) du compose (image 0.101, durcie : système de fichiers en lecture seule, aucune capacité). Il faut un numéro qui reçoit les SMS, distinct de celui des destinataires. Mise en place, une fois :
+Le conteneur [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) du compose (image 0.101, durcie : système de fichiers en lecture seule, aucune capacité) est relié comme appareil secondaire d'un compte Signal existant, comme Signal Desktop, et écrit dans un groupe créé pour les alertes. Les messages partent au nom du titulaire du compte : ses autres appareils ne les notifient pas, d'où un courriel en plus pour lui. Mise en place, une fois :
 
-1. Dossier des clés du numéro, à l'utilisateur 1000 : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`.
-2. Dans le `.env` : `COMPOSE_PROFILES=signal`, `DOSSIER_SIGNAL=/docker/lego/signal`, `SIGNAL_NUMERO=+33…` (numéro d'envoi) et le canal dans `ALERTES` (`romain=signal:+33…`, numéro du destinataire). Redéployer.
-3. Captcha : ouvrir https://signalcaptchas.org/registration/generate.html dans un navigateur du même réseau, le résoudre, puis copier le lien du bouton « Open Signal » sans `signalcaptcha://`.
-4. Inscription, sur l'hôte :
-   `curl -X POST -H 'Content-Type: application/json' -d '{"captcha":"<valeur>"}' http://127.0.0.1:8081/v1/register/+33…`
-5. Code reçu par SMS :
-   `curl -X POST http://127.0.0.1:8081/v1/register/+33…/verify/<code>`
-6. Code PIN, qui verrouille l'inscription du numéro sur un autre appareil : `curl -X POST -H 'Content-Type: application/json' -d '{"pin":"<code>"}' http://127.0.0.1:8081/v1/accounts/+33…/pin` (le garder dans le gestionnaire de mots de passe).
-7. Nom affiché (facultatif) : `curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Carnet de briques"}' http://127.0.0.1:8081/v1/profiles/+33…`
-8. « Envoyer un essai » dans la vue Synchronisation. Le premier message arrive comme une demande de contact, à accepter.
+1. Dossier des clés de l'appareil, à l'utilisateur 1000 : `sudo mkdir -p /docker/lego/signal && sudo chown 1000:1000 /docker/lego/signal`.
+2. Dans le `.env` : `COMPOSE_PROFILES=signal`, `DOSSIER_SIGNAL=/docker/lego/signal`, `SIGNAL_NUMERO=+33…` (numéro du compte). Redéployer.
+3. Depuis un poste du réseau, tunnel vers l'API (ouverte sur 127.0.0.1 seulement) : `ssh -L 8081:127.0.0.1:8081 <hôte>`, puis ouvrir `http://127.0.0.1:8081/v1/qrcodelink?device_name=Carnet%20de%20briques`.
+4. Dans Signal sur le téléphone : Réglages, Appareils reliés, « + », scanner le QR code.
+5. Créer le groupe dans Signal, puis relever son identifiant : `curl -s http://127.0.0.1:8081/v1/groups/+33…` (champ `id`, de la forme `group.…` ; si le groupe manque, relancer après `curl -s http://127.0.0.1:8081/v1/receive/+33…`).
+6. Dans `ALERTES`, le groupe pour chaque compte : `julie=signal:group.…;romain=signal:group.…,courriel:…`. Une même destination ne reçoit chaque message qu'une fois. Redéployer.
+7. « Envoyer un essai » dans la vue Synchronisation.
 
-Le téléphone n'intervient qu'à l'inscription : la carte SIM peut ensuite dormir (profil eSIM désactivé, par exemple). La ligne, elle, doit rester ouverte : elle sert à réinscrire le numéro si ses clés sont perdues ou si Signal le désinscrit, et un numéro résilié est réattribué par l'opérateur à quelqu'un d'autre, qui pourrait l'inscrire à son tour (le code PIN ne protège plus après 7 jours sans activité du compte). Le conteneur relève les messages reçus toutes les 6 heures, comme le protocole le demande, ce qui garde le compte actif.
+Signal retire un appareil relié resté 30 jours sans connexion : le conteneur relève les messages toutes les 6 heures, comme le protocole le demande, ce qui le garde actif. Si le téléphone refuse la liaison (« appareil obsolète »), l'image stable est trop ancienne : mettre `SIGNAL_IMAGE_TAG` sur une construction récente de l'image (signal-cli 0.14.10 ou plus récent).
 
-Entretien : signal-cli doit suivre les changements des serveurs Signal ; mettre à jour `SIGNAL_IMAGE_TAG` au moins tous les trois mois, à chaque nouvelle version de l'image. Garder un courriel en second canal : un envoi Signal en échec n'empêche pas les autres.
+Entretien : signal-cli doit suivre les changements des serveurs Signal ; mettre à jour `SIGNAL_IMAGE_TAG` au moins tous les trois mois, à chaque nouvelle version de l'image. Un envoi Signal en échec n'empêche pas les autres canaux.
 
 ### Logos des marques
 

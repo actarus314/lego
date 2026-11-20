@@ -5,6 +5,8 @@ message par compte, par les canaux de la variable ALERTES. Un produit « Acheté
 
 ALERTES : comptes séparés par « ; », canaux par « , » :
     julie=courriel:julie@exemple.fr;romain=courriel:romain@exemple.fr
+Un groupe Signal s'écrit « signal:group.… » ; une même destination citée par deux comptes ne reçoit
+le message qu'une fois.
 Envoi des courriels : variables SMTP_HOTE, SMTP_PORT, SMTP_SECURITE (starttls, ssl ou aucune),
 SMTP_UTILISATEUR, SMTP_MOT_DE_PASSE, SMTP_EXPEDITEUR. Signal : canal « signal:+33… », envoyé par
 signal-cli-rest-api (SIGNAL_URL, par exemple http://signal:8080) depuis le numéro SIGNAL_NUMERO.
@@ -134,10 +136,15 @@ def envoyer_signal(numero: str, sujet: str, texte: str) -> None:
 CANAUX = {"courriel": envoyer_courriel, "signal": envoyer_signal}
 
 
-def envoyer(compte: str, sujet: str, texte: str) -> list[str]:
-    """Envoie à tous les canaux du compte ; rend la liste des erreurs (vide si tout est parti)."""
+def envoyer(compte: str, sujet: str, texte: str, deja: set | None = None) -> list[str]:
+    """Envoie à tous les canaux du compte ; rend la liste des erreurs (vide si tout est parti).
+    `deja` : destinations déjà servies par ce même message (groupe Signal commun à deux comptes)."""
     erreurs = []
     for canal, adresse in destinataires().get(compte, []):
+        if deja is not None:
+            if (canal, adresse) in deja:
+                continue
+            deja.add((canal, adresse))
         f = CANAUX.get(canal)
         if not f:
             erreurs.append(f"canal inconnu : {canal}")
@@ -178,8 +185,9 @@ class Alertes:
             adresse = os.environ.get("ADRESSE_PUBLIQUE", "").rstrip("/")
             texte = "\n".join("• " + x for x in lignes) + (f"\n\nSélection : {adresse}/#selection" if adresse else "")
             sujet = f"Carnet de briques : {len(lignes)} changement{'s' if len(lignes) > 1 else ''} dans la sélection"
+            deja: set = set()
             for compte in destinataires():
-                envoi(compte, sujet, texte)
+                envoi(compte, sujet, texte, deja)
                 envoyes[compte] = lignes
         return envoyes
 
