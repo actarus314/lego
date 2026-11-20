@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.8.0
+Mots de passe : empreinte PBKDF2-SHA256 à 600 000 itérations (recommandation OWASP), les anciennes empreintes restant valables ; une connexion réussie est retenue 10 minutes en mémoire vive (empreinte HMAC, jamais le mot de passe) pour ne pas refaire le calcul à chaque requête.
+
 ## v3.7.7
 README, Signal : liste des groupes lisible, un groupe par ligne (nom, identifiant).
 

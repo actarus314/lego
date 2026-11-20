@@ -5,6 +5,9 @@ Les comptes viennent de la variable UTILISATEURS :
 L'empreinte se calcule avec `python -m app.motdepasse` (PBKDF2-SHA256) ; elle ne contient
 ni « $ » ni « : » et se colle telle quelle dans un fichier .env.
 Après 8 échecs sur un compte en 15 minutes, ce compte est bloqué 15 minutes.
+Le navigateur renvoie le mot de passe à chaque requête : une connexion réussie est retenue 10 minutes en
+mémoire vive, sous forme d'empreinte HMAC à clé aléatoire (jamais le mot de passe), pour ne pas refaire le
+calcul PBKDF2 à chaque requête. Un échec n'est jamais retenu ; la mémoire disparaît au redémarrage.
 """
 from __future__ import annotations
 
@@ -18,7 +21,8 @@ import secrets
 import threading
 import time
 
-ITERATIONS = 310000
+ITERATIONS = 600000  # recommandation OWASP pour PBKDF2-SHA256 (Password Storage Cheat Sheet, 2026)
+MEMOIRE_S = 10 * 60   # durée de la mémoire des connexions réussies
 FENETRE = 15 * 60
 ECHECS_MAX = 8
 
@@ -58,6 +62,8 @@ class Gardien:
         self.echecs: dict[str, list[float]] = {}
         self.verrou = threading.Lock()
         self._leurre = empreinte(secrets.token_hex(8))
+        self._cle = secrets.token_bytes(32)
+        self._reussites: dict[bytes, tuple[str, float]] = {}
 
     def bloque(self, nom: str) -> bool:
         now = time.time()
@@ -75,9 +81,18 @@ class Gardien:
             return None
         if self.bloque(nom):
             return None
+        marque = hmac.new(self._cle, entete.encode(), hashlib.sha256).digest()
+        now = time.time()
+        with self.verrou:
+            connu = self._reussites.get(marque)
+            if connu and connu[0] == nom and connu[1] > now:
+                return nom
         attendu = self.comptes.get(nom)
         ok = verifier(mdp, attendu if attendu else self._leurre) and attendu is not None
         if ok:
+            with self.verrou:
+                self._reussites = {k: v for k, v in self._reussites.items() if v[1] > now}
+                self._reussites[marque] = (nom, now + MEMOIRE_S)
             return nom
         with self.verrou:
             self.echecs.setdefault(nom, []).append(time.time())

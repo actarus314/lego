@@ -36,6 +36,24 @@ class Acces(unittest.TestCase):
             self.assertIsNone(g.authentifier(mauvais))
         self.assertIsNone(g.authentifier(bon), "compte bloqué après trop d'échecs")
 
+    def test_memoire_des_connexions(self):
+        from unittest import mock
+        g = acces.Gardien({"a": acces.empreinte("bonmotdepasse", iterations=1000)})
+        bon = "Basic " + base64.b64encode(b"a:bonmotdepasse").decode()
+        mauvais = "Basic " + base64.b64encode(b"a:faux").decode()
+        self.assertEqual(g.authentifier(bon), "a")
+        with mock.patch.object(acces, "verifier", wraps=acces.verifier) as v:
+            self.assertEqual(g.authentifier(bon), "a")
+            self.assertEqual(v.call_count, 0, "connexion réussie retenue : pas de recalcul")
+            self.assertIsNone(g.authentifier(mauvais))
+            self.assertIsNone(g.authentifier(mauvais))
+            self.assertEqual(v.call_count, 2, "un échec n'est jamais retenu")
+        with mock.patch.object(acces.time, "time", return_value=acces.time.time() + acces.MEMOIRE_S + 1), \
+                mock.patch.object(acces, "verifier", wraps=acces.verifier) as v:
+            self.assertEqual(g.authentifier(bon), "a")
+            self.assertEqual(v.call_count, 1, "mémoire expirée : nouveau calcul")
+        self.assertTrue(acces.empreinte("x").startswith("pbkdf2_sha256.600000."))
+
 
 class Lien(unittest.TestCase):
     def test_adresses_refusees(self):
