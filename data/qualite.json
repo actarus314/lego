@@ -1,0 +1,3355 @@
+{
+ "_note": "Qualité des briques : constats de sources indépendantes (tests, forums, avis d'acheteurs), un par source et par critère, relevés le 21/11/2026 par quatre recherches en parallèle (sources de 2023 à 2026 ; plus anciennes marquées). « sens » : comme_lego (égal ou meilleur que le LEGO officiel), proche (légèrement en dessous, ou jugé bon sans comparaison), en_retrait (nettement en dessous), probleme (défaut précis signalé), neutre (fait sans jugement). Verdict calculé par app/qualite.py. Les liens ne sont pas relus par le service.",
+ "releve": "2026-11-21",
+ "marques": {
+  "BlueBrixx": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage correct, mais qualité globale inégale, indigne de la gamme Pro.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Pièces Xingbao des sets Pro désormais au serrage stable.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-advent-calendar-109448-astronomers-mansion-review/",
+     "date": "2026-09-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Serrage parfois un peu faible ; plastique Xingbao en dessous du LEGO officiel, de Cobi et de Kiddicraft.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106906-burg-blaustein-adventskalender-review/",
+     "date": "2025-11-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Qualité Xingbao aléatoire, de friable à correcte selon les sets ; celui-ci au serrage excellent.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage régulier, légèrement inférieur à celui des briques LEGO officiel actuelles.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Serrage Xingbao encore inégal ; ressenti moins valorisant que le LEGO officiel, Cobi ou CaDA.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Uniformité des couleurs bonne.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Gris clair bon mais imparfait : certaines plaques un peu plus claires.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Gamme Special (plastique Qunlong) : quelques variations de gris bleuté foncé, sans gravité.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108659-sperm-whale-vs-giant-squid-set-review/",
+     "date": "2026-03-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Extension Bergfried : forts écarts de teinte, surtout en gris bleuté foncé, et points d'injection marqués.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/127mu7j/massive_qualit%C3%A4tsprobleme_bei_burg_blaustein/",
+     "date": "2023",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Depuis 2025, écarts de teinte, mauvais ajustements et pièces manquantes souvent signalés ; qualité inconstante constatée par la rédaction.",
+     "url": "https://www.gamestar.de/artikel/bluebrixx-qualitaetsschwankungen-chef,3452857.html",
+     "date": "2026-05-12",
+     "rang": "article",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Tuiles et panneaux bleus ternes et rayés dès le sachet ; marques d'injection très visibles.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Marques d'éjection et micro-rayures visibles ; finition en dessous du LEGO officiel, de Cobi et de Mattel.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-advent-calendar-109448-astronomers-mansion-review/",
+     "date": "2026-09-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Rayures marquées, surtout sur les fenêtres et les pièces vert foncé.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Micro-rayures habituelles sur les tuiles ; arêtes inférieures de certaines briques mal ébavurées.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Pièces imprimées nettes et colorées, autocollant transparent impeccable.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Impressions nettes, mais le blanc imprimé sur rouge rend mal.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Pièces imprimées couvertes de micro-rayures malgré un emballage séparé.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "en_retrait",
+     "resume": "Notice papier seulement, impression à peine suffisante, gris confondus, pages qui filent dans la reliure ; parmi les plus faibles du marché.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice claire et détaillée, version numérique disponible ; livret épais difficile à tenir à plat.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Gamme Special en PDF seulement ; angles de vue médiocres, pièces à poser parfois invisibles.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108659-sperm-whale-vs-giant-squid-set-review/",
+     "date": "2026-03-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Pas de notice numérique ; gris foncé posé semblable au gris clair à poser ; aucune erreur.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Mauvaise variante fournie : plaques rondes 1x1 sans trou au lieu de plaques à trou.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108659-sperm-whale-vs-giant-squid-set-review/",
+     "date": "2026-03-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièces parfois manquantes ; remplacement en 2 à 6 semaines, jusqu'à trois mois pour un acheteur ; magasins utiles pour dépanner.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1qdhm90/was_ist_eure_pers%C3%B6nliche_meinung_zu_bluebrixx/",
+     "date": "2026-01-15",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Liste de pièces en fin de notice, sans numéros pour réclamer les pièces manquantes.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Gamme Pro fabriquée par Xingbao ; gamme Special souvent par Qunlong (marque Lele).",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108126-research-icebreaker-polarstern-review/",
+     "date": "2026-09-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "BlueBrixx ne fabrique pas ses briques et travaille surtout avec Xingbao.",
+     "url": "https://baustein.info/welt-des-steins/",
+     "date": "2024-10",
+     "rang": "article",
+     "manipule": false
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Grands sets Burg Blaustein passés aux briques GoBricks, sauf l'extension Bergfried, confiée à un autre fournisseur.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/127mu7j/massive_qualit%C3%A4tsprobleme_bei_burg_blaustein/",
+     "date": "2023",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Fournisseur variable selon gamme et set (Xingbao, Qunlong, GoBricks) : qualité inégale d'un set à l'autre, critiques accrues depuis 2025. Notices numériques ajoutées pour certains sets Pro en 2026, absentes avant."
+  },
+  "Bole Brick": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Éléments principaux bons, mais tolérances des goupilles et axes Technic inégales selon les pièces.",
+     "url": "https://mikeshouts.com/bole-brick-toyota-supra-a80-review/",
+     "date": "2026-08-31",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Plaque ronde au trou d'axe désaxé (percée à la main), goupille double mal moulée, pièce trop épaisse à limer, poutre salie.",
+     "url": "https://mikeshouts.com/bole-brick-toyota-supra-a80-review/",
+     "date": "2026-08-31",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Mélange de pièces imprimées (capot) et d'autocollants, deux planches d'autocollants fournies.",
+     "url": "https://mikeshouts.com/bole-brick-toyota-supra-a80-review/",
+     "date": "2026-08-31",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Deux livrets papier ; sections jugées abstraites, contour rouge épais qui fausse la perspective et a causé des erreurs.",
+     "url": "https://mikeshouts.com/bole-brick-toyota-supra-a80-review/",
+     "date": "2026-08-31",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Supra A80 : briques jugées excellentes, aucun souci de serrage signalé (pas de comparaison chiffrée avec LEGO officiel).",
+     "url": "https://www.reddit.com/r/legotechnic/comments/1v9ac4l/finished_the_bolebricks_supra_a80/",
+     "date": "2026-07-28",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Régularité des couleurs jugée impressionnante sur un set de plus de 4000 pièces.",
+     "url": "https://www.reddit.com/r/legotechnic/comments/1v9ac4l/finished_the_bolebricks_supra_a80/",
+     "date": "2026-07-28",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "proche",
+     "resume": "Autocollants corrects mais pas au niveau de ceux du LEGO officiel.",
+     "url": "https://www.reddit.com/r/legotechnic/comments/1v9ac4l/finished_the_bolebricks_supra_a80/",
+     "date": "2026-07-28",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Politique affichée par la marque : pièces manquantes, erronées ou défectueuses remplacées après envoi de photos.",
+     "url": "https://shop.bolebricks.com/",
+     "date": "2026",
+     "rang": "marque",
+     "manipule": false
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Page commerciale du revendeur KBS : les briques du Audi Quattro S1 proviendraient de GoBricks.",
+     "url": "https://kbs-shop.com/products/bole-brick-audi-sport-s1-bole-brick-yc-23043",
+     "date": "2026",
+     "rang": "marque",
+     "manipule": false
+    }
+   ],
+   "remarque": "Marque jeune, sources toutes de 2026 et limitées aux voitures Technic sous licence. Fournisseur GoBricks affirmé seulement par un revendeur ; non confirmé par une source indépendante. Écartés : trois articles brickplan.cn (« BrickPlan Team », 2026) qui citent GoBricks mais semblent générés (séries « château » et « rue » douteuses, constats contradictoires), blog du revendeur MMO457, pages de revendeurs (Rabe Toys, Maxi-Bricks, Amazon). Vidéos YouTube de tests existantes mais non visionnées."
+  },
+  "CaDA": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Sur la Sauber, toutes les pièces au serrage du LEGO officiel, sans pièce voilée ni mal moulée.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jyhl00/does_cada_really_have_this_many_missing_pieces/",
+     "date": "2025-04",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Qualité des briques au niveau du LEGO officiel, voire meilleure, selon un acheteur de plusieurs supercars.",
+     "url": "https://www.reddit.com/r/lepin/comments/1hwxs0t/opinions_on_cada_sets/",
+     "date": "2025-01",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Briques proches du LEGO officiel, mais plaques au serrage différent ; demi-goupille à tenon moins serrante, éléments qui se détachent.",
+     "url": "https://www.reddit.com/r/buildingblocks/comments/1oyt4s9/cada_technic_vs_lego_technic/",
+     "date": "2025-11",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Set C61505 au 1:8 : jeu inhabituel entre sous-ensembles ; demi-goupille à tenon toujours trop peu serrante.",
+     "url": "https://www.reddit.com/r/lepin/comments/1r92664/cada_c61505_18_am_i_missing_something_or_is_this/",
+     "date": "2026-02",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage correct, certains éléments pourraient tenir plus fort ; version chinoise du set, pas la version W pour l'export.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66012w-japanese-sento-review/",
+     "date": "2026-06-12",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Une plaque au serrage faible, tenue suffisante pour un modèle d'exposition.",
+     "url": "https://www.thebrickpost.com/reviews/artemis-is-go-for-launch-the-cada-nasa-c56049w-set-that-delivers/",
+     "date": "2026-05-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Pièces plutôt trop serrées ; qualité jugée acceptable avec défauts mineurs (7 sur 10).",
+     "url": "https://www.reddit.com/r/lepin/comments/17atltg/cada_bricks_a_fresh_perspective_with_room_for/",
+     "date": "2023-10",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Couleurs parfaitement régulières selon le testeur, sans comparaison explicite au LEGO officiel ; version chinoise du set.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66019w-izakaya-review/",
+     "date": "2026-07-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Noir profond et brillant, mais pièces dorées striées, d'aspect médiocre.",
+     "url": "https://www.reddit.com/r/lepin/comments/1hwxs0t/opinions_on_cada_sets/",
+     "date": "2025-01",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Surface impressionnante, mais points d'injection visibles à des endroits impossibles à cacher.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66019w-izakaya-review/",
+     "date": "2026-07-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Nombreuses marques d'injection visibles, parfois mal placées ; bonne résistance aux rayures et à la saleté.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66012w-japanese-sento-review/",
+     "date": "2026-06-12",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Point d'injection visible sur les briques transparentes, différence notable avec le LEGO officiel.",
+     "url": "https://www.reddit.com/r/lepin/comments/17atltg/cada_bricks_a_fresh_perspective_with_room_for/",
+     "date": "2023-10",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Plastique de certaines pièces jugé médiocre, durabilité mise en doute par un participant.",
+     "url": "https://www.reddit.com/r/buildingblocks/comments/1ux8t3e/what_do_you_think_about_cada_bricks/",
+     "date": "2026",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Autocollants presque aussi grands que les pièces, faciles à décaler, fond pas toujours de la teinte de l'élément.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66019w-izakaya-review/",
+     "date": "2026-07-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Autocollants bien imprimés, qui tiennent encore après retrait et repose.",
+     "url": "https://www.merlinsbricks.com/article/cada-c71004w-the-solar-system-im-review/",
+     "date": "2025-06-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Éléments imprimés de grande qualité, logo Artemis et drapeau compris.",
+     "url": "https://www.thebrickpost.com/reviews/artemis-is-go-for-launch-the-cada-nasa-c56049w-set-that-delivers/",
+     "date": "2026-05-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier claire, couleurs fidèles ; pièces sombres parfois difficiles à distinguer ; étapes en lettres, sachets en chiffres.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66019w-izakaya-review/",
+     "date": "2026-07-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice bien rythmée ; bleu foncé et noir parfois confondus à l'impression ; sachets non numérotés par étape.",
+     "url": "https://www.thebrickpost.com/reviews/artemis-is-go-for-launch-the-cada-nasa-c56049w-set-that-delivers/",
+     "date": "2026-05-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "comme_lego",
+     "resume": "Notice de la Sauber jugée de très haute qualité, meilleure que celle du LEGO officiel.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jyhl00/does_cada_really_have_this_many_missing_pieces/",
+     "date": "2025-04",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice sans ambiguïté, sauf brun foncé et brun rougeâtre difficiles à distinguer.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66015w-kittys-grocery-review/",
+     "date": "2023-12-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Une pièce vert lime au point d'attache très abîmé, inutilisable.",
+     "url": "https://www.merlinsbricks.com/article/cada-c71008w-prairie-dogs-kinetic-review/",
+     "date": "2024-08-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Un drapeau vert manquant dans le set.",
+     "url": "https://www.merlinsbricks.com/article/cada-c66015w-kittys-grocery-review/",
+     "date": "2023-12-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Remplacement facile à commander sur le site de la marque et vite expédié ; une pièce introuvable pour un autre acheteur.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jyhl00/does_cada_really_have_this_many_missing_pieces/",
+     "date": "2025-04",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "CaDA fournit les briques de remplacement même pour un set acheté chez un revendeur, selon un acheteur.",
+     "url": "https://www.reddit.com/r/lepin/comments/1c4lbas/opinions_on_cada/",
+     "date": "2024-04-15",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièce défectueuse sur la Kick Sauber ; le support renvoie la pièce seule depuis la Chine.",
+     "url": "https://www.reddit.com/r/helddersteine/comments/1jmnqrp/hallo_liebe_community/",
+     "date": "2025-03-29",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Pièces fabriquées par CaDA elle-même (Double Eagle Industry, Chine).",
+     "url": "https://baustein.info/welt-des-steins/",
+     "date": "2024-10",
+     "rang": "article",
+     "manipule": false
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques produites en propre par Double Eagle Toys Industry.",
+     "url": "https://simplythebest-mag.de/alle-beitraege-uebersicht/cada-master-mould-king-auto-klemmbausteine-technik-sets-lego-technic-alternative/",
+     "date": "2024-03-10",
+     "rang": "article",
+     "manipule": false
+    }
+   ],
+   "remarque": "Deux versions selon Merlins Bricks (2026) : W pour l'export (EN71) et version chinoise, au ressenti possiblement différent ; Izakaya et Sento testés en version chinoise. Fournisseur contesté sur Reddit (GoBricks, briques communes), non étayé."
+  },
+  "Cobi": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage toujours fort mais moins « cimenté » qu'autrefois ; Cobi n'est plus le leader face à GoBricks.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5774-boeing-b-29-superfortress-review/",
+     "date": "2026-11-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage autrefois très ferme, adouci ces dernières années, montage plus agréable.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Baisse de qualité et de serrage signalée sur un ou deux ans, puis retour à la normale ; serrage fort et régulier.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5890-5891-lockheed-sr-71-blackbird-review/",
+     "date": "2024-11-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Serrage et toucher peut-être les meilleurs rencontrés par l'auteur, LEGO officiel compris.",
+     "url": "https://www.thebrickpost.com/alternative-brand/cobi-4849-lcvp-higgins-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Blanc propre à Cobi, plus pur que celui du LEGO officiel ; palette volontairement distincte.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Noir d'aspect un peu laiteux, comme sur le LEGO officiel actuel.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5774-boeing-b-29-superfortress-review/",
+     "date": "2026-11-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Marques d'injection parfois trop visibles, moules à injection latérale ; grandes tuiles sans rayure.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Micro-rayures fréquentes sur pentes et tuiles noires ; GoBricks meilleur sur les points d'injection.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5774-boeing-b-29-superfortress-review/",
+     "date": "2026-11-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Quelques micro-rayures sur les grandes tuiles ; le LEGO officiel reste un peu meilleur sur ce point.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5890-5891-lockheed-sr-71-blackbird-review/",
+     "date": "2024-11-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Impressions nettes, couleurs intenses, alignement impeccable ; aucun autocollant.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5890-5891-lockheed-sr-71-blackbird-review/",
+     "date": "2024-11-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "49 pièces en tampographie superbe ; Cobi utilise toutefois parfois des autocollants sur ses nouveautés.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant, décors tampographiés bien centrés et de couleurs nettes.",
+     "url": "https://www.thebrickpost.com/alternative-brand/cobi-4849-lcvp-higgins-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier inchangée, fonctionnelle mais datée ; pas de version numérique ni de longueurs de pièces indiquées.",
+     "url": "https://www.merlinsbricks.com/article/cobi-5774-boeing-b-29-superfortress-review/",
+     "date": "2026-11-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Papier trop brillant, impression qui file dans la reliure, flèches parfois ambiguës ; pas de PDF téléchargeable.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièce défectueuse bloquant le montage ; support lent (2 à 3 semaines) mais pièces envoyées ; peu de pièces de rechange.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1htj8nm/erfahrungen_mit_cobi_support/",
+     "date": "2025-01-04",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Pièces moulées dans l'usine européenne de Cobi.",
+     "url": "https://www.merlinsbricks.com/article/cobi-24362-volkswagen-t2b-bus-review/",
+     "date": "2026-05-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Production exclusivement à Mielec, en Pologne ; Cobi fabrique ses propres pièces.",
+     "url": "https://baustein.info/welt-des-steins/",
+     "date": "2024-10",
+     "rang": "article",
+     "manipule": false
+    }
+   ],
+   "remarque": "Baisse de qualité signalée vers 2022-2024 puis rétablie (SR-71, 2024) ; serrage adouci depuis (2026). Couleurs propres, non assorties au LEGO officiel. Service pièces jugé lent mais efficace ; avis Trustpilot non datés écartés."
+  },
+  "Guly": {
+   "constats": [
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Guly se fournit en briques chez JIESTAR.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Essieux et broches à logement d'axe souvent trop lâches ; broches bien serrées mais qui s'insèrent mal.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Briques en dessous du LEGO officiel : grandes rayures très visibles sur surfaces brillantes, micro-rayures acceptables.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Teintes métallisées désormais régulières ; broches et essieux colorés à la façon LEGO, visibles sur le modèle.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "36 pièces à autocollant, 6 imprimées ; bandes des ailes obtenues par masquage, pas tout à fait nettes.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier A4 dense, jusqu'à huit étapes par page ; angles parfois peu lisibles, câblage à peine montré.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10632-bmmini-sportcar-review/",
+     "date": "2024-09-16",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques du Raceforge Green fournies par JIESTAR.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10628-raceforge-review/",
+     "date": "2024-11-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Briques assez bonnes mais sous le LEGO officiel ; serrage des essieux irrégulier, tantôt lâche, tantôt trop ferme.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10628-raceforge-review/",
+     "date": "2024-11-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "30 tampographies de très bonne qualité, légèrement mal raccordées entre elles ; 46 autocollants.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10628-raceforge-review/",
+     "date": "2024-11-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Livre A4 de 302 pages, parties anciennes grisées, lisible ; câblage très mal représenté.",
+     "url": "https://www.merlinssteine.de/artikel/guly-10628-raceforge-review/",
+     "date": "2024-11-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Serrage très fort, qui rend la construction fatigante.",
+     "url": "https://verklemmtundzugenoppt.de/guly-weihnachtswuerfel/",
+     "date": "2024-12-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Nombreuses micro-rayures sur les briques.",
+     "url": "https://verklemmtundzugenoppt.de/guly-weihnachtswuerfel/",
+     "date": "2024-12-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Beaucoup d'autocollants.",
+     "url": "https://verklemmtundzugenoppt.de/guly-weihnachtswuerfel/",
+     "date": "2024-12-02",
+     "rang": "test",
+     "manipule": true
+    }
+   ],
+   "remarque": "Marque récente (sets depuis 2023), surtout des voitures Technic. Les deux tests Merlins Steine sont du même auteur (membre de la communauté). Ses briques venant de JIESTAR, leur qualité suit probablement celle de JIESTAR (voir la contradiction de 2026 sur cette marque). Rien trouvé sur les pièces manquantes ni sur le remplacement. Écartés : Galaxus (page de vente), fiches SetDB sans avis."
+  },
+  "iM.Master": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set QiHui Mechanical Master : bonne tenue, mais les connecteurs ne s'enclenchent pas avec le clic audible du LEGO officiel.",
+     "url": "https://www.steine-kanal.de/qihui-feuerwehrtruck-mit-seilwinde-1802-review/",
+     "date": "2023-03-11",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Set QiHui : pièces un peu plus rugueuses au toucher que celles du LEGO officiel, premier contact jugé correct à bon.",
+     "url": "https://www.steine-kanal.de/qihui-feuerwehrtruck-mit-seilwinde-1802-review/",
+     "date": "2023-03-11",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Set QiHui : autocollants seulement, précis et bien collants ; feuille pliée dans la boîte, un coin déchiré mais récupérable.",
+     "url": "https://www.steine-kanal.de/qihui-feuerwehrtruck-mit-seilwinde-1802-review/",
+     "date": "2023-03-11",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Set QiHui : feuille papier recto verso un peu petite, liste de pièces par étape, flèches rouges ; montage rapide sans difficulté.",
+     "url": "https://www.steine-kanal.de/qihui-feuerwehrtruck-mit-seilwinde-1802-review/",
+     "date": "2023-03-11",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Set 8038 : pièces qui s'assemblent parfaitement, jugées équivalentes au LEGO Technic officiel et pas moins bonnes que l'original.",
+     "url": "https://otzovik.com/review_15896082.html",
+     "date": "2024-03-11",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Set 8038 : schémas en couleurs détaillés sur bon papier, beaucoup à l'échelle 1:1 pour identifier les pièces.",
+     "url": "https://otzovik.com/review_15896082.html",
+     "date": "2024-03-11",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Briques bien ajustées, sans jeu, selon un acheteur du set tout-terrain télécommandé ; pas de comparaison avec le LEGO officiel.",
+     "url": "https://www.amazon.co.uk/iM-Master-Remote-Control-Building-Educational/dp/B0FQPVY8TX",
+     "date": "2026-03-14",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Certaines images de la notice peu nettes : il faut vérifier soigneusement la couleur et la forme des pièces.",
+     "url": "https://www.amazon.co.uk/iM-Master-Remote-Control-Building-Educational/dp/B0FQPVY8TX",
+     "date": "2026-03-14",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Page de revendeur (Barweer), 2022, antérieure à la période : pièces produites par la marque, moules neufs marqués IM.Master.",
+     "url": "https://www.barweer.com/blog/detail/facebook-review-of-immaster-9809-technic-drift-sports-car-blocks-on-18th-oct-513",
+     "date": "2022-10-18",
+     "rang": "marque",
+     "manipule": true
+    }
+   ],
+   "remarque": "iM.Master (Wanzhi) est l'ancienne marque Mechanical Master de QiHui : présentation de la société (2026) et index brick4.com (« 万致IM.Master/启辉玩具QIHUI »). Les tests de steine-kanal portent sur des sets QiHui Mechanical Master ; leur transposition aux sets iM.Master actuels reste une hypothèse. Sets surtout Technic et jouets STEM télécommandés, peu de tests indépendants. Tests de 2020-2021 (steine-kanal, noppensteinwelt) non retenus : rayures, points d'injection, bavures sur des connecteurs."
+  },
+  "JIE STAR": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage globalement bon, la structure tient.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Fortes différences de teinte entre plaques et tuiles grises de même référence.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Nombreuses briques éraflées, aspect de vrac ; grands points d'injection sur certaines tuiles ; transparents rayés et marbrés.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Porte imprimée emballée à part, impression précise et colorée, jugée excellente.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Deux livrets papier de 426 pages, très clairs ; angle de vue fixe pouvant induire des erreurs d'orientation.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Selon le testeur, les briques de ce set proviennent de Shandong Beyond International Trade Co., Ltd.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-57026-clock-tower-square-review/",
+     "date": "2026-10-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Serrage trop fort, principal défaut : assemblage en force, et interstices qui subsistent malgré la pression.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-jj9083-banana-shop-communityreview/",
+     "date": "2025-10-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Régularité des couleurs nettement meilleure que chez les marques économiques comme Qunlong ou Xingbao.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-jj9083-banana-shop-communityreview/",
+     "date": "2025-10-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection petits, micro-rayures rares ; transparents emballés un par un, presque sans rayure.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-jj9083-banana-shop-communityreview/",
+     "date": "2025-10-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "54 pièces imprimées (UV et tampographie), sans défaut, aucun autocollant.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-jj9083-banana-shop-communityreview/",
+     "date": "2025-10-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier seulement ; reliure collée qui ne reste pas ouverte, pages ondulées qui reflètent la lumière.",
+     "url": "https://www.merlinsbricks.com/article/jiestar-jj9083-banana-shop-communityreview/",
+     "date": "2025-10-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Serrage à un niveau optimal : les briques tiennent bien et se démontent facilement.",
+     "url": "https://www.merlinssteine.de/artikel/jie-star-89126-post-office-im-review/",
+     "date": "2023-04-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Aucun reproche sur la régularité des couleurs.",
+     "url": "https://www.merlinssteine.de/artikel/jie-star-89126-post-office-im-review/",
+     "date": "2023-04-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant ; nombreuses tuiles imprimées, de très bonne qualité.",
+     "url": "https://www.merlinssteine.de/artikel/jie-star-89126-post-office-im-review/",
+     "date": "2023-04-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Avis d'acheteurs : serrage correct sans plus (Faucon Millenium), ou très serré, deux à trois fois la force du LEGO officiel.",
+     "url": "https://www.reddit.com/r/lepin/comments/1brctq4/quality_of_jiestar_bricks/",
+     "date": "2024-03",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Régularité des couleurs jugée très bonne sur le Faucon Millenium.",
+     "url": "https://www.reddit.com/r/lepin/comments/1brctq4/quality_of_jiestar_bricks/",
+     "date": "2024-03",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièces à clip cassées en grand nombre, à remplacer par l'acheteur.",
+     "url": "https://www.reddit.com/r/lepin/comments/1brctq4/quality_of_jiestar_bricks/",
+     "date": "2024-03",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Contradiction nette selon les années : tests 2023 à 2025 favorables (teintes, finition), test d'octobre 2026 défavorable (teintes, rayures) avec des briques attribuées à un négociant, Shandong Beyond. Changement de fournisseur ou lot isolé, non tranché. Serrage décrit tantôt optimal (2023), tantôt trop fort (2024, 2025). Le test de 2023 est une republication d'un article Just Bricks ; date d'origine non vérifiée. Les tests Guly (2024) disent que JIESTAR fournit des briques à d'autres marques. Non retenus faute de date : Lepinboard (« JIESTAR utilise ses propres briques »), brickfact (marque de Guangdong Jiexing Toys selon le site du fabricant), Modellbau-Wiki."
+  },
+  "Kazi": {
+   "constats": [
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Papillon KY80042 : nombreuses rayures, gros points d'injection, jeux inégaux entre pièces après montage.",
+     "url": "https://www.steine-kanal.de/kazi-insektenserie-schmetterling-ky80042-review/",
+     "date": "2023-08-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Il faut appuyer fort pour assembler ; les articulations des pattes arrière se desserrent à l'usage jusqu'à tomber.",
+     "url": "https://www.steine-kanal.de/kazi-insektenserie-schmetterling-ky80042-review/",
+     "date": "2023-08-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Quatre bleus difficiles à distinguer dans la notice.",
+     "url": "https://www.steine-kanal.de/kazi-insektenserie-schmetterling-ky80042-review/",
+     "date": "2023-08-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set 2023 (Soleil) : serrage inégal, mais aucune pièce trop serrée ni trop lâche.",
+     "url": "https://www.reddit.com/r/lepin/comments/1e268ox/review_kazi_solar_system_series_sun_ky83037/",
+     "date": "2024-07-13",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Progrès notés, transparents réussis, mais tolérances plus larges que les meilleures marques, d'où des interstices visibles.",
+     "url": "https://www.reddit.com/r/lepin/comments/1e268ox/review_kazi_solar_system_series_sun_ky83037/",
+     "date": "2024-07-13",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Habituellement des impressions ; ici deux grands autocollants sur deux pièces, de qualité jugée douteuse.",
+     "url": "https://www.reddit.com/r/lepin/comments/1e268ox/review_kazi_solar_system_series_sun_ky83037/",
+     "date": "2024-07-13",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Facile à suivre mais d'aspect bon marché ; l'ordre d'assemblage du Soleil fait s'effondrer la construction.",
+     "url": "https://www.reddit.com/r/lepin/comments/1e268ox/review_kazi_solar_system_series_sun_ky83037/",
+     "date": "2024-07-13",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Train à grande vitesse : acheteur satisfait de la qualité et des couleurs des briques (moteur défaillant, hors périmètre).",
+     "url": "https://www.reddit.com/r/lepin/comments/1n6wtko/quality_of_kazi_trains/",
+     "date": "2025-09-02",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Papillon KY80042 : aucun autocollant.",
+     "url": "https://www.steine-kanal.de/kazi-insektenserie-schmetterling-ky80042-review/",
+     "date": "2023-08-17",
+     "rang": "test",
+     "manipule": true
+    }
+   ],
+   "remarque": "Peu de sources récentes. Les plus anciennes (2014-2021, hors fenêtre : Eurobricks, It's Not Lego, bausteinblog) décrivent un serrage fort, des teintes inégales (rouges, gris) et des impressions plutôt qu'autocollants ; une source de 2024 note un progrès sur les sets de 2023. Un avis Reddit de 2024 juge la qualité « médiocre au mieux », sans détail. Kazi est une marque de Guangdong Kaiyu ; aucune source ne dit qui moule les briques."
+  },
+  "Lonestar": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Rails : un acheteur les dit parfaitement compatibles avec ceux du LEGO officiel, serrage excellent.",
+     "url": "https://www.amazon.de/LONESTAR-Klemmbausteine-Bausteine-kompatibel-Marktf%C3%BChrern/dp/B0CJ4GWZBB",
+     "date": "2026-01-03",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Rails : couleur jugée excellente par le même acheteur, à côté des rails du LEGO officiel.",
+     "url": "https://www.amazon.de/LONESTAR-Klemmbausteine-Bausteine-kompatibel-Marktf%C3%BChrern/dp/B0CJ4GWZBB",
+     "date": "2026-01-03",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Catapulte : serrage très bon, pièces jugées de bonne qualité.",
+     "url": "https://www.youtube.com/watch?v=01H72ID0h14",
+     "date": "2024-08-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier ; images des étapes imprimées trop sombres, quelques passages peu clairs.",
+     "url": "https://www.youtube.com/watch?v=01H72ID0h14",
+     "date": "2024-08-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Le set Bouleaux LB-20050 est composé de 227 briques GoBricks, selon le vidéaste invité à le monter.",
+     "url": "https://www.youtube.com/watch?v=hJ4vgbhNdgo",
+     "date": "2023-08-20",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Bouleaux LB-20050 : notice encore perfectible par endroits.",
+     "url": "https://www.youtube.com/watch?v=hJ4vgbhNdgo",
+     "date": "2023-08-20",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Barge LB-70014, prototype puis version commerciale : perspective inchangée, deux pièces sans emplacement identifiable, notice jugée mauvaise.",
+     "url": "https://www.youtube.com/watch?v=aRpQVWtF80g",
+     "date": "2023-10-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Lonestar-Bricks GmbH, société berlinoise qui exploite Bausteinreich, importe directement de Chine ; usine des briques non nommée.",
+     "url": "https://www.bausteinreich.de/pages/fur-handler",
+     "date": "2025-03-14",
+     "rang": "marque",
+     "manipule": false
+    }
+   ],
+   "remarque": "Lonestar est la marque maison du revendeur Bausteinreich (Lonestar-Bricks GmbH), active depuis 2023 : surtout des accessoires (arbres, animaux, rails) et de petits sets. Les trois vidéos sont proches du revendeur (vidéastes invités à monter des sets, liens vers la boutique) : indépendance faible. Les sets « Diamond » (références JK-) ne sont pas au format standard. Aucun test écrit indépendant ni fil de forum trouvé. Écartés : fiches produit Amazon et Bausteinreich (texte du vendeur), klemmbaustein.com (page commerciale)."
+  },
+  "Mork": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "ToonCity Florist : serrage suffisant pour la tenue, démontage facile ; jugé bon sans comparaison directe avec LEGO officiel.",
+     "url": "https://www.merlinsbricks.com/article/mork-031051-tooncity-florist-im-review/",
+     "date": "2023-04-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Couleurs régulières et proches du LEGO officiel ; turquoise du LEGO officiel un peu plus clair.",
+     "url": "https://www.merlinsbricks.com/article/mork-031051-tooncity-florist-im-review/",
+     "date": "2023-04-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Bonnes surfaces ; grandes plaques marron à brillance inégale ; vitres à légères traînées.",
+     "url": "https://www.merlinsbricks.com/article/mork-031051-tooncity-florist-im-review/",
+     "date": "2023-04-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant, trois pièces imprimées jugées bien réalisées.",
+     "url": "https://www.merlinsbricks.com/article/mork-031051-tooncity-florist-im-review/",
+     "date": "2023-04-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Marque du groupe MZ-Models, sœur de Xingbao ; briques issues des moules Xingbao, rumeur GoBricks jugée infondée.",
+     "url": "https://www.merlinsbricks.com/article/mork-031051-tooncity-florist-im-review/",
+     "date": "2023-04-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Science Museum : pas de souci de serrage, briques plus dures que LEGO officiel, léger décalage de hauteur entre niveaux.",
+     "url": "https://www.merlinsbricks.com/article/mork-010206-science-museum-review/",
+     "date": "2023-03-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "proche",
+     "resume": "Étapes terminées grisées ; teintes imprimées parfois légèrement différentes des briques, sans ambiguïté.",
+     "url": "https://www.merlinsbricks.com/article/mork-010206-science-museum-review/",
+     "date": "2023-03-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Deux pièces manquantes ou incomplètes (chaîne absente, une chaîne trop courte d'un maillon).",
+     "url": "https://www.merlinsbricks.com/article/mork-010206-science-museum-review/",
+     "date": "2023-03-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Medieval Magician : une pièce sans aucun serrage ; le reste jugé tout à fait correct.",
+     "url": "https://www.merlinsbricks.com/article/mork-033032-medieval-magician-review/",
+     "date": "2024-02-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Aucun écart de teinte entre les briques.",
+     "url": "https://www.merlinsbricks.com/article/mork-033032-medieval-magician-review/",
+     "date": "2024-02-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "proche",
+     "resume": "Notice claire, trois bruns bien distingués ; petites ambiguïtés pour l'arbre ; problème de teintes signalé sur d'autres sets Mork.",
+     "url": "https://www.merlinsbricks.com/article/mork-033032-medieval-magician-review/",
+     "date": "2024-02-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Medieval Tavern : serrage jugé juste.",
+     "url": "https://www.merlinsbricks.com/article/mork-033033-medieval-tavern-review/",
+     "date": "2024-04-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Aucun écart de teinte constaté.",
+     "url": "https://www.merlinsbricks.com/article/mork-033033-medieval-tavern-review/",
+     "date": "2024-04-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Medieval Blacksmith : nombreuses micro-rayures, gros points d'injection, surfaces inégales ; en dessous de Cobi, CaDA et LEGO officiel.",
+     "url": "https://www.merlinsbricks.com/article/mork-033031-medieval-blacksmith-review/",
+     "date": "2024-07-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Serrage pas tout à fait régulier, parfois trop faible pour les techniques audacieuses ; le modèle tient une fois fini.",
+     "url": "https://www.merlinsbricks.com/article/mork-033031-medieval-blacksmith-review/",
+     "date": "2024-07-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier seulement, pas de version numérique ; étapes passées grisées, pièce oubliée difficile à replacer.",
+     "url": "https://www.merlinssteine.de/artikel/mork-033031-medieval-blacksmith-review/",
+     "date": "2024-07-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Pièces issues de Xingbao, comme d'habitude chez Mork.",
+     "url": "https://www.merlinsbricks.com/article/mork-033031-medieval-blacksmith-review/",
+     "date": "2024-07-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Parisian Restaurant : serrage jugé juste ; petit vélo fragile, roues difficiles à fixer.",
+     "url": "https://www.merlinsbricks.com/article/mork-010212-parisian-restaurant-review/",
+     "date": "2024-11-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Couleurs régulières, riches et vives.",
+     "url": "https://www.merlinsbricks.com/article/mork-010212-parisian-restaurant-review/",
+     "date": "2024-11-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Carreaux lisses et vitres sans rayures importantes.",
+     "url": "https://www.merlinsbricks.com/article/mork-010212-parisian-restaurant-review/",
+     "date": "2024-11-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucune pièce imprimée, seulement 16 à 17 autocollants.",
+     "url": "https://www.merlinsbricks.com/article/mork-010212-parisian-restaurant-review/",
+     "date": "2024-11-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Qualité bonne mais inégale : pièces au serrage faible, carreaux lisses rayés, une pièce erronée.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/17wg9oo/%C3%BCbersicht_hersteller/",
+     "date": "2023",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Qualité dépendante des lots Xingbao. En 2022 (hors fenêtre), le même set Ecological Park a été jugé très mauvais par Merlins Steine (surfaces poisseuses, rayures, pièces manquantes) et excellent par le blog It's Not Lego. Les sets 2023-2024 sont jugés bons, sauf Blacksmith (finition en retrait). Plusieurs exemplaires de test fournis gratuitement par Barweer ou Bausteinreich. Date du fil Reddit déduite approximativement."
+  },
+  "Mould King": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Serrage excellent, au niveau du LEGO officiel voire légèrement au-dessus, grâce aux briques GoBricks.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27012-no-testarossa-im-test/",
+     "date": "2023-10-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage régulier mais plus fort que le LEGO officiel ; les adultes doivent souvent appuyer, difficile pour les jeunes enfants.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27051-challenger-srt-review/",
+     "date": "2024-05-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Briques plus dures à emboîter que le LEGO officiel, doigts douloureux en fin de montage ; deux liaisons à un tenon ne tiennent pas.",
+     "url": "https://www.coaster101.com/2025/02/20/mould-king-review/",
+     "date": "2025-02-20",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage au niveau du LEGO officiel sauf deux éléments de type moteur presque sans serrage.",
+     "url": "https://brickanatomy.org/2024/02/mould-king-16055-review-a-mid-age-world-central-lighthouse-2199-pcs.html",
+     "date": "2024-02-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Comparaison au LEGO officiel : qualité jugée à 90 % similaire, serrage plus fort, presque trop.",
+     "url": "https://www.reddit.com/r/MouldKing/comments/1371o0f/quality_comparison_to_lego/",
+     "date": "2023-05",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Petits écarts de teinte entre plaques et tuiles, visibles de près seulement, jugés au niveau du LEGO officiel ; rouges homogènes.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27012-no-testarossa-im-test/",
+     "date": "2023-10-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Pentes courbes 2x2 parfois légèrement translucides dans les teintes claires, défaut occasionnel des pièces GoBricks.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27051-challenger-srt-review/",
+     "date": "2024-05-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Qualité des briques et des couleurs au niveau du LEGO officiel, voire meilleure ; dorures mates alors que la boîte les montre brillantes.",
+     "url": "https://brickanatomy.org/2024/02/mould-king-16055-review-a-mid-age-world-central-lighthouse-2199-pcs.html",
+     "date": "2024-02-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Couleurs jugées exactes par des acheteurs comparant au LEGO officiel.",
+     "url": "https://www.reddit.com/r/MouldKing/comments/1371o0f/quality_comparison_to_lego/",
+     "date": "2023-05",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection minuscules, mais plus de micro-rayures que chez le LEGO officiel ; plateforme de châssis à cratères d'injection.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27005-918-rsr-review/",
+     "date": "2023-11-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "comme_lego",
+     "resume": "Surface des briques excellente, au niveau du LEGO officiel, à l'exception du pare-brise.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27012-no-testarossa-im-test/",
+     "date": "2023-10-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Grandes pièces ayant tendance à se voiler, sans devenir inutilisables.",
+     "url": "https://www.reddit.com/r/MouldKing/comments/1371o0f/quality_comparison_to_lego/",
+     "date": "2023-05",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Pas de pièces imprimées ; autocollants bien imprimés et adhérents, mais de teinte nettement différente des briques.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27012-no-testarossa-im-test/",
+     "date": "2023-10-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Autocollants de qualité correcte, film épais, adhérence très forte qui empêche de les repositionner.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27004-no-p1-im-review/",
+     "date": "2024-02-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "proche",
+     "resume": "Notice correcte mais plus exigeante que celle du LEGO officiel ; couleurs imprimées mal accordées aux briques.",
+     "url": "https://www.coaster101.com/2025/02/20/mould-king-review/",
+     "date": "2025-02-20",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier claire, nouvelles pièces encadrées de rouge, mais très petit format (15 x 8.5 cm) aux illustrations minuscules.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27012-no-testarossa-im-test/",
+     "date": "2023-10-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier bien structurée ; version numérique accessible par un lien.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27005-918-rsr-review/",
+     "date": "2023-11-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Aucune pièce manquante dans le set testé.",
+     "url": "https://www.coaster101.com/2025/02/20/mould-king-review/",
+     "date": "2025-02-20",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Trois pièces manquantes dans un très grand set ; le vendeur a envoyé les remplacements.",
+     "url": "https://www.reddit.com/r/MouldKing/comments/1371o0f/quality_comparison_to_lego/",
+     "date": "2023-05",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièce cassée : la marque refuse de vendre une pièce seule après une dizaine de réponses automatiques ; pièces manquantes renvoyées gratuitement.",
+     "url": "https://www.reddit.com/r/lepin/comments/1j5ihw6/mould_king_bad_and_non_existing_customer_support/",
+     "date": "2025-03",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pas de service de pièces pour le client final selon un participant ; passer par le revendeur ou des vendeurs de pièces GoBricks.",
+     "url": "https://www.reddit.com/r/lepin/comments/18zughu/order_missing_pieces_from_mould_king_set/",
+     "date": "2024-01",
+     "rang": "forum",
+     "manipule": false
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièce manquante d'un set acheté chez BlueBrixx, sans liste de pièces ; remplacement à demander en Chine, jugé lent.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1irsqux/fehlendes_teil_bei_mouldking/",
+     "date": "2025-02-17",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques fournies par GoBricks, sauf la plateforme de châssis, venue d'une autre source.",
+     "url": "https://www.merlinsbricks.com/article/mould-king-27005-918-rsr-review/",
+     "date": "2023-11-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques GoBricks ; deux éléments à faible serrage pourraient venir d'un autre fabricant.",
+     "url": "https://brickanatomy.org/2024/02/mould-king-16055-review-a-mid-age-world-central-lighthouse-2199-pcs.html",
+     "date": "2024-02-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Mould King ne fabrique pas ses pièces : briques GoBricks (Shantou City Golds Precision Technology).",
+     "url": "https://baustein.info/welt-des-steins/",
+     "date": "2024-10",
+     "rang": "article",
+     "manipule": false
+    }
+   ],
+   "remarque": "Contradiction sur le serrage : égal au LEGO officiel (Merlins Bricks 2023), plus fort (2024), trop dur et inégal (Coaster101 2025). Pièces manquantes et service très critiqués ; la marque renvoie vers les revendeurs. Dates Reddit en AAAA-MM déduites de l'identifiant du fil."
+  },
+  "MOYU": {
+   "constats": [
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Source de 2022, antérieure à la période : qualité GoBricks très bonne, mais briques à tenon latéral un peu trop basses (environ 1 mm d'écart).",
+     "url": "https://klemmbrett.info/viewtopic.php?t=846",
+     "date": "2022-05-19",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Source de 2022, antérieure à la période : aucune pièce imprimée dans le set 82001, sept autocollants seulement.",
+     "url": "https://klemmbrett.info/viewtopic.php?t=846",
+     "date": "2022-05-19",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Source de 2022, antérieure à la période : MOYU utilise les briques GoBricks, selon le testeur qui a monté le set 82001.",
+     "url": "https://klemmbrett.info/viewtopic.php?t=846",
+     "date": "2022-05-19",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Liste de marques clientes donnée par des représentants de GoBricks sur Reddit (2024), MOYU comprise ; affirmation relayée, non vérifiée.",
+     "url": "https://sevenstarbricks.wordpress.com/get-started/",
+     "date": "2024-06-04",
+     "rang": "article",
+     "manipule": false
+    },
+    {
+     "critere": "finition",
+     "sens": "neutre",
+     "resume": "Micro-briques (gamme réduite, pas le format standard) : aucune pièce déformée ni décolorée, tout s'emboîte sans effort.",
+     "url": "https://www.reddit.com/r/lepin/comments/10il0j3/review_moyu_my97043_micro_brick_great_wave_off/",
+     "date": "2023-01-22",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Micro-briques : peut-être une pièce manquante, compensée par des pièces de rechange similaires ; doute lié à des pièces plates difficiles à distinguer.",
+     "url": "https://www.reddit.com/r/lepin/comments/10il0j3/review_moyu_my97043_micro_brick_great_wave_off/",
+     "date": "2023-01-22",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Micro-briques : sachets numérotés et notice jugée claire et facile à suivre par un débutant.",
+     "url": "https://www.reddit.com/r/lepin/comments/10il0j3/review_moyu_my97043_micro_brick_great_wave_off/",
+     "date": "2023-01-22",
+     "rang": "acheteur",
+     "manipule": true
+    }
+   ],
+   "remarque": "Marque mal couverte : aucun test récent de set au format standard trouvé (fiches Merlins Bricks sans texte de test). MOYU vend aussi des micro-briques (gamme Diamond Blocks), à ne pas confondre avec le format standard. Sources anciennes concordantes sur GoBricks : BrickMeet 2021 (mêmes briques que Mould King), Reddit r/lepin 2022 ; non retenues comme constats. Homonyme à écarter : MoYu, fabricant de cubes et de blocs magnétiques."
+  },
+  "Panlos": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Huit chars : serrage et ajustement très bons, un peu plus forts que GoBricks et LEGO officiel ; briques juste derrière eux.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Très bonne régularité ; certaines teintes difficiles pas parfaitement atteintes, écarts peu visibles une fois monté.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection parmi les meilleurs ; certaines pièces très rayées, brillance un peu sous LEGO officiel ; plaques de base légèrement voilées.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Surtout tampographie, très peu d'autocollants ; impressions UV de 2023 moins nettes, retour à la tampographie en 2024.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Inventaire des pièces en fin de notice ; quelques faiblesses ponctuelles signalées.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Panlos produit ses briques lui-même ; qualité stable au fil des années.",
+     "url": "https://www.merlinssteine.de/artikel/panlos-panzer-review/",
+     "date": "2024-08-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Indominus Rex : serrage fort et très régulier, parfois plus d'effort qu'ailleurs.",
+     "url": "https://www.merlinsbricks.com/article/panlos-611002-indominus-rex-review/",
+     "date": "2025-07-12",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Palette propre, nettement différente du LEGO officiel ; écarts de teinte entre pièces Panlos du même set.",
+     "url": "https://www.merlinsbricks.com/article/panlos-611002-indominus-rex-review/",
+     "date": "2025-07-12",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Panlos fabrique son propre plastique.",
+     "url": "https://www.merlinsbricks.com/article/panlos-611002-indominus-rex-review/",
+     "date": "2025-07-12",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Kumamon Japanese House : bon serrage ; tiges de bambou très serrées, difficiles à corriger.",
+     "url": "https://www.merlinsbricks.com/article/panlos-880018-kumamon-japanese-house-review/",
+     "date": "2024-02-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Quatre autocollants et environ 25 impressions, dont les vitres.",
+     "url": "https://www.merlinsbricks.com/article/panlos-880018-kumamon-japanese-house-review/",
+     "date": "2024-02-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Teddy's Coffee House : couleurs vives, aucun écart de teinte.",
+     "url": "https://www.merlinsbricks.com/article/panlos-881101-teddys-coffee-shop-review/",
+     "date": "2024-01-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Petites rayures sur les vitres, comme chez presque tous les fabricants.",
+     "url": "https://www.merlinsbricks.com/article/panlos-881101-teddys-coffee-shop-review/",
+     "date": "2024-01-26",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Budokan : briques satisfaisantes à 80 %, 20 % pénibles (trop dures à retirer, mauvais ajustement).",
+     "url": "https://www.reddit.com/r/lepin/comments/1jdits3/budokan_by_panlos_brick/",
+     "date": "2025-03-17",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Char Maus : pièces qui ne tiennent pas et se détachent, jupes abandonnées ; acheteur qui suppose un mauvais lot.",
+     "url": "https://www.reddit.com/r/lepin/comments/1if59fx/maus_review_and_comparison_panlos_vs_12go/",
+     "date": "2025-02-01",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Char T28 : briques correctes mais pas au niveau du LEGO officiel ni de Cobi ; arêtes vives, zones très serrées.",
+     "url": "https://www.reddit.com/r/cobiblocks/comments/1hh3yzw/cobi_substitutes/",
+     "date": "2024-12-18",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Sets récents (Churchill, SU-100, Sherman) : aucune pièce manquante ni abîmée selon un acheteur.",
+     "url": "https://www.reddit.com/r/cobiblocks/comments/1hh3yzw/cobi_substitutes/",
+     "date": "2024-12-18",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "comme_lego",
+     "resume": "Chaque brique Panlos manipulée jugée de qualité, meilleure que celles du LEGO officiel.",
+     "url": "https://www.reddit.com/r/helddersteine/comments/1fhhb1s/gibt_es_eine_qualitativ_hochwertigere/",
+     "date": "2024",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Briques de qualité aux couleurs bien assorties, selon un acheteur de grands sets.",
+     "url": "https://www.reddit.com/r/lepin/comments/1pntw9b/are_these_panlos_sets_any_good/",
+     "date": "2025-12-16",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Fabricant : Merlins (2024, 2025) dit que Panlos moule ses briques ; un fil Reddit de 2023 affirme qu'il utilise en partie GoBricks, sans preuve. Merlins (Pantasy Bakery, 2024) suppose que Panlos livre deux niveaux de qualité. Les avis négatifs (Maus, Budokan) portent sur des sets plus anciens, et des acheteurs décrivent un progrès sur les sets récents. Avant 2023 : serrage très fort et plaques voilées (Lunatic Hospital, 2020)."
+  },
+  "Pantasy": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Retro 90s PC : serrage juste, solide et facile à séparer.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Teintes excellentes ; légères traînées sur les pièces vert sable.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Carreaux blancs plus purs que ceux du LEGO officiel, mais point d'injection central mal placé.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "94 impressions nettes, deux autocollants épais et repositionnables.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Mise en page excellente, sans grisage ; notice glissée en vrac dans la boîte, arrivée pliée.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques fournies par GoBricks.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85005-retro-90s-pc-im-review/",
+     "date": "2024-12-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Bakery : briques sombres ternes et striées, grandes vitres rayées ; GoBricks livrerait deux niveaux de qualité.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85013-baeckerei-im-review/",
+     "date": "2024-07-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Rien à redire sur le serrage.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85013-baeckerei-im-review/",
+     "date": "2024-07-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Stained Glass Table Lamp : serrage parfaitement dosé, assemblages solides et faciles à défaire.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85042-stained-glass-table-lamp-review/",
+     "date": "2026-03-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Carreaux et transparents impeccables sans rayures ; points d'injection bien placés, rarement visibles.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85042-stained-glass-table-lamp-review/",
+     "date": "2026-03-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Régularité des couleurs jugée remarquable.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85042-stained-glass-table-lamp-review/",
+     "date": "2026-03-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier très lisible, sans étape sautée, aides visuelles et tailles en tenons.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85042-stained-glass-table-lamp-review/",
+     "date": "2026-03-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Hand Crank Sewing Machine : finition de surface insuffisante, carreaux sombres très mats ; pièces chromées et dorées excellentes.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85028-hand-crank-sewing-machine-review/",
+     "date": "2026-04-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Régularité des couleurs jugée solide.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85028-hand-crank-sewing-machine-review/",
+     "date": "2026-04-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "School of Arts : stries et rayures visibles sur carreaux et briques, carreaux 6x6 qui se voilent ; vitres impeccables.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85036-school-of-arts-review/",
+     "date": "2026-05-15",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage et régularité des couleurs jugés excellents.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85036-school-of-arts-review/",
+     "date": "2026-05-15",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant, tout est imprimé ; impressions nettes et aux couleurs vives.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85036-school-of-arts-review/",
+     "date": "2026-05-15",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Fournisseur GoBricks ; hypothèse de lots « non premium » livrés face à la demande.",
+     "url": "https://www.merlinsbricks.com/article/pantasy-85036-school-of-arts-review/",
+     "date": "2026-05-15",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "comme_lego",
+     "resume": "T-800 : points d'injection discrets, revêtement argenté propre, petites irrégularités visibles sous lampe ; jugé à la hauteur du LEGO officiel.",
+     "url": "https://www.pcgameshardware.de/Klemmbausteine-Hardware-280122/Specials/der-T-800-aus-silbernen-Steinen-im-Test-1559219/",
+     "date": "2026-11-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage des briques GoBricks salué, assemblage agréable.",
+     "url": "https://www.pcgameshardware.de/Klemmbausteine-Hardware-280122/Specials/der-T-800-aus-silbernen-Steinen-im-Test-1559219/",
+     "date": "2026-11-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Plaque et yeux imprimés, aucun autocollant.",
+     "url": "https://www.pcgameshardware.de/Klemmbausteine-Hardware-280122/Specials/der-T-800-aus-silbernen-Steinen-im-Test-1559219/",
+     "date": "2026-11-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques GoBricks citées explicitement.",
+     "url": "https://www.pcgameshardware.de/Klemmbausteine-Hardware-280122/Specials/der-T-800-aus-silbernen-Steinen-im-Test-1559219/",
+     "date": "2026-11-06",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Windmill Workshop : rien n'est tombé après des semaines et des déplacements ; serrage jugé très bon.",
+     "url": "https://www.thebrickpost.com/reviews/pantasy-steampunk-windmill-workshop-85026-review/",
+     "date": "2025-07-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Bruns et beige foncé difficiles à reconnaître dans la notice, surtout pour un premier set Pantasy.",
+     "url": "https://www.thebrickpost.com/reviews/pantasy-steampunk-windmill-workshop-85026-review/",
+     "date": "2025-07-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Windmill Workshop : aucune pièce manquante, aucun défaut de serrage.",
+     "url": "https://www.eurobricks.com/forum/forums/topic/208894-wip-building-my-dream-pantasy-sets-collectioncity-plus-monthly-pantasy-set-reviews/",
+     "date": "2025-08-08",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Pièces sombres difficiles à situer dans la notice ; pas d'inventaire des pièces en fin de livret.",
+     "url": "https://www.eurobricks.com/forum/forums/topic/208894-wip-building-my-dream-pantasy-sets-collectioncity-plus-monthly-pantasy-set-reviews/",
+     "date": "2025-08-08",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "The Opera : serrage insuffisant sur les pièces du toit ; le reste jugé irréprochable.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1klp6tk/das_opernhaus_von_pantasy_bauendereview/",
+     "date": "2025",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Nombreuses impressions jugées fantastiques, aucun autocollant.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1klp6tk/das_opernhaus_von_pantasy_bauendereview/",
+     "date": "2025",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Craft Beer Brewery : écarts de couleurs signalés, impression d'une qualité de briques en baisse.",
+     "url": "https://www.reddit.com/r/klemmbausteine/comments/1mclob6/pantasy_craft_beer_brewery_fast_perfekt/",
+     "date": "2025",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Qualité jugée très bonne en 2024-2025, puis inégale selon les lots en 2024 (Bakery) et 2026 (Sewing Machine, School of Arts) : finition des pièces sombres en baisse, Merlins évoque des lots GoBricks non premium. Serrage et teintes restent bien notés. Plusieurs exemplaires fournis par Pantasy. Les écarts de couleurs (Brewery) peuvent viser des pièces de couleur aléatoire dans les parties cachées. Dates des fils Reddit approximatives."
+  },
+  "Rastar": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage régulier mais plus fort que le LEGO officiel : il faut appuyer fermement, plus difficile pour de jeunes enfants.",
+     "url": "https://www.merlinsbricks.com/article/rastar-93900-pagani-zonda-r-review/",
+     "date": "2024-02-07",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection minuscules, mais un peu plus de micro-rayures que sur le LEGO officiel, visibles surtout sur la version noire.",
+     "url": "https://www.merlinsbricks.com/article/rastar-93900-pagani-zonda-r-review/",
+     "date": "2024-02-07",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Briques très bonnes mais rayures visibles ; les deux pièces spéciales des rétroviseurs sont de moindre qualité, visible seulement de très près.",
+     "url": "https://www.merlinsbricks.com/article/rastar-92300-alfa-romeo-f1-c42-review/",
+     "date": "2024-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Impressions jugées très bonnes, défauts infimes visibles seulement à l'objectif macro ; 43 autocollants pour 6 pièces imprimées ; pneus et jantes imprimés.",
+     "url": "https://www.merlinsbricks.com/article/rastar-92500-red-bull-f1-rb19-review/",
+     "date": "2024-02-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Blanc imprimé sur rouge rendu rosé ; rouge des autocollants différent de celui des briques, ce qui dessert le modèle.",
+     "url": "https://www.merlinsbricks.com/article/rastar-92300-alfa-romeo-f1-c42-review/",
+     "date": "2024-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Peu de pièces imprimées, autocollants nombreux dont des films de transfert posés à cheval sur plusieurs pièces, impossibles à démonter sans les abîmer.",
+     "url": "https://www.merlinsbricks.com/article/rastar-93900-pagani-zonda-r-review/",
+     "date": "2024-02-07",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier soignée, pièce à poser entourée de rouge, sans version numérique ; une erreur corrigée par un autocollant collé dans la notice.",
+     "url": "https://www.merlinsbricks.com/article/rastar-93900-pagani-zonda-r-review/",
+     "date": "2024-02-07",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Notice papier claire, mais une étape de la deuxième section demande des pièces du sachet trois : découpage des sachets mal aligné.",
+     "url": "https://www.merlinsbricks.com/article/rastar-92500-red-bull-f1-rb19-review/",
+     "date": "2024-02-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Audi R8 (99310) : notice améliorable par endroits et absente en version numérique, sans blocage pendant le montage.",
+     "url": "https://www.merlinsbricks.com/video/top10-sets-2024/",
+     "date": "2025-01-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques fournies par GoBricks, « comme d'habitude chez Rastar », selon l'auteur qui a monté trois sets de la marque.",
+     "url": "https://www.merlinsbricks.com/article/rastar-92300-alfa-romeo-f1-c42-review/",
+     "date": "2024-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Liste de marques clientes donnée par des représentants de GoBricks sur Reddit (2024), Rastar compris ; affirmation relayée, non vérifiée.",
+     "url": "https://sevenstarbricks.wordpress.com/get-started/",
+     "date": "2024-06-04",
+     "rang": "article",
+     "manipule": false
+    }
+   ],
+   "remarque": "Constats presque tous d'un même testeur (Merlins Bricks, Kai Zimmermann), exemplaires fournis par le revendeur partenaire AFOBRICK, sets de 2023. Rien sur les pièces manquantes ni sur les teintes des briques elles-mêmes. Un avis de forum (klemmbrett.info, mai 2025) cite de « bonnes expériences » avec Rastar, sans détail par critère, non retenu."
+  },
+  "Reobrix": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Précision et serrage excellents sur les briques standard ; barres des toits plus lâches, plastique plus mou.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Tolérances plus larges : goupilles plus serrées mais axes qui tiennent mal ; pièces Technic inadaptées à une motorisation.",
+     "url": "https://www.merlinssteine.de/artikel/reobrix-22026-grape-harvester-review/",
+     "date": "2024-04-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Éléments standard bien assemblés ; petites pièces (fleurs, montages latéraux) au serrage faible ; plaques empilées à presser fort.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-66029-ninja-world-review/",
+     "date": "2023-05-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage pénible sur deux anciens sets ; nettement amélioré sur un set récent, qui demande encore une forte pression.",
+     "url": "https://bricknexus.net/blog/6a0a7dc7ae4f92af2be2ff4a",
+     "date": "2026-05-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Serrage nettement plus fort que le LEGO officiel ; doigts endoloris après de longues sessions, selon plusieurs acheteurs.",
+     "url": "https://www.reddit.com/r/lepin/comments/1vlye5h/anyone_bought_reobrix_branded_kits_if_so_opinions/",
+     "date": "2026",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Avis partagés : aucun défaut sur huit sets pour l'un ; serrage extrême, grande différence avec le LEGO officiel, pour un autre.",
+     "url": "https://www.reddit.com/r/lepin/comments/1b2ihds/reobrix_have_a_new_flying_dutchman_ship_i_really/",
+     "date": "2024-02",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage très élevé sur les briques classiques, correct sur les goupilles ; niveau GoBricks non atteint.",
+     "url": "https://www.youtube.com/watch?v=mhoF2XM3_BQ",
+     "date": "2025-04-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Serrage plutôt trop fort, au-delà même de GoBricks, déjà plus ferme que le LEGO officiel.",
+     "url": "https://www.reddit.com/r/lepin/comments/17o9717/t6_shuttle_design_by_pixeldan_released_by_reobrix/",
+     "date": "2023-11",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Aucune réserve sur la fabrication et l'assemblage des briques ; quelques éléments tiennent trop légèrement par conception.",
+     "url": "https://zero.pl/news/recenzja-reobrix-katedra-wenecka-duzy-zestaw-klockow-nie-musi-kosztowac-majatku",
+     "date": "2026-10-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Écarts de couleur rares, voire absents.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Gris bleuté foncé en cinq à sept teintes différentes dans le même set, très visible sur les grandes surfaces.",
+     "url": "https://www.youtube.com/watch?v=mhoF2XM3_BQ",
+     "date": "2025-04-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Une douzaine de pièces sur 5700 avec rayures ou écart de teinte, sans gêne réelle.",
+     "url": "https://www.reddit.com/r/lepin/comments/17o9717/t6_shuttle_design_by_pixeldan_released_by_reobrix/",
+     "date": "2023-11",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Aucune incohérence de couleur sur un navire d'environ 5900 pièces ; pièces agréables à manipuler.",
+     "url": "https://www.reddit.com/r/lepin/comments/1etglwb/reobrix_flying_dutchman_review/",
+     "date": "2024-08",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Micro-rayures fréquentes, surtout sur les tuiles gris clair.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Une petite plaque légèrement voilée ; fenêtres plutôt opaques et un peu rayées.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-66029-ninja-world-review/",
+     "date": "2023-05-17",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Pièces parfois mal ébavurées, à reprendre à l'ongle.",
+     "url": "https://www.youtube.com/watch?v=mhoF2XM3_BQ",
+     "date": "2025-04-03",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant, détails tous imprimés ; une seule erreur d'impression, une pente sans motif.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier seulement, épaisse mais claire ; étapes parfois d'une seule pièce.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Livre relié bien imprimé ; gris clair et foncé parfois confondus ; flèches et perspectives déroutantes.",
+     "url": "https://www.merlinssteine.de/artikel/reobrix-22026-grape-harvester-review/",
+     "date": "2024-04-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice très soignée, dimensions des pièces longues indiquées ; aucune page sur l'électronique fournie.",
+     "url": "https://zero.pl/news/recenzja-reobrix-katedra-wenecka-duzy-zestaw-klockow-nie-musi-kosztowac-majatku",
+     "date": "2026-10-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice épaisse, claire et bien imprimée ; version PDF téléchargeable sur le site de la marque.",
+     "url": "https://bricknexus.net/blog/6a0a7dc7ae4f92af2be2ff4a",
+     "date": "2026-05-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Aucune pièce manquante, mais aucune pièce de rechange non plus.",
+     "url": "https://bricknexus.net/blog/6a0a7dc7ae4f92af2be2ff4a",
+     "date": "2026-05-18",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Aucune pièce manquante et aucune pièce de rechange sur environ 5900 pièces.",
+     "url": "https://www.reddit.com/r/lepin/comments/1etglwb/reobrix_flying_dutchman_review/",
+     "date": "2024-08",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Reobrix utilise des pièces JIESTAR.",
+     "url": "https://www.merlinsbricks.com/article/reobrix-55015-duskvale-sanctum-review/",
+     "date": "2026-02-05",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Briques des sets Reobrix probablement fabriquées par JieStar, selon l'auteur.",
+     "url": "https://bricknexus.net/blog/6a0a7dc7ae4f92af2be2ff4a",
+     "date": "2026-05-18",
+     "rang": "test",
+     "manipule": true
+    }
+   ],
+   "remarque": "Qualité variable selon les années : anciens sets jugés pénibles (BrickNexus), net progrès en 2026 (Duskvale, BrickNexus). Serrage souvent trop fort plutôt que trop lâche. Aucune source indépendante sur le remplacement des pièces. Dates Reddit déduites de l'identifiant."
+  },
+  "Sembo": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Aucun problème de serrage sur les quatre petites voitures.",
+     "url": "https://www.merlinsbricks.com/article/sembo-714540-world-famous-car-review/",
+     "date": "2024-10-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Plus de micro-rayures que le LEGO officiel ; points d'injection visibles mais moins marqués que chez BlueBrixx ; qualité sous GoBricks.",
+     "url": "https://www.merlinsbricks.com/article/sembo-714540-world-famous-car-review/",
+     "date": "2024-10-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Tampographies assez nettes, mais motif mal raccordé entre pièces voisines sur le capot de la voiture blanche.",
+     "url": "https://www.merlinsbricks.com/article/sembo-714540-world-famous-car-review/",
+     "date": "2024-10-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice un peu laborieuse, mais construction sans difficulté.",
+     "url": "https://www.merlinsbricks.com/article/sembo-714540-world-famous-car-review/",
+     "date": "2024-10-02",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Serrage jugé juste, ni trop fort ni trop faible.",
+     "url": "https://www.merlinsbricks.com/article/sembo-spongebob-612221-612222-612223-612224-houses-review/",
+     "date": "2024-12-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Couleurs vives et régulières.",
+     "url": "https://www.merlinsbricks.com/article/sembo-spongebob-612221-612222-612223-612224-houses-review/",
+     "date": "2024-12-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "comme_lego",
+     "resume": "Quatre sets complets, aucune pièce manquante ni défectueuse.",
+     "url": "https://www.merlinsbricks.com/article/sembo-spongebob-612221-612222-612223-612224-houses-review/",
+     "date": "2024-12-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "9 à 15 pièces imprimées par set, plus 5 à 10 autocollants, certains à poser à cheval sur plusieurs briques.",
+     "url": "https://www.merlinsbricks.com/article/sembo-spongebob-612221-612222-612223-612224-houses-review/",
+     "date": "2024-12-30",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Trois tiges de fleur cassées dès la sortie des sachets.",
+     "url": "https://www.merlinsbricks.com/article/sembo-611050-spieluhr-blumenzucht-review/",
+     "date": "2023-11-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Impression correcte ; nuances pastel parfois difficiles à distinguer, avec encadrés indiquant la couleur.",
+     "url": "https://www.merlinsbricks.com/article/sembo-611050-spieluhr-blumenzucht-review/",
+     "date": "2023-11-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Un commentaire affirme, sans preuve, que Sembo utilise désormais des briques GoBricks.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jjpafp/how_do_sembo_blocks_stack_up_compared_to_proper/",
+     "date": "2025-03-25",
+     "rang": "forum",
+     "manipule": false
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Cerisier 601075 : environ 90 % des rotules fendues à l'assemblage, branches non articulables.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jjpafp/how_do_sembo_blocks_stack_up_compared_to_proper/",
+     "date": "2025-03-25",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Un acheteur estime les briques alternatives à environ 90 % du LEGO officiel, Sembo un peu mieux poli.",
+     "url": "https://www.reddit.com/r/lepin/comments/1jjpafp/how_do_sembo_blocks_stack_up_compared_to_proper/",
+     "date": "2025-03-25",
+     "rang": "forum",
+     "manipule": true
+    }
+   ],
+   "remarque": "Les sources antérieures à 2023 sont plus sévères : Brix Files (2020-09) signalait des pièces manquantes et mal moulées sur trois mini modulaires sur quatre ; Merlins Bricks (2021-08) des briques mates et un pare-brise rayé. Les tests 2023 et 2024 sont meilleurs, ce qui laisse penser à une amélioration. L'affirmation « briques GoBricks » (Reddit 2025) contredit le test de 2024, qui situe la qualité sous GoBricks. Écartés : pwice.com et siemens-mobile.com (listes « meilleurs sets » générées, sans essai), Joybuy (blog de boutique)."
+  },
+  "TGL": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "T4009 : connecteurs moins bien emboîtés que ceux du LEGO officiel, durs à enfoncer en série ; panneaux latéraux un peu lâches.",
+     "url": "https://www.merlinssteine.de/artikel/tgl-t4009-rv-off-road-review/",
+     "date": "2023-08-18",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "T4009 : écarts de teinte parfois extrêmes, un beige tirant vers le beige foncé.",
+     "url": "https://www.merlinssteine.de/artikel/tgl-t4009-rv-off-road-review/",
+     "date": "2023-08-18",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "T4009 : pièces Technic correctes, mais briques classiques moins bonnes, les grandes briques donnant une sensation bon marché.",
+     "url": "https://www.merlinssteine.de/artikel/tgl-t4009-rv-off-road-review/",
+     "date": "2023-08-18",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "T4009 : une pièce des phares avant manquait, seuls trois phares sur quatre ont pu être posés.",
+     "url": "https://www.merlinssteine.de/artikel/tgl-t4009-rv-off-road-review/",
+     "date": "2023-08-18",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "T5014 : plastique jugé de haute qualité, aucune pièce déformée ; une longue poutre cassée en forçant, imputée à l'inexpérience de l'acheteur.",
+     "url": "https://enmlounge.com/sub/lepin/t3-1jit00q-ford-raptor-tgl-t5014-review",
+     "date": "2025-03-24",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "T5014 : aucune pièce manquante, sachets numérotés, beaucoup de connecteurs en surplus.",
+     "url": "https://enmlounge.com/sub/lepin/t3-1jit00q-ford-raptor-tgl-t5014-review",
+     "date": "2025-03-24",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "T5014 : notice jugée claire et bien pensée.",
+     "url": "https://enmlounge.com/sub/lepin/t3-1jit00q-ford-raptor-tgl-t5014-review",
+     "date": "2025-03-24",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "T5014 : phares en autocollants plutôt qu'imprimés ; autocollants imitant la marque avec un nom altéré.",
+     "url": "https://enmlounge.com/sub/lepin/t3-1jit00q-ford-raptor-tgl-t5014-review",
+     "date": "2025-03-24",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "T5042 : pièces très serrées, matière plutôt dure, clic net à l'insertion ; pas de comparaison avec le LEGO officiel.",
+     "url": "https://www.sanwenwang.com/ba/aiulziqf.html",
+     "date": "2023-12-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "T5042 : autocollants sur fond transparent formant de nombreuses bulles visibles sous la lumière.",
+     "url": "https://www.sanwenwang.com/ba/aiulziqf.html",
+     "date": "2023-12-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Toutes les pièces sont produites par TaiGaoLe lui-même, selon le testeur chinois du set T5042.",
+     "url": "https://www.sanwenwang.com/ba/aiulziqf.html",
+     "date": "2023-12-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "T5037 : une partie des connecteurs courts noirs de ce lot présente des bavures ; le testeur suggère un entretien des moules.",
+     "url": "https://www.mochome.com/article-88-1.html",
+     "date": "2025-12-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "T5037 : notice de 350 pages ; étape 76 impossible dans l'ordre prévu, interférence de pièces à l'étape 374.",
+     "url": "https://www.mochome.com/article-88-1.html",
+     "date": "2025-12-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Pièces toutes produites en interne par TaiGaoLe, selon le même testeur pour le set T5037.",
+     "url": "https://www.mochome.com/article-88-1.html",
+     "date": "2025-12-25",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Notices TaiGaoLe parfois entièrement en chinois et peu claires, selon un comparatif sans essai décrit.",
+     "url": "https://simplythebest-mag.de/alle-beitraege-uebersicht/cada-master-mould-king-auto-klemmbausteine-technik-sets-lego-technic-alternative/",
+     "date": "2024-03-10",
+     "rang": "article",
+     "manipule": false
+    },
+    {
+     "critere": "pieces",
+     "sens": "probleme",
+     "resume": "Pièces manquantes signalées dans certains sets TaiGaoLe, selon un comparatif qui rapporte des retours sans essai décrit.",
+     "url": "https://simplythebest-mag.de/alle-beitraege-uebersicht/cada-master-mould-king-auto-klemmbausteine-technik-sets-lego-technic-alternative/",
+     "date": "2024-03-10",
+     "rang": "article",
+     "manipule": false
+    }
+   ],
+   "remarque": "TGL = TaiGaoLe (泰高乐), surtout des voitures Technic. Le test T4009 porte sur un set de 2021 ; les tests T5014 (2025) et T5037 (2025) sont plus favorables sur les pièces. Les deux tests chinois (même auteur, MAX, repris sur sanwenwang et mochome) affirment une production interne, alors que simplythebest-mag (2024) dit le producteur inconnu. Le test T4009 est un avis de membre publié sur Merlins Steine."
+  },
+  "Wange": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Aucun problème de serrage sur les pièces du set Space Needle.",
+     "url": "https://www.merlinsbricks.com/article/wange-5238-space-needle-seattle-review/",
+     "date": "2025-03-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection petits et discrets, micro-rayures peu gênantes ; éléments du socle gris minces, qui fléchissent sous la pression.",
+     "url": "https://www.merlinsbricks.com/article/wange-5238-space-needle-seattle-review/",
+     "date": "2025-03-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Aucun autocollant, une seule pièce imprimée (plaque du nom), impression nette.",
+     "url": "https://www.merlinsbricks.com/article/wange-5238-space-needle-seattle-review/",
+     "date": "2025-03-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier claire avec contexte historique, parties déjà construites grisées ; aucune version numérique.",
+     "url": "https://www.merlinsbricks.com/article/wange-5238-space-needle-seattle-review/",
+     "date": "2025-03-13",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Pas de problème notable de serrage sur le set Porte de Brandebourg.",
+     "url": "https://www.merlinsbricks.com/article/wange-6211-brandenburger-tor-review/",
+     "date": "2025-02-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Points d'injection discrets, micro-rayures minimes ; pièces du socle jugées fragiles, cédant parfois à l'assemblage.",
+     "url": "https://www.merlinsbricks.com/article/wange-6211-brandenburger-tor-review/",
+     "date": "2025-02-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Seize pièces imprimées, impressions nettes, aucun autocollant.",
+     "url": "https://www.merlinsbricks.com/article/wange-6211-brandenburger-tor-review/",
+     "date": "2025-02-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Notice papier bonne mais étapes imprimées en petit malgré la place disponible ; pas de version numérique.",
+     "url": "https://www.merlinsbricks.com/article/wange-6211-brandenburger-tor-review/",
+     "date": "2025-02-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "La tuile ronde 2x2 Wange porte une croix au centre au lieu d'un tenon standard : posée sur un seul tenon, elle ne tient pas.",
+     "url": "https://www.merlinsbricks.com/article/wange-4224-stonehenge-review/",
+     "date": "2025-04-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Deux grandes planches d'autocollants, seule la plaque du nom est imprimée.",
+     "url": "https://www.merlinsbricks.com/article/wange-4224-stonehenge-review/",
+     "date": "2025-04-24",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "Serrage jugé convaincant sur le set Fallingwater.",
+     "url": "https://www.merlinssteine.de/artikel/wange-5232-fallingwater-im-review/",
+     "date": "2023-01-22",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Couleurs régulières entre pièces, jugées convaincantes.",
+     "url": "https://www.merlinssteine.de/artikel/wange-5232-fallingwater-im-review/",
+     "date": "2023-01-22",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Surface de nombreuses briques avec traînées visibles et rayures, en dessous de ce que Wange livrait d'habitude.",
+     "url": "https://www.merlinssteine.de/artikel/wange-5232-fallingwater-im-review/",
+     "date": "2023-01-22",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Un membre du forum indique que Wange fabrique ses briques lui-même.",
+     "url": "https://www.klemmbrett.info/viewtopic.php?t=5535",
+     "date": "2025-05-13",
+     "rang": "forum",
+     "manipule": false
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Teintes Wange légèrement différentes de celles des autres marques, surtout le beige (tan).",
+     "url": "https://www.klemmbrett.info/viewtopic.php?t=5535",
+     "date": "2025-05-13",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "comme_lego",
+     "resume": "Deux petits sets avions : aucune pièce manquante, toutes les briques s'ajustent bien.",
+     "url": "https://www.reddit.com/r/lepin/comments/1d6mqym/dual_wange_airforce_model_basic_review/",
+     "date": "2024-06-02",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Pièces spéciales livrées sur grappes ; le détachement laisse des arêtes coupantes à ébarber au couteau.",
+     "url": "https://www.reddit.com/r/lepin/comments/1d6mqym/dual_wange_airforce_model_basic_review/",
+     "date": "2024-06-02",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Un set avec petite planche d'autocollants, l'autre avec cinq briques imprimées de bonne qualité.",
+     "url": "https://www.reddit.com/r/lepin/comments/1d6mqym/dual_wange_airforce_model_basic_review/",
+     "date": "2024-06-02",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "probleme",
+     "resume": "Notre-Dame : quelques plaques rondes ne tenaient pas sur les côtés ; briques jugées excellentes par ailleurs.",
+     "url": "https://www.reddit.com/r/lepin/comments/1431s5r/wange_brick_kits/",
+     "date": "2023-06-07",
+     "rang": "acheteur",
+     "manipule": true
+    }
+   ],
+   "remarque": "Sources antérieures à 2023 écartées, sauf mention ici : bausteinblog (2021-12) signalait des tolérances plus lâches et un serrage faible des briques rondes 1x1 ; heise (2022) disait Wange fabricant de ses briques, à serrage fort. Les tests 2025 sont plus favorables que celui de 2023 (rayures, traînées) : amélioration possible ou variation selon les lots. Écartés : spielzeugblog (aucun essai), CHIP (sans date, sans essai), pages de boutiques (Brickmo, Bausteinecke)."
+  },
+  "Xingbao": {
+   "constats": [
+    {
+     "critere": "serrage",
+     "sens": "comme_lego",
+     "resume": "En 2024, briques Xingbao ressenties exactement comme le LEGO officiel, même serrage, sur les sets Stargate faits pour BlueBrixx Pro.",
+     "url": "https://sevenstarbricks.wordpress.com/get-started/",
+     "date": "2024-06-04",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Set BlueBrixx Pro fait par Xingbao : serrage encore inégal ; ces sets paraissent moins qualitatifs que le LEGO officiel.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Points d'injection peu soignés et micro-rayures constantes, sans gêner le montage ni ruiner l'aspect.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Treize pièces imprimées, sans autocollant, impressions très nettes ; grande tuile imprimée avec les micro-rayures habituelles.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Pour la gamme BlueBrixx Pro, Xingbao fabrique les briques, les notices et les emballages ; BlueBrixx conçoit et distribue.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-startrek-105440-uss-defiant-nx-74205-review/",
+     "date": "2024-01-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set BlueBrixx Pro fait par Xingbao : serrage satisfaisant sur toutes les pièces.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Rayures marquées, surtout sur les fenêtres et les pièces vert foncé.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "probleme",
+     "resume": "Impressions nettes, mais le blanc imprimé sur rouge rend mal.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Notice papier où vert foncé et noir, ou gris foncé métallisé, se distinguent mal ; défaut récurrent des notices BlueBrixx Pro.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-107232-rescue-boat-review/",
+     "date": "2024-06-14",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Briques plus brillantes, demandant plus de force à l'assemblage ; serrage plus fort que celui du LEGO officiel.",
+     "url": "https://www.thebrickpost.com/reviews/set-review-blue-brixx-sparrow-106714/",
+     "date": "2024-04-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Certaines plaques ont un creux de moulage sur un tenon, sans effet sur le serrage, peu visible à distance.",
+     "url": "https://www.thebrickpost.com/reviews/set-review-blue-brixx-sparrow-106714/",
+     "date": "2024-04-27",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set Xingbao XB-01015 : briques excellentes, bon serrage, faciles à séparer au besoin.",
+     "url": "https://noppensteinwelt.de/forum/index.php?thread%2F5393-xingbao-bluebrixx-xb-01015-dresdner-frauenkirche%2F=",
+     "date": "2024-05-20",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "pieces",
+     "sens": "neutre",
+     "resume": "Set XB-01015 : aucune pièce manquante, quelques pièces en surplus.",
+     "url": "https://noppensteinwelt.de/forum/index.php?thread%2F5393-xingbao-bluebrixx-xb-01015-dresdner-frauenkirche%2F=",
+     "date": "2024-05-20",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Set XB-01015 : notice bonne dans l'ensemble, quelques représentations ambiguës qui demandent de réfléchir.",
+     "url": "https://noppensteinwelt.de/forum/index.php?thread%2F5393-xingbao-bluebrixx-xb-01015-dresdner-frauenkirche%2F=",
+     "date": "2024-05-20",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Set XB-01015 : nombreuses pièces imprimées, mais aussi beaucoup d'autocollants là où l'impression aurait été difficile.",
+     "url": "https://noppensteinwelt.de/forum/index.php?thread%2F5393-xingbao-bluebrixx-xb-01015-dresdner-frauenkirche%2F=",
+     "date": "2024-05-20",
+     "rang": "forum",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set BlueBrixx Pro : qualité Xingbao décrite comme une loterie ; cette fois excellent serrage, tout s'ajuste parfaitement.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Tuiles noires nettement rayées ; la pièce imprimée Stargate couverte de micro-rayures malgré un emballage séparé.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "probleme",
+     "resume": "Notice papier seulement, sans version PDF ; impression à peine suffisante pour distinguer gris clair et gris foncé.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-stargate-106847-goauld-alkesh-review/",
+     "date": "2025-02-08",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set BlueBrixx Pro : serrage régulier, légèrement plus faible que celui du LEGO officiel actuel.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Teintes bonnes sans être parfaites : quelques plaques gris clair un peu plus claires que les autres.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Micro-rayures habituelles sur les tuiles ; quelques arêtes inférieures de briques mal ébavurées, en saillie visible de près.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Impressions de haute qualité.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-106842-stargate-gate-room-im-review/",
+     "date": "2025-02-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set Xingbao Barber Shop : bon serrage et toucher de qualité, adaptés aussi aux plus jeunes.",
+     "url": "https://verklemmtundzugenoppt.de/xingbao-barber-shop/",
+     "date": "2025-03-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Set Barber Shop : micro-rayures récurrentes sur les briques.",
+     "url": "https://verklemmtundzugenoppt.de/xingbao-barber-shop/",
+     "date": "2025-03-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Set Barber Shop : impressions de qualité ; quelques autocollants à poser à cheval sur plusieurs tuiles.",
+     "url": "https://verklemmtundzugenoppt.de/xingbao-barber-shop/",
+     "date": "2025-03-09",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Set BlueBrixx Pro : matériau Xingbao moyen, inférieur au LEGO officiel ; serrage un peu faible par endroits.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108753-burg-blaustein-erweiterung-adventskalender-review/",
+     "date": "2025-11-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "en_retrait",
+     "resume": "Points d'injection peu esthétiques et micro-rayures bien visibles, surtout sur le toit ; matériau jugé un peu daté.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108753-burg-blaustein-erweiterung-adventskalender-review/",
+     "date": "2025-11-19",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "en_retrait",
+     "resume": "Set BlueBrixx Pro : qualité des pièces correcte mais loin du LEGO officiel ; serrage bien meilleur qu'il y a quelques années.",
+     "url": "https://www.merlinssteine.de/artikel/bluebrixx-108751-atelier-des-astronomen-community-review/",
+     "date": "2026-01-14",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "probleme",
+     "resume": "Quelques écarts de teinte, surtout sur le gris foncé, restés dans des limites acceptables.",
+     "url": "https://www.merlinssteine.de/artikel/bluebrixx-108751-atelier-des-astronomen-community-review/",
+     "date": "2026-01-14",
+     "rang": "acheteur",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set Xingbao XB-01007 : serrage de haut niveau, comme le reste de la gamme Europa.",
+     "url": "https://www.merlinsbricks.com/article/xingbao-01007-europa-restaurant-review/",
+     "date": "2026-06-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "comme_lego",
+     "resume": "Set XB-01007 : teintes des murs régulières, souvent plus homogènes que celles du LEGO officiel dans la même couleur.",
+     "url": "https://www.merlinsbricks.com/article/xingbao-01007-europa-restaurant-review/",
+     "date": "2026-06-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "proche",
+     "resume": "Set XB-01007 : surface de haut niveau ; grandes vitres parfois troubles, quelques vitres rayées, tuiles pas toujours bien centrées.",
+     "url": "https://www.merlinsbricks.com/article/xingbao-01007-europa-restaurant-review/",
+     "date": "2026-06-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "decors",
+     "sens": "neutre",
+     "resume": "Set XB-01007 : un seul autocollant, tous les autres décors imprimés, de bonne qualité.",
+     "url": "https://www.merlinsbricks.com/article/xingbao-01007-europa-restaurant-review/",
+     "date": "2026-06-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "notice",
+     "sens": "neutre",
+     "resume": "Set XB-01007 : notice claire, sous-étapes encadrées ; contraste insuffisant pour bien identifier les pièces sombres.",
+     "url": "https://www.merlinsbricks.com/article/xingbao-01007-europa-restaurant-review/",
+     "date": "2026-06-10",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "serrage",
+     "sens": "proche",
+     "resume": "Set BlueBrixx Pro : serrage satisfaisant, pièces faciles à assembler et à séparer, stables pendant le montage.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108687-burg-hohenzollern-m-review/",
+     "date": "2026-07-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "finition",
+     "sens": "probleme",
+     "resume": "Points d'injection très visibles, problème non résolu par Xingbao et présent aussi dans ses propres sets.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108687-burg-hohenzollern-m-review/",
+     "date": "2026-07-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "teintes",
+     "sens": "proche",
+     "resume": "Set BlueBrixx Pro : régularité des teintes jugée irréprochable.",
+     "url": "https://www.merlinsbricks.com/article/bluebrixx-108687-burg-hohenzollern-m-review/",
+     "date": "2026-07-01",
+     "rang": "test",
+     "manipule": true
+    },
+    {
+     "critere": "fabricant",
+     "sens": "neutre",
+     "resume": "Xingbao, ancienne filiale de Lepin, fabrique des briques pour d'autres marques, dont BlueBrixx Pro, en plus de ses propres sets.",
+     "url": "https://sevenstarbricks.wordpress.com/get-started/",
+     "date": "2024-06-04",
+     "rang": "test",
+     "manipule": true
+    }
+   ],
+   "remarque": "La plupart des tests récents portent sur des sets BlueBrixx Pro dont Xingbao fabrique les briques, pas sur des sets vendus sous la marque Xingbao. Pour BlueBrixx Pro, la provenance Xingbao n'est pas garantie (Merlins Bricks, Hohenzollern 2026, à propos du set Wartburg). Qualité inégale selon les sets et les lots, « loterie » (Alkesh 2025). Sets XB-01015, Barber Shop et XB-01007 plus favorables que les sets BlueBrixx Pro. Historique (justbricks et Merlins Steine 2021-2022, Toys and Bookstore 2024 sur des briques d'avant 2020) : baisse de qualité vers 2020-2021 sur les sets Chinatown (serrage, teintes, traînées), puis amélioration ; tolérances autrefois imprécises, corrigées selon ces sources. Avis contraire sur Reddit r/klemmbausteine (2023) : tolérances de Xingbao « vraiment mauvaises »."
+  }
+ }
+}

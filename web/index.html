@@ -181,6 +181,17 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .logo-l{width:76px;height:44px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);overflow:hidden;padding:3px}
 .logo-l img{max-width:68px;max-height:36px;width:auto;height:auto;object-fit:contain;display:block}
 .logo-l.ini{background:var(--sunk);font:700 13px var(--mono);letter-spacing:-.02em;color:var(--muted)}
+.q-det td{background:var(--sunk);padding:14px 16px}
+.q-det h4{margin:0 0 6px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.q-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 22px}
+.q-grille ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.q-grille li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;font-size:13px;line-height:1.4}
+.q-grille li .s{font:700 12px var(--mono);text-align:center}
+.q-grille li .s.f{color:var(--ok)} .q-grille li .s.d{color:var(--bad)} .q-grille li .s.n{color:var(--faint)}
+.q-grille li.ancien{opacity:.6}
+.q-grille li a{color:var(--muted)}
+.q-pied{margin:12px 0 0;font-size:12.5px;color:var(--muted)}
+.q-btn{margin-top:4px}
 .boutiques-l a{color:var(--accent);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);text-underline-offset:3px}
 .boutiques-l a:hover{color:var(--accent);text-decoration-color:currentColor}
 nav .m-ico{display:none;vertical-align:-3px}
@@ -524,14 +535,14 @@ const BOUTIQUES = [
   points:["Pièces GoBricks à l'unité","Frais de douane imprévus signalés"]},
 ];
 const MARQUES = [
- {nom:"LEGO officiel",pour:"Toutes gammes, Technic, Star Wars, architecture",briques:"Référence",prixLego:100,ou:"LEGO, Amazon, Fnac, Leclerc",note:"Revente plus facile, prix promotionnels fréquents chez les revendeurs"},
- {nom:"Mould King",pour:"Vaisseaux, engins télécommandés, trains, moteurs",briques:"Bonnes",prixLego:40,ou:"KBS, Kaufland, Galaxus",note:"Défauts sous 24 mois : 0.5 % (Galaxus)"},
- {nom:"CaDA",pour:"Technic, voitures sous licence, engins",briques:"Bonnes",prixLego:50,ou:"KBS, Galaxus",note:"Licences officielles (Claas, Porsche RUF…)"},
- {nom:"Reobrix",pour:"Grands bâtiments, monuments",briques:"Très bonnes",prixLego:40,ou:"KBS, Galaxus",note:"Défauts sous 24 mois : 0.2 % (Galaxus)"},
- {nom:"Bole Brick",pour:"Voitures au 1:8 sous licence (Audi, Toyota)",briques:"Très bonnes",prixLego:50,ou:"KBS, CarBrick",note:"Briques GoBricks ; axes et broches Technic parfois mal moulés, beaucoup d'autocollants"},
- {nom:"BlueBrixx",pour:"Créations propres, trains, science-fiction",briques:"Très bonnes",prixLego:50,ou:"bluebrixx.com",note:"Allemand, briques GoBricks selon les retours"},
- {nom:"Cobi",pour:"Militaire, véhicules historiques",briques:"Très bonnes",prixLego:90,ou:"Kaufland",note:"Polonais, fabriqué en Europe"},
- {nom:"JIE STAR",pour:"Voitures télécommandées, scènes de ville",briques:"Moyennes",prixLego:45,ou:"KBS",note:"Bon serrage, mais teintes inégales et pièces rayées ; impressions soignées"},
+ {nom:"LEGO officiel",pour:"Toutes gammes, Technic, Star Wars, architecture",prixLego:100,ou:"LEGO, Amazon, Fnac, Leclerc",note:"Revente plus facile, prix promotionnels fréquents chez les revendeurs"},
+ {nom:"Mould King",pour:"Vaisseaux, engins télécommandés, trains, moteurs",prixLego:40,ou:"KBS, Kaufland, Galaxus",note:"Défauts sous 24 mois : 0.5 % (Galaxus)"},
+ {nom:"CaDA",pour:"Technic, voitures sous licence, engins",prixLego:50,ou:"KBS, Galaxus",note:"Licences officielles (Claas, Porsche RUF…)"},
+ {nom:"Reobrix",pour:"Grands bâtiments, monuments",prixLego:40,ou:"KBS, Galaxus",note:"Défauts sous 24 mois : 0.2 % (Galaxus)"},
+ {nom:"Bole Brick",pour:"Voitures au 1:8 sous licence (Audi, Toyota)",prixLego:50,ou:"KBS, CarBrick",note:"Briques GoBricks ; axes et broches Technic parfois mal moulés, beaucoup d'autocollants"},
+ {nom:"BlueBrixx",pour:"Créations propres, trains, science-fiction",prixLego:50,ou:"bluebrixx.com",note:"Allemand, briques GoBricks selon les retours"},
+ {nom:"Cobi",pour:"Militaire, véhicules historiques",prixLego:90,ou:"Kaufland",note:"Polonais, fabriqué en Europe"},
+ {nom:"JIE STAR",pour:"Voitures télécommandées, scènes de ville",prixLego:45,ou:"KBS",note:"Bon serrage, mais teintes inégales et pièces rayées ; impressions soignées"},
 ];
 const ZONES = {ue:"Vendeur européen",entrepot:"Stock en Europe",chine:"Envoi de Chine",pieces:"Pièces détachées"};
 const STATUTS = {idee:"Idée",retenu:"Retenu",achete:"Acheté"};
@@ -628,6 +639,13 @@ const slugM = m => plat(m).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const logo = m => LOGOS[slugM(m)] ? `<span class="logo img" aria-hidden="true"><img src="${esc(LOGOS[slugM(m)])}" alt=""></span>` : `<span class="logo" aria-hidden="true">${esc(initiales(m))}</span>`;
 const logoL = m => LOGOS[slugM(m)] ? `<span class="logo-l" aria-hidden="true"><img src="${esc(LOGOS[slugM(m)])}" alt=""></span>` : `<span class="logo-l ini" aria-hidden="true">${esc(initiales(m))}</span>`;
 const LIENS_M = MODE.liens_marques || {};
+const QUALITE = MODE.qualite || {};
+const Q_ORDRE = ["Référence","Proche du LEGO officiel","Inégale","En retrait","Peu de sources"];
+const Q_CLS = {"Référence":"p-ok","Proche du LEGO officiel":"p-ok","Inégale":"p-warn","En retrait":"p-bad","Peu de sources":"p-neutral"};
+const Q_CRIT = {serrage:"Serrage",teintes:"Teintes",finition:"Finition",decors:"Décors",notice:"Notice",pieces:"Pièces",fabricant:"Fabricant des briques"};
+const Q_SENS = {comme_lego:["f","+","Égal au LEGO officiel ou mieux"],proche:["f","+","Proche, ou bon sans comparaison"],en_retrait:["d","−","Nettement en retrait"],probleme:["d","!","Défaut signalé"],neutre:["n","·","Fait sans jugement"]};
+const Q_RANG = {test:"test",forum:"forum",acheteur:"avis d'acheteur",article:"article",marque:"page commerciale"};
+const qOuverts = new Set();
 const prixLbl = i => PRIX[i] === Infinity ? "tous" : `${PRIX[i]} €`;
 const tailleLbl = i => TAILLE[i] === Infinity ? "toutes" : `${TAILLE[i]} cm`;
 const portLbl = o => o.port == null ? "port non relevé" : o.port ? `+ ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
@@ -965,7 +983,7 @@ function marquesIndex(){
       .slice(0, 4).map(b => ({nom:b, url:adresseBoutique(nom, b, offres)}));
     return {nom, sets: rs.filter(r => r.dispo !== "epuise").length, total: rs.length, note: main.note,
       pour: main.pour || freq(r => r.themes).slice(0, 3).map(themeNom).join(", "),
-      briques: main.briques || null, ppp: p,
+      qualite: nom === "LEGO officiel" ? {verdict:"Référence"} : QUALITE[nom] || null, ppp: p,
       prixLego: nom === "LEGO officiel" ? 100 : p && pLego ? Math.round(p / pLego * 100) : null,
       boutiques, ou: boutiques.length ? boutiques.map(b => b.nom).join(", ") : main.ou};
   });
@@ -974,7 +992,7 @@ const colsM = [
   {key:"nom",label:"Marque",val:r => r.nom},
   {key:"sets",label:"Sets en vente",val:r => r.sets,cls:"num",first:"desc"},
   {key:"pour",label:"Spécialité",val:r => r.pour,cls:"hide-m"},
-  {key:"briques",label:"Qualité des briques",val:r => ["Moyennes","Bonnes","Très bonnes","Référence"].indexOf(r.briques),first:"desc"},
+  {key:"qualite",label:"Qualité des briques",val:r => r.qualite ? Q_ORDRE.indexOf(r.qualite.verdict) * 100 - (r.qualite.favorables || 0) / Math.max(1, (r.qualite.favorables || 0) + (r.qualite.defavorables || 0)) * 10 : 999},
   {key:"ppp",label:"Prix de la pièce",val:r => r.ppp,cls:"num"},
   {key:"ou",label:"Où acheter",val:r => r.ou,cls:"hide-m"},
 ];
@@ -983,10 +1001,33 @@ function renderMarques(){
     <td class="wide" data-k="Marque"><div class="marque-cel">${logoL(r.nom)}<div><span class="name">${esc(r.nom)}</span>${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</div></div></td>
     <td class="num" data-k="Sets en vente"><span class="big">${r.sets}</span>${r.total > r.sets ? `<div class="sub">${r.total - r.sets} épuisé${r.total - r.sets > 1 ? "s" : ""}</div>` : ""}</td>
     <td class="wide hide-m" data-k="Spécialité">${esc(r.pour || "—")}</td>
-    <td data-k="Qualité des briques">${r.briques ? `<span class="pill ${r.briques === "Moyennes" ? "p-warn" : "p-ok"}">${esc(r.briques)}</span>` : '<span class="pill p-neutral">Non évaluée</span>'}</td>
+    <td data-k="Qualité des briques">${qualiteCel(r)}</td>
     <td class="num ok-wrap" data-k="Prix de la pièce">${r.ppp ? `<span class="big">${(r.ppp * 100).toFixed(1)}</span> centimes` : "—"}${r.prixLego && r.nom !== "LEGO officiel" ? `<div class="sub">environ ${r.prixLego} % du LEGO officiel</div>` : ""}</td>
     <td class="hide-m boutiques-l" data-k="Où acheter">${r.boutiques.length ? r.boutiques.map(b => b.url ? `<a href="${esc(safeUrl(b.url))}" target="_blank" rel="noopener">${esc(b.nom)}</a>` : esc(b.nom)).join(", ") : esc(r.ou || "—")}</td>
-  </tr>`, "");
+  </tr>${qOuverts.has(r.nom) && r.qualite && r.qualite.constats ? qualiteDetail(r) : ""}`, "");
+  document.querySelectorAll("#t-marques .q-btn").forEach(b => b.onclick = () => {
+    const m = b.dataset.m; qOuverts.has(m) ? qOuverts.delete(m) : qOuverts.add(m); renderMarques();
+    const d = document.getElementById("q-" + slugM(m)); if (d) d.scrollIntoView({block:"nearest"});
+  });
+}
+const pluriel = (n, mot) => `${n} ${mot}${n > 1 ? "s" : ""}`;
+function qualiteCel(r){
+  const q = r.qualite;
+  if (!q) return "—";
+  const tete = `<span class="pill ${Q_CLS[q.verdict] || "p-neutral"}">${esc(q.verdict)}</span>`;
+  if (!q.constats) return tete;
+  const compte = [q.favorables && pluriel(q.favorables, "avis favorable"), q.defavorables && pluriel(q.defavorables, "avis défavorable"), q.defauts && (q.defauts > 1 ? `${q.defauts} défauts signalés` : "1 défaut signalé")].filter(Boolean).join(" · ");
+  return `${tete}${compte ? `<div class="sub">${compte}</div>` : ""}<button class="btn small ghost q-btn" data-m="${esc(r.nom)}" aria-expanded="${qOuverts.has(r.nom)}" aria-controls="q-${slugM(r.nom)}">${qOuverts.has(r.nom) ? "Masquer les sources" : `Sources (${q.constats.length})`}</button>`;
+}
+function qualiteDetail(r){
+  const q = r.qualite, par = {};
+  for (const c of q.constats) (par[c.critere] = par[c.critere] || []).push(c);
+  const blocs = Object.keys(Q_CRIT).filter(k => par[k]).map(k => `<div><h4>${Q_CRIT[k]}</h4><ul>${par[k].map(c => {
+    const [cls, sym, titre] = Q_SENS[c.sens] || Q_SENS.neutre;
+    const ancien = !c.compte && ["serrage","teintes","finition"].includes(k) && c.sens !== "neutre";
+    return `<li class="${ancien ? "ancien" : ""}"><span class="s ${cls}" title="${titre}" aria-label="${titre}">${sym}</span><span>${esc(c.resume)} <a href="${esc(safeUrl(c.url))}" target="_blank" rel="noopener">${esc(hostOf(c.url))}</a>${c.date ? ` · ${esc(String(c.date).slice(0, 7).split("-").reverse().join("/"))}` : ""} · ${esc(Q_RANG[c.rang] || c.rang || "")}${ancien ? " · non compté (avant 2023 ou page commerciale)" : ""}</span></li>`;
+  }).join("")}</ul></div>`).join("");
+  return `<tr class="q-det" id="q-${slugM(r.nom)}"><td colspan="${colsM.length}"><div class="q-grille">${blocs}</div>${q.remarque ? `<p class="q-pied">${esc(q.remarque)}</p>` : ""}<p class="q-pied">Constats relevés le ${new Date(q.releve).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"})} dans des tests, forums et avis d'acheteurs. Verdict : jugements d'ensemble sur le serrage, les teintes et la finition depuis 2023 ; « Proche » si un tiers au plus sont défavorables, « Inégale » jusqu'à six sur dix, « En retrait » au-delà, « Peu de sources » sous trois jugements ou deux sites. Les défauts précis sont comptés à part.</p></td></tr>`;
 }
 sM.render = renderMarques;
 
