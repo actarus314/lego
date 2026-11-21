@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import re
+import signal
 import secrets
 import threading
 from http import HTTPStatus
@@ -191,6 +192,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
             return self._json(200, {"etat": synchro.etat(), "dernier": d.get("dernier"),
                                     "historique": d.get("historique", []), "sources": synchro.actives(),
                                     "rotation": synchro.etat_rotation(self.index),
+                                    "selection": synchro.etat_selection(),
                                     "photos": self.index.photos.resume(),
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
@@ -213,7 +215,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             if not s:
                 return self._erreur(404, "set introuvable")
             return self._json(200, {"images": s.get("images") or ([s["img"]] if s.get("img") else []),
-                                    "liens_tests": s.get("liens_tests", [])})
+                                    "liens_tests": s.get("liens_tests", []),
+                                    "historique": {o["cle"]: self.index.historique.serie(o["cle"]) for o in s["offres"]}})
         if url.path == "/api/alertes":
             canaux = alertes_mod.destinataires().get(compte, [])
             return self._json(200, {"canaux": [{"canal": c, "adresse": _masquer(a)} for c, a in canaux],
@@ -350,17 +353,23 @@ def main():
     Gestionnaire.logos.demarrer()
     Gestionnaire.alertes = alertes_mod.Alertes(donnees, Gestionnaire.index, Gestionnaire.depot,
                                                lambda: [s["id"] for s in synchro.actives()])
-    Gestionnaire.alertes.demarrer()
+    heures = float(reglage("RELEVE_HEURES", "24"))
+    heure = synchro.heure_programmee(heures)
+    Gestionnaire.alertes.demarrer(   # relecture horaire de la sélection, puis alertes
+        (lambda: synchro.relire_selection(Gestionnaire.index, Gestionnaire.depot.selection())) if heures > 0 else None)
     Gestionnaire.surveillance = surveillance.Surveillance(donnees, Gestionnaire.journal, Gestionnaire.index)
     Gestionnaire.surveillance.demarrer()
-    heures = float(reglage("RELEVE_HEURES", "24"))
     if heures > 0:   # vérification continue des photos (photos.py)
         Gestionnaire.index.photos.demarrer(photos_a_verifier)
-    synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures)
+    synchro.programmer(Gestionnaire.index, Gestionnaire.journal, heures, heure)
     if heures > 0:
         synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])
     if heures > 0:   # relève quotidienne des liens de tests indépendants
         tests_auto.demarrer(Gestionnaire.index.tests)
+    def arret(*_):   # arrêt du conteneur : l'historique des prix en attente d'écriture est écrit
+        Gestionnaire.index.historique.vider()
+        raise SystemExit(0)
+    signal.signal(signal.SIGTERM, arret)
     port = int(reglage("PORT", "8080"))
     srv = ThreadingHTTPServer(("0.0.0.0", port), Gestionnaire)
     log.info("Carnet de briques %s sur le port %s, données dans %s", VERSION, port, donnees)

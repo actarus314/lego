@@ -14,6 +14,7 @@
 """
 from __future__ import annotations
 
+import calendar
 import csv
 import gzip
 import io
@@ -139,20 +140,39 @@ def _releve_pour(vendeur: str, releves: dict[str, str]) -> str | None:
     return cles[contenus[0]] if contenus else None
 
 
-def _lire_donnees(url: str) -> tuple[dict | None, dict | None]:
-    """(produit JSON-LD, série des prix) d'une fiche : réponse de données d'abord, page HTML en secours."""
+_PUBLIE = re.compile(r'"dateModified"\s*:\s*"(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.\d+)?Z"')
+
+
+def _publie(texte: str) -> str | None:
+    """Dernière publication de BricksValue (heure UTC, sans « Z » : AAAA-MM-JJTHH:MM:SS), lue dans le `dateModified` de la
+    page : la même pour toutes les fiches (constat du 21/11/2026, 8 fiches : 2026-11-21T14:59:06Z), donc
+    l'heure à laquelle le site a republié ses prix."""
+    m = _PUBLIE.search(texte)
+    return m.group(1) if m else None
+
+
+def _jour_local(publie: str | None) -> str | None:
+    """Jour local (fuseau du service) d'une publication donnée en heure UTC."""
+    if not publie:
+        return None
+    return time.strftime("%Y-%m-%d", time.localtime(calendar.timegm(time.strptime(publie, "%Y-%m-%dT%H:%M:%S"))))
+
+
+def _lire_donnees(url: str) -> tuple[dict | None, dict | None, str | None]:
+    """(produit JSON-LD, série des prix, publication) d'une fiche : réponse de données d'abord, page HTML
+    en secours. La série des prix n'est plus dans la fiche depuis novembre 2026 (constat du 21/11) : None."""
     try:
         r = lien.recuperer(url + ("&" if "?" in url else "?") + "_rsc", accept="text/x-component", entetes={"RSC": "1"})
         texte = r.corps.decode("utf-8", "replace")
         p = _produit(texte)
         if p:
-            return p, _serie(texte)
+            return p, _serie(texte), _publie(texte)
     except lien.LienRefuse as e:
         if getattr(e, "statut", None) == 429:
             raise
     r = lien.recuperer(url)
     texte = r.corps.decode("utf-8", "replace")
-    return _produit(texte), _serie(texte)
+    return _produit(texte), _serie(texte), _publie(texte)
 
 
 def _age(texte: str | None) -> int | None:
@@ -161,8 +181,8 @@ def _age(texte: str | None) -> int | None:
 
 
 def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
-    """Lit une fiche BricksValue. Rend {"adulte", "age", "retrait", "offres": [...]}."""
-    p, serie = _lire_donnees(url)
+    """Lit une fiche BricksValue. Rend {"adulte", "age", "publie", "offres": [...]}."""
+    p, serie, publie = _lire_donnees(url)
     releves = _derniers_releves(serie)
     if not p:
         raise ValueError("fiche sans données structurées")
@@ -197,8 +217,9 @@ def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
             "prix": prix, "devise": "EUR",
             "dispo": "vente" if "InStock" in dispo else "precommande" if "PreOrder" in dispo else "epuise",
             "img": img, "images": images, "pieces": pieces, "dims": None,
-            "releve": _releve_pour(vendeur, releves), "releve_par": "BricksValue",
+            # jour du dernier relevé du revendeur dans la série ; sans série, jour de la publication de BricksValue
+            "releve": _releve_pour(vendeur, releves) or _jour_local(publie), "releve_par": "BricksValue",
             "type": "technic" if "Technic" in " ".join(ref.get("themes_lego", [])) + categorie else "classique",
             "themes": themes, "retrait": retrait if retrait and "Pas de retrait" not in retrait else None,
         })
-    return {"adulte": (age or 0) >= 16 or (pieces or 0) >= 2000, "age": age, "offres": offres}
+    return {"adulte": (age or 0) >= 16 or (pieces or 0) >= 2000, "age": age, "publie": publie, "offres": offres}

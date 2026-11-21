@@ -19,6 +19,7 @@ from . import normalise as n
 from .tests_auto import Tests
 from .photos import Photos, adresses as adresses_photos, appliquer as appliquer_photos
 from .donnees import _ecrire, _lire, dans
+from .historique import Historique
 
 TYPES = ("classique", "technic")   # types de briques connus (la page déclare les mêmes, avec libellé et icône)
 
@@ -29,6 +30,8 @@ DISPO_RANG = {"vente": 0, "precommande": 1, "epuise": 2}
 # Pour classer seulement : une offre dont le port n'est pas relevé compte ce port (le plus élevé des
 # ports relevés), pour ne pas passer devant une offre au port connu ; l'écran affiche « port non relevé ».
 PORT_INCONNU = 7.0
+# Champs d'offre omis du catalogue quand ils sont vides : prix barré et résumé de l'historique (historique.py).
+OPTIONNELS = ("barre", "bas30", "jours_suivis", "avant_remise", "avant_remise_j")
 # Ordre de préférence pour le nom affiché d'un set vendu par plusieurs boutiques (anglais avant allemand).
 PREFERENCE_NOM = ["editorial", "kbs", "mouldkingcorp", "bricksvalue", "bausteinreich"]
 
@@ -158,6 +161,8 @@ class Index:
         self.tests = Tests(Path(dossier))   # liens de tests indépendants (voir tests_auto.py)
         self.photos = Photos(Path(dossier))  # photos vérifiées (voir photos.py)
         self.photos_brutes: tuple[list[str], list[str]] = ([], [])
+        self.historique = Historique(Path(dossier))   # prix de chaque jour (voir historique.py)
+        self._classes: dict[tuple, tuple] = {}
 
     def fichier(self, source_id: str) -> Path:
         return dans(self.dossier, f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json")
@@ -176,6 +181,7 @@ class Index:
             for o in offres:
                 o["depuis"] = vus.setdefault(o["cle"], aujourd_hui)
             _ecrire(self.fichier(source_id), {"le": time.strftime("%Y-%m-%dT%H:%M:%S"), "offres": offres, "vus": vus})
+            self._noter(offres)
             self._cache = None
             return {"nouveaux": len(apres - avant) if avant else 0, "disparus": len(avant - apres)}
 
@@ -193,6 +199,7 @@ class Index:
             d["offres"] = [o for o in d.get("offres", []) if not o["cle"].startswith(prefixe)] + offres
             d.setdefault("fiches", {})[prefixe.rstrip(":").split(":")[-1]] = etat_fiche
             _ecrire(self.fichier(source_id), d)
+            self._noter(offres)
             self._cache = None
 
     def etat_fiche(self, source_id: str, num: str, champs: dict) -> None:
@@ -206,11 +213,33 @@ class Index:
         """Met à jour une offre relue en direct (prix, disponibilité)."""
         with VERROU:
             d = self.lire(source_id)
+            maj = []
             for o in d.get("offres", []):
                 if o["cle"] == cle:
                     o.update(champs, releve=time.strftime("%Y-%m-%dT%H:%M:%S"))
+                    maj.append(o)
             _ecrire(self.fichier(source_id), d)
+            self._noter(maj)
             self._cache = None
+
+    def _noter(self, offres: list[dict]) -> None:
+        """Historique des prix : une panne n'empêche jamais d'enregistrer les offres."""
+        try:
+            self.historique.noter(offres)
+        except Exception:
+            log.exception("historique des prix non noté")
+
+    def _classer(self, sig: dict, marque: str) -> tuple[str | None, list[str]]:
+        """Type de briques et thèmes d'une offre d'après les signaux bruts de sa boutique ; gardés en mémoire
+        par signaux (les règles ne changent qu'avec le code, donc au redémarrage)."""
+        cat, etq, titre = sig.get("categorie") or "", [str(x) for x in sig.get("etiquettes") or []], sig.get("titre") or ""
+        k = (cat, tuple(etq), titre, marque)
+        val = self._classes.get(k)
+        if val is None:
+            if len(self._classes) > 20000:
+                self._classes.clear()
+            val = self._classes[k] = (n.type_briques(cat, etq, titre, marque), n.themes(titre, etq, cat))
+        return val[0], list(val[1])
 
     # ----- corrections faites depuis la page -----
     @property
@@ -243,9 +272,9 @@ class Index:
     def sets(self, actives: list[str]) -> list[dict]:
         intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
             "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json", "types_photos.json")] + [
-            self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales]
+            self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales, self.historique.fichier]
         cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
-                     self.tests.signature())
+                     self.tests.signature(), time.strftime("%Y-%m-%d"))   # le jour : « plus bas sur 30 jours » exclut le jour même
         if self._cache and self._cache[0] == cle_cache:
             return self._cache[1]
         conf = {s["id"]: s for s in sources_config()}
@@ -257,6 +286,16 @@ class Index:
             d = self.lire(sid)
             for o in d.get("offres", []):
                 o.setdefault("releve", d.get("le"))
+                sig = o.get("signaux")
+                if isinstance(sig, dict):   # type et thèmes recalculés sur les signaux bruts de la boutique
+                    o["type"], o["themes"] = self._classer(sig, o["marque"])
+                try:
+                    h = self.historique.resume(o["cle"]) or {}
+                except Exception:   # historique illisible : le catalogue reste servi, sans résumé
+                    log.exception("historique des prix illisible pour %s", o["cle"])
+                    h = {}
+                o["bas30"], o["jours_suivis"] = h.get("min30"), h.get("jours")
+                o["avant_remise"], o["avant_remise_j"] = h.get("avant_remise"), h.get("avant_remise_j")
                 if sid == "bricksvalue":  # place de comparaison : le port dépend du revendeur
                     regle = revendeurs.get(o["boutique"])
                     o["port"], o["port_estime"] = port_revendeur(regle, o["prix"])
@@ -333,7 +372,8 @@ def _set(cle: str, offres: list[dict], edito: dict, tests: Tests | None = None) 
         "depuis": min((o.get("depuis") or "9999") for o in offres),
         "ecart": len(actifs) > 1 and max(actifs) > 1.4 * min(actifs),
         "offres": [{k: o.get(k) for k in ("source", "boutique", "pays", "cle", "url", "prix", "port", "port_estime",
-                                           "delai", "dispo", "releve", "releve_par")} for o in offres],
+                                           "delai", "dispo", "releve", "releve_par", *OPTIONNELS)
+                    if o.get(k) is not None or k not in OPTIONNELS} for o in offres],
     }
     images = []
     for o in par_pref:

@@ -24,7 +24,7 @@ TAILLE_MAX = 3 * 1024 * 1024
 DELAI = 12
 REDIRECTIONS_MAX = 4
 PORTS = (80, 443)  # ports web standard : une boutique n'en emploie pas d'autre
-ENTETES_LUS = ("Cross-Origin-Resource-Policy",)  # lu pour savoir si une photo peut s'afficher sur un autre site
+ENTETES_LUS = ("Cross-Origin-Resource-Policy", "ETag")  # photo affichable sur un autre site ; version de la page (requête conditionnelle)
 AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 
 

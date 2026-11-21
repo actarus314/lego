@@ -289,6 +289,21 @@ class LegoOfficiel(unittest.TestCase):
         self.assertEqual((o["Amazon.fr"]["releve"], o["LEGO.com"]["releve"]), ("2026-11-20", "2026-11-19"))
         self.assertEqual((o["LEGO.com"]["releve_par"], o["LEGO.com"]["images"]), ("BricksValue", ["https://cdn.x/75192.png"]))
 
+    def test_fiche_sans_serie_datee_par_la_publication(self):
+        """Fiche de novembre 2026 : plus de série des prix, mais l'heure de publication de la page (dateModified)."""
+        from app.sources import lego
+        produit = json.loads(FICHE_BV.split('json">')[1].split("</script>")[0])
+        page = {"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "dateModified": "2026-11-21T14:59:06.418Z"}, produit]}
+        rsc = '0:["$","script",null,' + json.dumps(page) + ']'
+        vrai = lien.recuperer
+        lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/x-component", rsc.encode())
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon", None)
+        finally:
+            lien.recuperer = vrai
+        self.assertEqual(d["publie"], "2026-11-21T14:59:06")
+        self.assertEqual({x["releve"] for x in d["offres"]}, {"2026-11-21"})
+
     def test_rotation(self):
         import time as t
         from app import synchro
@@ -296,7 +311,7 @@ class LegoOfficiel(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             i = Index(Path(tmp))
             from app.donnees import _ecrire
-            vieux, recent = "2026-11-17T10:00:00", "2026-11-19T10:00:00"
+            vieux, recent = "2026-11-17T10:00:00", "2026-11-19T09:00:00"
             _ecrire(i.fichier("bricksvalue"), {"offres": [], "fiches": {
                 "1": {"url": "u1", "lu": None}, "2": {"url": "u2", "lu": vieux, "adulte": True},
                 "3": {"url": "u3", "lu": recent, "adulte": True}, "4": {"url": "u4", "lu": vieux, "adulte": False}}})
@@ -304,8 +319,56 @@ class LegoOfficiel(unittest.TestCase):
             self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant), ("1", synchro.PAS_AMORCE), "une fiche jamais lue passe d'abord")
             d = i.lire("bricksvalue"); d["fiches"]["1"].update(lu=recent, adulte=False); _ecrire(i.fichier("bricksvalue"), d)
             self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[0], "2", "la plus ancienne des fiches pour adultes")
-            self.assertEqual(synchro.prochaine_fiche(i, {"3"}, maintenant)[0], "3", "la sélection passe devant après 22 h")
-            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[1], min(synchro.PAS_MAX, synchro.CIBLE_H * 3600 / 2))
+            self.assertEqual(synchro.prochaine_fiche(i, {"3"}, maintenant)[0], "3", "la sélection passe devant")
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[1], min(synchro.PAS_MAX, synchro.FENETRE_H * 3600 / 2))
+            # publication connue (8 h UTC, 9 h à Paris) : lues après elle, plus rien à lire, sinon une sonde par heure
+            d = i.lire("bricksvalue")
+            d["fiches"]["2"].update(lu="2026-11-20T09:30:00", publie="2026-11-20T08:00:00")
+            d["fiches"]["3"].update(lu="2026-11-20T09:40:00")
+            _ecrire(i.fichier("bricksvalue"), d)
+            self.assertEqual(synchro.prochaine_fiche(i, {"3"}, maintenant), (None, synchro.PAS_MAX), "rien à relire")
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant + 3600)[0], "2", "sonde : la plus ancienne, une heure après")
+            d["fiches"]["3"]["lu"] = "2026-11-20T08:30:00"   # avant 9 h à Paris : publication pas encore lue
+            _ecrire(i.fichier("bricksvalue"), d)
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[0], "3")
+            r = synchro.etat_rotation(i)
+            self.assertEqual((r["a_jour"], r["adultes"]), (1, 2))
+            # lecture en échec : « lu » n'avance pas, réessai une heure après
+            d["fiches"]["3"]["echec"] = "2026-11-20T09:50:00"
+            _ecrire(i.fichier("bricksvalue"), d)
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant)[0], None)
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant + 3600)[0], "3")
+            d["fiches"]["3"]["echecs"] = 3   # troisième échec de suite : pause de 24 h
+            _ecrire(i.fichier("bricksvalue"), d)
+            self.assertNotEqual(synchro.prochaine_fiche(i, set(), maintenant + 6 * 3600)[0], "3")
+            # fiche en erreur avant la v3.15 (« lu » renseigné, type inconnu) : relue comme jamais lue
+            d["fiches"]["5"] = {"url": "u5", "lu": vieux, "erreur": "le site a répondu 404"}
+            _ecrire(i.fichier("bricksvalue"), d)
+            self.assertEqual(synchro.prochaine_fiche(i, set(), maintenant), ("5", synchro.PAS_AMORCE))
+
+    def test_prochain_passage(self):
+        import time as t
+        from app import synchro
+        h = lambda x: t.mktime(t.strptime(x, "%Y-%m-%dT%H:%M"))
+        txt = lambda v: t.strftime("%Y-%m-%dT%H:%M", t.localtime(v))
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2026-11-21T03:00"), h("2026-11-20T06:05"))), "2026-11-21T06:00")
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2026-11-21T07:00"), h("2026-11-21T06:05"))), "2026-11-22T06:00")
+        self.assertEqual(txt(synchro.prochain_passage(12, 6, h("2026-11-21T13:00"), h("2026-11-21T06:05"))), "2026-11-21T18:00")
+        # conteneur arrêté à 6 h : passage manqué rattrapé une minute après le démarrage
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2026-11-21T07:00"), h("2026-11-20T06:05"))), "2026-11-21T07:01")
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2026-11-21T07:00"), None)), "2026-11-21T07:01")
+        # changements d'heure : toujours 6 h locale, un seul passage
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2026-10-24T06:35"), h("2026-10-24T06:35"))), "2026-10-25T06:00")
+        self.assertEqual(txt(synchro.prochain_passage(24, 6, h("2027-03-27T06:35"), h("2027-03-27T06:35"))), "2027-03-28T06:00")
+        self.assertEqual(txt(synchro.prochain_passage(48, 6, h("2026-11-21T07:00"), h("2026-11-21T06:05")))[11:], "06:00")
+        with self.assertRaises(SystemExit):
+            os.environ["RELEVE_HEURE"] = "6"
+            try:
+                synchro.heure_programmee(5)
+            finally:
+                del os.environ["RELEVE_HEURE"]
+        # sans heure fixe : 24 h après le précédent
+        self.assertEqual(txt(synchro.prochain_passage(24, None, h("2026-11-21T07:00"), h("2026-11-20T09:00"))), "2026-11-21T09:00")
 
 
 class AlertesSelection(unittest.TestCase):
@@ -490,7 +553,7 @@ class Synchronisation(unittest.TestCase):
 
     def test_source_en_echec_n_arrete_pas_les_autres(self):
         from app.sources import shopify
-        def faux(src, pause=0, progres=None):
+        def faux(src, pause=0, progres=None, **_):
             if src["id"] == "bausteinreich":
                 raise lien.LienRefuse("le site a répondu 503")
             return [shopify.offre(PRODUIT_KBS, SOURCE_KBS)]
@@ -508,7 +571,7 @@ class Synchronisation(unittest.TestCase):
         self.assertEqual(len([x for x in self.i.sets(["kbs"]) if x["marque"] != "LEGO officiel"]), 1)
 
     def test_sante_toutes_en_echec(self):
-        self.s.CONNECTEURS["shopify"] = lambda src, pause=0, progres=None: (_ for _ in ()).throw(OSError("coupé"))
+        self.s.CONNECTEURS["shopify"] = lambda src, pause=0, progres=None, **_: (_ for _ in ()).throw(OSError("coupé"))
         import logging
         logging.disable(logging.CRITICAL)
         try:

@@ -6,33 +6,91 @@ requête, une pause entre deux pages, et l'attente demandée par le site en cas 
 """
 from __future__ import annotations
 
+import gzip
 import json
+import logging
+import math
+import os
 import re
 import time
+from pathlib import Path
 
 from .. import lien, normalise as n
 
+log = logging.getLogger("shopify")
 PAGE = 250
 PAGES_MAX = 40
 
 
-def lire(source: dict, pause: float = 1.5, progres=None) -> list[dict]:
-    """Rend les offres normalisées d'une boutique. `source` : voir data/sources.json."""
+class Pages:
+    """Pages du catalogue déjà lues, avec leur version (en-tête ETag), dans `dossier` : la synchronisation
+    suivante les redemande sous condition (If-None-Match) et la boutique répond 304, sans corps, pour
+    une page inchangée. Vérifié le 21/11/2026 sur KBS, Bausteinreich et Mould King officiel. Une page sans
+    ETag n'est pas gardée ; une page gardée pour une autre adresse ou illisible fait relire la page en
+    entier. Garder une page est un plus : un disque plein ou en lecture seule n'arrête pas la lecture."""
+
+    def __init__(self, dossier):
+        self.dossier = Path(dossier)
+
+    def _fichier(self, page: int):
+        return self.dossier / f"{page}.json.gz"
+
+    def lire(self, page: int, url: str) -> tuple[str, bytes] | None:
+        try:
+            d = json.loads(gzip.decompress(self._fichier(page).read_bytes()))
+            if d["url"] != url:
+                return None
+            return d["etag"], d["corps"].encode("utf-8")
+        except (OSError, ValueError, KeyError, TypeError, EOFError):
+            return None
+
+    def ecrire(self, page: int, url: str, etag: str | None, corps: bytes) -> None:
+        f = self._fichier(page)
+        try:
+            if not etag:
+                f.unlink(missing_ok=True)
+                return
+            self.dossier.mkdir(parents=True, exist_ok=True)
+            tmp = f.with_suffix(".tmp")
+            tmp.write_bytes(gzip.compress(json.dumps(
+                {"url": url, "etag": etag, "corps": corps.decode("utf-8", "replace")}).encode("utf-8")))
+            os.replace(tmp, f)
+        except OSError as e:
+            log.warning("page %s non gardée : %s", f, e)
+
+    def oublier(self, page: int) -> None:
+        try:
+            self._fichier(page).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def lire(source: dict, pause: float = 1.5, progres=None, pages: Pages | None = None, compte: dict | None = None) -> list[dict]:
+    """Rend les offres normalisées d'une boutique. `source` : voir data/sources.json. `pages` : pages
+    gardées pour les requêtes conditionnelles ; `compte` reçoit pages lues, inchangées et octets reçus."""
     base = "https://" + source["hote"] + source.get("prefixe", "")
     entetes = {"Cookie": f"localization={source.get('pays', 'FR')}; cart_currency={source.get('devise', 'EUR')}"}
+    compte = compte if compte is not None else {}
+    compte.update(pages=0, inchangees=0, octets=0)
     produits = []
     for page in range(1, PAGES_MAX + 1):
         url = f"{base}/products.json?limit={PAGE}&page={page}"
-        for essai in range(3):
+        garde = pages.lire(page, url) if pages else None
+        r = _page(url, entetes, garde)
+        compte["pages"] += 1
+        lot = None
+        if r.statut == 304:
             try:
-                r = lien.recuperer(url, accept="application/json", entetes=entetes)
-                break
-            except lien.LienRefuse as e:
-                if getattr(e, "statut", None) == 429 and essai < 2:
-                    time.sleep(min(float(getattr(e, "attente", None) or 30), 120))
-                    continue
-                raise
-        lot = json.loads(r.corps).get("products", [])
+                lot = _produits(garde[1])
+                compte["inchangees"] += 1
+            except ValueError:   # page gardée abîmée : oubliée, relue en entier
+                pages.oublier(page)
+                r = _page(url, entetes, None)
+        if lot is None:
+            lot = _produits(r.corps)   # page illisible : erreur avant d'être gardée
+            compte["octets"] += len(r.corps)
+            if pages:
+                pages.ecrire(page, url, (r.entetes or {}).get("etag"), r.corps)
         produits += lot
         if progres:
             progres(len(produits))
@@ -42,12 +100,49 @@ def lire(source: dict, pause: float = 1.5, progres=None) -> list[dict]:
     return [o for o in (offre(p, source) for p in produits) if o]
 
 
+def _page(url: str, entetes: dict, garde: tuple[str, bytes] | None) -> lien.Reponse:
+    """Une page du catalogue, sous condition si elle est gardée ; attend et réessaie sur un refus 429."""
+    condition = {"If-None-Match": garde[0]} if garde else {}
+    for essai in range(3):
+        try:
+            return lien.recuperer(url, accept="application/json", entetes={**entetes, **condition},
+                                  statuts=(200, 304) if garde else (200,))
+        except lien.LienRefuse as e:
+            if getattr(e, "statut", None) == 429 and essai < 2:
+                time.sleep(min(float(getattr(e, "attente", None) or 30), 120))
+                continue
+            raise
+    raise lien.LienRefuse("trop de refus")
+
+
+def _produits(corps: bytes) -> list:
+    d = json.loads(corps)
+    lot = d.get("products") if isinstance(d, dict) else None
+    if not isinstance(lot, list):
+        raise ValueError("catalogue sans liste de produits")
+    return lot
+
+
+def _barre(v: dict, prix: float | None, centimes: bool = False) -> float | None:
+    """Prix barré de la variante (compare_at_price), s'il est supérieur au prix ; en centimes dans /products/<poignée>.js."""
+    try:
+        b = float(v.get("compare_at_price"))
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(b):
+        return None
+    b = round(b / 100 if centimes else b, 2)
+    return b if prix and b > prix else None
+
+
 def offre(p: dict, source: dict) -> dict | None:
     variantes = p.get("variants") or [{}]
     v = next((x for x in variantes if x.get("available")), variantes[0])
     try:
         prix = round(float(v.get("price")), 2)
     except (TypeError, ValueError):
+        prix = None
+    if prix is not None and not math.isfinite(prix):
         prix = None
     titre = (p.get("title") or "").strip()
     tags = p.get("tags") or []
@@ -70,13 +165,16 @@ def offre(p: dict, source: dict) -> dict | None:
         "cle": f"{source['id']}:{p.get('handle')}",
         "url": f"https://{source['hote']}{source.get('prefixe', '')}/products/{p.get('handle')}",
         "nom": titre, "marque": marque, "numero": n.numero(titre, v.get("sku")),
-        "prix": prix, "devise": source.get("devise", "EUR"),
+        "prix": prix, "barre": _barre(v, prix), "devise": source.get("devise", "EUR"),
         "dispo": n.disponibilite(any(x.get("available") for x in variantes), tags, titre),
         "img": images[0].get("src") if images else None,
         "images": [i["src"] for i in images[1:8] if i.get("src")],
         "pieces": nb, "dims": dims,
         "type": n.type_briques(p.get("product_type") or "", tags, titre, marque),
         "themes": n.themes(titre, tags, p.get("product_type") or ""),
+        # signaux bruts de la boutique : type et thèmes recalculés à chaque reconstruction (index.py), sans
+        # attendre la synchronisation suivante quand une règle change
+        "signaux": {"categorie": p.get("product_type") or "", "etiquettes": tags, "titre": titre},
         "publie": (p.get("published_at") or p.get("created_at") or "")[:10] or None,
     }
 

@@ -215,16 +215,23 @@ class Alertes:
                 envoyes[compte] = lignes
         return envoyes
 
-    def demarrer(self) -> None:
-        if not destinataires():
+    def demarrer(self, avant=None) -> None:
+        """Vérifie la sélection chaque heure ; `avant` (relecture des prix de la sélection) passe juste avant."""
+        if not destinataires() and not avant:
             return
 
         def boucle():
             time.sleep(300)
             while True:
-                try:
-                    self.verifier()
-                except Exception:
-                    log.exception("vérification des alertes en échec")
+                if avant:
+                    try:
+                        avant()
+                    except Exception:
+                        log.exception("relecture de la sélection en échec")
+                if destinataires():
+                    try:
+                        self.verifier()
+                    except Exception:
+                        log.exception("vérification des alertes en échec")
                 time.sleep(PERIODE_S)
         threading.Thread(target=boucle, name="alertes", daemon=True).start()

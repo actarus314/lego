@@ -241,6 +241,9 @@ nav .m-ico{display:none;vertical-align:-3px}
 .offres td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}
 .offres td.num{white-space:nowrap}
 .offres tr:first-child td{border-top:0}
+.offres s{color:var(--faint)}
+.offres .bas{color:var(--muted)} .offres .bas.douteux{color:var(--warn)}
+svg.courbe{display:block;margin:4px 0 0 auto;color:var(--accent);overflow:visible}
 /* Relevé des prix */
 .icon-btn{position:relative}
 .icon-btn .dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--warn);border:1.5px solid var(--card)}
@@ -787,7 +790,7 @@ function renderIdees(){
         <div class="sub">${[...r.themes.map(themeNom), nbTests(r) ? `${nbTests(r)} test${nbTests(r) > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</div></td>
       <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
       <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
-      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span><div class="sub">${[o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé", o.delai ? esc(o.delai) : "délai non relevé"].map(x => `<span class="nw">${x}</span>`).join(" · ")}</div><div class="sub">${[esc(o.boutique), nbB > 1 ? `${nbB} boutiques` : ""].filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(" · ")}</div>${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
+      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span><div class="sub">${[o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé", o.delai ? esc(o.delai) : "délai non relevé"].map(x => `<span class="nw">${x}</span>`).join(" · ")}</div><div class="sub">${[esc(o.boutique), nbB > 1 ? `${nbB} boutiques` : ""].filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(" · ")}</div>${remisePill(o)}${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
   }, vide);
@@ -828,13 +831,46 @@ const datesLisibles = t => String(t || "").replace(/\b(\d{4})-(\d{2})-(\d{2})\b/
 const CHEVRON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 const OFFRES_VUES = 3;
 const releveLbl = o => !o.releve ? "non daté" : o.releve.length === 10 ? new Date(o.releve + "T12:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) : court(o.releve);
+/* Prix barré et historique : remise annoncée par la boutique (prix barré), et prix du jour comparé au plus bas
+   relevé les jours précédents (30 au plus, moins tant que l'historique est plus court) ; une boutique peut barrer
+   un prix qu'elle ne pratiquait pas. */
+const joursLbl = j => j >= 30 ? "30 jours" : j + " jour" + (j > 1 ? "s" : "");
+function remise(o){
+  const p = {};
+  if (o.barre > o.prix && (o.barre - o.prix) / o.barre >= 0.01) p.annonce = Math.round((o.barre - o.prix) / o.barre * 100);
+  if (o.bas30 != null && o.jours_suivis){ p.bas = o.bas30; p.jours = o.jours_suivis; p.plusBas = o.prix <= o.bas30 * 0.99; }
+  // remise douteuse : avant le début de la remise, la boutique vendait déjà au prix du jour ou moins
+  if (p.annonce && o.avant_remise != null && o.avant_remise <= o.prix){ p.douteux = true; p.avant = o.avant_remise; p.avantJ = o.avant_remise_j; }
+  return p;
+}
+function remisePill(o){
+  const p = remise(o);
+  if (p.annonce) return `<span class="pill ${p.douteux ? "p-neutral" : "p-ok"}" title="${p.douteux ? `Prix barré : ${eur(o.barre)} ; avant la remise, ${eur(p.avant)} relevé` : `Prix barré par la boutique : ${eur(o.barre)}`}">−${p.annonce} %</span>`;
+  if (p.plusBas && p.jours >= 7) return `<span class="pill p-ok" title="Plus bas relevé sur ${joursLbl(p.jours)} : ${eur(p.bas)}">Plus bas relevé</span>`;
+  return "";
+}
+const HIST = {};   // prix relevés par jour, par offre (api/fiche) : [[jour, prix, prix barré, disponibilité], …]
+const jourLbl = j => new Date(j + "T12:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"long"});
+function courbe(cle){
+  const s = HIST[cle];
+  if (!s || s.length < 2) return "";
+  const W = 72, H = 22, t = j => Date.parse(j + "T12:00:00"), t0 = t(s[0][0]), t1 = t(s[s.length - 1][0]);
+  const ps = s.map(p => p[1]), mn = Math.min(...ps), mx = Math.max(...ps);
+  if (!(t1 > t0)) return "";
+  const x = j => 2 + (t(j) - t0) / (t1 - t0) * (W - 4), y = v => mx > mn ? 2 + (mx - v) / (mx - mn) * (H - 4) : H / 2;
+  const der = s[s.length - 1], lbl = `Prix relevés du ${jourLbl(s[0][0])} au ${jourLbl(der[0])} : de ${eur(mn)} à ${eur(mx)}`;
+  return `<svg class="courbe" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${lbl}"><title>${lbl}</title><polyline points="${s.map(p => x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(der[0]).toFixed(1)}" cy="${y(der[1]).toFixed(1)}" r="2" fill="currentColor"/></svg>`;
+}
 function ligneOffre(o){
   const info = [o.pays && o.pays !== "France" ? o.pays : "", o.delai || ""].filter(Boolean).join(" · ");
+  const p = remise(o);
+  const bas = (p.douteux ? `<div class="sub bas douteux">déjà ${eur(p.avant)} avant la remise</div>` : "")
+    + (p.bas != null ? `<div class="sub bas">plus bas sur ${joursLbl(p.jours)} : ${eur(p.bas)}</div>` : "");
   return `<tr>
     <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a>${info ? `<div class="sub">${esc(info)}</div>` : ""}</td>
     <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
-    <td class="num"><b>${eur(o.prix)}</b><div class="sub">${portLbl(o)}</div></td>
-    <td class="num sub">${o.source === "editorial" && !o.releve ? "prix du 19 novembre" : esc(releveLbl(o))}</td></tr>`;
+    <td class="num"><b>${eur(o.prix)}</b>${p.annonce ? ` <s>${eur(o.barre)}</s>` : ""}<div class="sub">${portLbl(o)}</div>${bas}</td>
+    <td class="num sub">${o.source === "editorial" && !o.releve ? "prix du 19 novembre" : esc(releveLbl(o))}${courbe(o.cle)}</td></tr>`;
 }
 function offresHtml(r){
   // Les meilleures offres d'abord ; au-delà de trois, les autres se replient (un set LEGO officiel en a parfois dix).
@@ -899,6 +935,8 @@ function openFiche(id){
   const photo0 = $("#f-photo"); if (photo0) photo0.onerror = () => sansPhoto(photo0);   // photo refusée au navigateur
   if (MODE.serveur) api("GET", "api/fiche?id=" + encodeURIComponent(r.id)).then(d => {
     if (!dlg.open || $("#f-titre")?.textContent !== r.nom) return;
+    Object.assign(HIST, d.historique || {});
+    if (r.offres.some(x => (HIST[x.cle] || []).length > 1)) $("#f-offres").innerHTML = offresHtml(r);
     const imgs = (d.images || []).filter(Boolean);
     const gal = $("#f-galerie"), photo = $("#f-photo");
     if (imgs.length > 1 && gal && photo){
@@ -1401,7 +1439,8 @@ function renderSynchro(){
     ${MODE.admin && IDEES.some(r => !r.type) ? `<div><span class="lbl">Briques à classer</span><b class="r-alerte">${IDEES.filter(r => !r.type).length}</b><span class="sub"><a href="#idees" id="a-classer">Les afficher</a> · type à choisir dans la fiche</span></div>` : ""}
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
     <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
-    ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}
+    ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · ${R.rotation.a_jour ?? "—"} / ${R.rotation.adultes} relues ${R.rotation.publication ? "depuis la publication de BricksValue du " + esc(quand(R.rotation.publication)) : "depuis 24 h"}${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}
+    ${R.selection && R.selection.le ? `<div><span class="lbl">Sélection relue</span><b>${esc(quand(R.selection.le))}</b><span class="sub">${R.selection.lus} / ${R.selection.offres} offres de boutique · chaque heure${R.selection.echecs ? ` · <span class="r-alerte">${R.selection.echecs} en échec</span>` : ""}</span></div>` : ""}
     ${R.photos && R.photos.total ? `<div><span class="lbl">Photos trouvées</span><b>${R.photos.trouvees} / ${R.photos.total}</b><span class="sub">${[R.photos.ecartees ? `${R.photos.ecartees} introuvable${R.photos.ecartees > 1 ? "s" : ""}` : "", R.photos.non_verifiables ? `${R.photos.non_verifiables} non vérifiable${R.photos.non_verifiables > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</span></div>` : ""}
     <div class="large"><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>`;
   const ac = $("#a-classer");
@@ -1419,7 +1458,7 @@ function renderSynchro(){
     <td class="num" data-k="Nouveaux">${r.nouveaux ?? "—"}</td>
     <td class="num hide-m" data-k="Disparus">${r.disparus ?? "—"}</td>
     <td class="hide-m" data-k="Dernier passage">${r.debut ? esc(quand(r.debut)) : "—"}</td>
-    <td class="wide${r.raison ? "" : " m-off"}" data-k="Détail"><span class="r-alerte">${esc(r.raison || "")}</span></td>
+    <td class="wide${r.raison || r.pages ? "" : " m-off"}" data-k="Détail">${r.raison ? `<span class="r-alerte">${esc(r.raison)}</span>` : r.pages ? `<span class="sub">${r.inchangees} page${r.inchangees > 1 ? "s" : ""} inchangée${r.inchangees > 1 ? "s" : ""} sur ${r.pages}</span>` : ""}</td>
   </tr>`, "Aucune source active");
   sortable("t-hist", colsH, R.historique || [], sH, r => `<tr>
     <td data-k="Fin">${esc(quand(r.le))}</td>
