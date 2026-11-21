@@ -1,5 +1,9 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.12.0
+- Page Marques, qualité des briques : verdict par vote des sites indépendants (« Favorable · 4 sites », « Partagé · 3 pour, 1 contre », « Un seul site », « Peu de sources ») à partir de 360 constats sourcés sur 20 marques (tests, forums, avis d'acheteurs, lien et date chacun ; seuls ceux de 2023 et après votent ; `data/qualite.json`, règle dans `app/qualite.py`) ; un site, une voix, quel que soit son nombre d'articles ; défauts précis comptés à part ; constats dépliables sous chaque marque, par critère (serrage, teintes, finition, décors, notice, pièces, fabricant). Constats Reddit relus dans leur fil (12 corrigés, 1 retiré).
+- Retiré : les notes « qualité des briques » écrites à la main sans source (« Très bonnes », « Bonnes », « Moyennes » pour 7 marques) et les affirmations de qualité ou de fournisseur sans source sous les noms de JIE STAR, Bole Brick et BlueBrixx. LEGO officiel reste « Référence ».
+
 ## v3.11.0
 - Page Marques : logos agrandis (case de 76 × 44 px au lieu d'une pastille de 18 px), noms alignés ; boutiques de « Où acheter » en liens vers la page de la marque chez chaque boutique (collection Shopify relevée par le service, la plus fournie), sinon vers le site de la boutique ; « 1 épuisé » accordé.
 - Logos : l'image de la collection de la marque chez les boutiques Shopify lues (KBS, Bausteinreich) passe avant les icônes du site officiel (vrais logos de 150 à 435 px ; CaDA, Wange, Panlos, Sembo, TGL et Ausini, bloqués par leur site ou sans site connu, ont désormais le leur ; Rastar et MOYU gardaient une icône de 32 px ou moins). Bannières écartées. Les logos pris par l'ancienne règle sont relus au passage suivant. Kazi reste sans image.

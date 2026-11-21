@@ -71,6 +71,12 @@ Le logo de chaque marque vient, dans cet ordre : de l'adresse directe déclarée
 
 Les collections des boutiques (`/collections.json`, relues tous les 7 jours, le lendemain après un échec, gardées dans `collections.json` du dossier de données) donnent aussi les liens « Où acheter » de la page Marques : la page de la marque chez chaque boutique (la collection qui a le plus de produits), sinon le site de la boutique.
 
+### Qualité des briques
+
+`data/qualite.json` porte, pour chaque marque, des constats de sources indépendantes (tests, forums, avis d'acheteurs), un par source et par critère (serrage, teintes, finition, décors, notice, pièces, fabricant des briques), avec le lien, la date et le rang de la source. Ils ont été relevés une fois par recherche le 21/11/2026 (constats Reddit relus dans leur fil le même jour) et ne sont pas relus par le service ; une nouvelle relève remplace le fichier. Définitions des sens et des rangs : `_note` du fichier.
+
+Le verdict de la page Marques est calculé par `app/qualite.py` : chaque site compte pour une voix, selon la majorité de ses jugements d'ensemble sur le serrage, les teintes et la finition depuis 2023 (égal ou proche du LEGO officiel, ou nettement en retrait) ; un site à égalité ne vote pas ; un même auteur sous deux adresses compte une fois ; pages commerciales et sources liées à la marque ou au revendeur ne votent pas. « Favorable » si aucun site ne vote contre, « Défavorable » si aucun ne vote pour, « Partagé » sinon ; « Un seul site » ou « Peu de sources » en deçà de deux voix. Les défauts précis (pièces rayées, teinte fausse dans un set) ne votent pas et sont comptés à part. Les constats se déplient sous chaque marque.
+
 ### Données
 
 Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `collections.json` (collections des boutiques), `photos.json` (photos vérifiées), `dimensions_<source>.json` et `reference_lego.json` (caches).

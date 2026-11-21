@@ -28,7 +28,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, alertes as alertes_mod, lien, logos as logos_mod, normalise, surveillance, synchro, tests_auto
+from . import acces, alertes as alertes_mod, qualite, lien, logos as logos_mod, normalise, surveillance, synchro, tests_auto
 from .reglage import reglage
 from .donnees import Depot, dans
 from .index import Index
@@ -288,7 +288,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
         mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer,
-                "logos": self.logos.disponibles(), "liens_marques": self.logos.liens()}
+                "logos": self.logos.disponibles(), "liens_marques": self.logos.liens(),
+                "qualite": qualite.pour_la_page()}
         corps = injecter(MODELE.read_text("utf-8"), {"sets": [], "themes": [], "sources": []}, mode, nonce).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
