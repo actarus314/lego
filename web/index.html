@@ -176,6 +176,13 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .logo{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font:700 9px var(--mono);letter-spacing:-.02em;color:var(--muted);background:var(--sunk);border:1px solid var(--line);flex:none;overflow:hidden}
 .logo.img{width:auto;min-width:18px;max-width:48px;padding:0 1px;background:#fff;border-color:var(--line)}
 .logo img{display:block;height:16px;width:auto;max-width:46px;object-fit:contain}
+/* Page Marques : logo dans une case fixe, les noms restent alignés */
+.marque-cel{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center}
+.logo-l{width:76px;height:44px;border-radius:8px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);overflow:hidden;padding:3px}
+.logo-l img{max-width:68px;max-height:36px;width:auto;height:auto;object-fit:contain;display:block}
+.logo-l.ini{background:var(--sunk);font:700 13px var(--mono);letter-spacing:-.02em;color:var(--muted)}
+.boutiques-l a{color:var(--accent);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);text-underline-offset:3px}
+.boutiques-l a:hover{color:var(--accent);text-decoration-color:currentColor}
 nav .m-ico{display:none;vertical-align:-3px}
 .ico-type{width:16px;height:16px;flex:none;color:currentColor}
 #t-idees{table-layout:fixed}
@@ -619,6 +626,8 @@ const initiales = m => m === "LEGO officiel" ? "L" : m.split(/[\s.]+/).filter(Bo
 const LOGOS = MODE.logos || {};
 const slugM = m => plat(m).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const logo = m => LOGOS[slugM(m)] ? `<span class="logo img" aria-hidden="true"><img src="${esc(LOGOS[slugM(m)])}" alt=""></span>` : `<span class="logo" aria-hidden="true">${esc(initiales(m))}</span>`;
+const logoL = m => LOGOS[slugM(m)] ? `<span class="logo-l" aria-hidden="true"><img src="${esc(LOGOS[slugM(m)])}" alt=""></span>` : `<span class="logo-l ini" aria-hidden="true">${esc(initiales(m))}</span>`;
+const LIENS_M = MODE.liens_marques || {};
 const prixLbl = i => PRIX[i] === Infinity ? "tous" : `${PRIX[i]} €`;
 const tailleLbl = i => TAILLE[i] === Infinity ? "toutes" : `${TAILLE[i]} cm`;
 const portLbl = o => o.port == null ? "port non relevé" : o.port ? `+ ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
@@ -930,6 +939,15 @@ sB.render = renderBoutiques;
 /* ---------- Marques ---------- */
 const sM = {key:"sets", dir:"desc", def:"sets", defDir:"desc"};
 const mediane = t => { const v = t.filter(x => x != null).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : null; };
+function adresseBoutique(marque, boutique, offres){
+  // Page de la marque chez la boutique (collection relevée par le service), sinon le site de la boutique.
+  const lien = (LIENS_M[marque] || {})[boutique];
+  if (lien) return lien;
+  const o = offres.find(o => o.boutique === boutique && hostOf(o.url));
+  if (!o) return null;
+  const b = shopFor(o.url);
+  return b ? b.url : "https://" + new URL(o.url).hostname;
+}
 function marquesIndex(){
   // Une ligne par marque de l'index : nombre de sets, prix médian de la pièce (sets en vente),
   // thèmes et boutiques les plus fréquents ; la spécialité, la qualité et la note écrites à la main s'y ajoutent.
@@ -941,11 +959,15 @@ function marquesIndex(){
   return [...noms].map(nom => {
     const rs = parM[nom] || [], main = MARQUES.find(m => m.nom === nom) || {}, p = ppp(rs);
     const freq = vals => Object.entries(compter(rs, vals)).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    const offres = rs.flatMap(r => r.offres);
+    // boutiques les plus fréquentes de la marque ; sans set dans l'index, celles dont la collection est connue
+    const boutiques = (rs.length ? freq(r => [...new Set(r.offres.map(o => o.boutique))]) : Object.keys(LIENS_M[nom] || {}))
+      .slice(0, 4).map(b => ({nom:b, url:adresseBoutique(nom, b, offres)}));
     return {nom, sets: rs.filter(r => r.dispo !== "epuise").length, total: rs.length, note: main.note,
       pour: main.pour || freq(r => r.themes).slice(0, 3).map(themeNom).join(", "),
       briques: main.briques || null, ppp: p,
       prixLego: nom === "LEGO officiel" ? 100 : p && pLego ? Math.round(p / pLego * 100) : null,
-      ou: rs.length ? freq(r => [...new Set(r.offres.map(o => o.boutique))]).slice(0, 4).join(", ") : main.ou};
+      boutiques, ou: boutiques.length ? boutiques.map(b => b.nom).join(", ") : main.ou};
   });
 }
 const colsM = [
@@ -958,12 +980,12 @@ const colsM = [
 ];
 function renderMarques(){
   sortable("t-marques", colsM, marquesIndex(), sM, r => `<tr>
-    <td class="wide" data-k="Marque"><span class="name ligne-marque">${logo(r.nom)} ${esc(r.nom)}</span>${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</td>
-    <td class="num" data-k="Sets en vente"><span class="big">${r.sets}</span>${r.total > r.sets ? `<div class="sub">${r.total - r.sets} épuisés</div>` : ""}</td>
+    <td class="wide" data-k="Marque"><div class="marque-cel">${logoL(r.nom)}<div><span class="name">${esc(r.nom)}</span>${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</div></div></td>
+    <td class="num" data-k="Sets en vente"><span class="big">${r.sets}</span>${r.total > r.sets ? `<div class="sub">${r.total - r.sets} épuisé${r.total - r.sets > 1 ? "s" : ""}</div>` : ""}</td>
     <td class="wide hide-m" data-k="Spécialité">${esc(r.pour || "—")}</td>
     <td data-k="Qualité des briques">${r.briques ? `<span class="pill ${r.briques === "Moyennes" ? "p-warn" : "p-ok"}">${esc(r.briques)}</span>` : '<span class="pill p-neutral">Non évaluée</span>'}</td>
     <td class="num ok-wrap" data-k="Prix de la pièce">${r.ppp ? `<span class="big">${(r.ppp * 100).toFixed(1)}</span> centimes` : "—"}${r.prixLego && r.nom !== "LEGO officiel" ? `<div class="sub">environ ${r.prixLego} % du LEGO officiel</div>` : ""}</td>
-    <td class="hide-m" data-k="Où acheter">${esc(r.ou || "—")}</td>
+    <td class="hide-m boutiques-l" data-k="Où acheter">${r.boutiques.length ? r.boutiques.map(b => b.url ? `<a href="${esc(safeUrl(b.url))}" target="_blank" rel="noopener">${esc(b.nom)}</a>` : esc(b.nom)).join(", ") : esc(r.ou || "—")}</td>
   </tr>`, "");
 }
 sM.render = renderMarques;

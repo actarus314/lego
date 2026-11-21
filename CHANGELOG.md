@@ -1,5 +1,9 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.11.0
+- Page Marques : logos agrandis (case de 76 × 44 px au lieu d'une pastille de 18 px), noms alignés ; boutiques de « Où acheter » en liens vers la page de la marque chez chaque boutique (collection Shopify relevée par le service, la plus fournie), sinon vers le site de la boutique ; « 1 épuisé » accordé.
+- Logos : l'image de la collection de la marque chez les boutiques Shopify lues (KBS, Bausteinreich) passe avant les icônes du site officiel (vrais logos de 150 à 435 px ; CaDA, Wange, Panlos, Sembo, TGL et Ausini, bloqués par leur site ou sans site connu, ont désormais le leur ; Rastar et MOYU gardaient une icône de 32 px ou moins). Bannières écartées. Les logos pris par l'ancienne règle sont relus au passage suivant. Kazi reste sans image.
+
 ## v3.10.4
 - Liste des résultats : la colonne des vignettes suit leur nouvelle taille (152 px, 128 px en cartes) ; la vignette ne chevauche plus le nom du set (colonne restée à 120 px en v3.10.1). Même correctif dans la sélection en cartes.
 - Colonne Prix : deux lignes stables, « port · délai » puis « boutique · nombre de boutiques », coupées seulement entre deux éléments (plus de « 12 / boutiques ») ; au téléphone, le prix passe sous la taille, sur toute la largeur de la carte.

@@ -1,5 +1,11 @@
-"""Logos des marques : l'icône du site officiel de chaque marque (`data/marques.json`), récupérée
-par le service et gardée dans son dossier de données. Le dépôt ne contient aucun logo.
+"""Logos des marques (`data/marques.json`), récupérés par le service et gardés dans son dossier de
+données : adresse directe déclarée, image de la collection de la marque chez une boutique, icône du
+site officiel. Le dépôt ne contient aucun logo.
+
+Les boutiques Shopify lues par le service publient une collection par marque (`/collections.json`) :
+son image (le logo de la marque chez KBS et Bausteinreich, vérifié le 21/11/2026) passe avant les
+icônes du site, et son adresse sert de lien « Où acheter » de la page Marques. Les collections sont
+relues tous les 7 jours ; après un échec de lecture, le lendemain.
 
 Une icône est cherchée dans la page d'accueil (apple-touch-icon, puis les icônes déclarées,
 puis /favicon.ico), vérifiée par sa signature (PNG, ICO, JPEG, GIF, WebP, SVG). Parmi les icônes
@@ -34,6 +40,12 @@ SIGNATURES = [(b"\x89PNG", "png"), (b"\x00\x00\x01\x00", "ico"), (b"\xff\xd8", "
 TYPES = {"png": "image/png", "ico": "image/x-icon", "jpg": "image/jpeg", "gif": "image/gif",
          "webp": "image/webp", "svg": "image/svg+xml"}
 VERROU = threading.Lock()
+REGLE = 2                        # règle de choix des logos ; un logo pris par une règle plus ancienne est relu
+COLLECTIONS_J = 7                # durée des collections des boutiques avant relecture
+COLLECTIONS_ECHEC_J = 1          # nouvel essai après une boutique illisible
+IMAGES_COLLECTION_MAX = 3        # images de collection essayées au plus, en plus des CANDIDATES_MAX
+COLLECTIONS_PAGES = 4            # pages de 250 collections lues au plus par boutique
+RAPPORT_MAX = 3                  # image de collection plus large que 3 fois sa hauteur : bannière, écartée
 
 
 def slug(marque: str) -> str:
@@ -219,11 +231,107 @@ def _lire_icone(url: str) -> tuple[bytes, str] | None:
     return None
 
 
+def collections_boutique(source: dict) -> list[dict]:
+    """Collections d'une boutique Shopify dont le titre est exactement le nom d'une marque connue
+    (« Mould King Vitrinen Autos » n'en est pas une) : [{marque, url, image, produits}]."""
+    base = "https://" + source["hote"] + source.get("prefixe", "")
+    sortie, vues = [], set()
+    for page in range(1, COLLECTIONS_PAGES + 1):
+        r = lien.recuperer(f"{base}/collections.json?limit=250&page={page}", accept="application/json")
+        donnees = json.loads(r.corps)
+        lot = donnees.get("collections") if isinstance(donnees, dict) else None
+        if not isinstance(lot, list):
+            raise ValueError("réponse sans liste de collections")
+        nouvelles = 0
+        for c in lot:
+            if not isinstance(c, dict):
+                continue
+            titre = n.sans_accents(str(c.get("title") or "")).strip()
+            poignee = str(c.get("handle") or "")
+            if poignee in vues:
+                continue
+            vues.add(poignee)
+            nouvelles += 1
+            if titre not in n.MARQUES or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,99}", poignee):
+                continue
+            image = (c.get("image") or {}).get("src") if isinstance(c.get("image"), dict) else None
+            try:
+                produits = max(0, int(c.get("products_count") or 0))
+            except (TypeError, ValueError):
+                produits = 0
+            sortie.append({"marque": n.MARQUES[titre], "url": f"{base}/collections/{poignee}",
+                           "image": image if isinstance(image, str) and image.startswith("https://") else None,
+                           "produits": produits})
+        if len(lot) < 250 or not nouvelles:  # dernière page, ou boutique qui ignore « page »
+            break
+        time.sleep(PAUSE_S)
+    return sortie
+
+
+def regrouper(par_source: list[tuple[dict, list[dict]]]) -> dict:
+    """{marque: {"liens": {boutique: adresse}, "images": [adresses]}} : pour chaque boutique, la
+    collection de la marque qui a le plus de produits (aucune si toutes sont vides) ; les images
+    dans l'ordre des sources, celles des collections vides comprises (un logo reste un logo)."""
+    sortie: dict[str, dict] = {}
+    for source, collections in par_source:
+        for c in sorted(collections, key=lambda c: -c["produits"]):
+            m = sortie.setdefault(c["marque"], {"liens": {}, "images": []})
+            if c["produits"] > 0 and source["nom"] not in m["liens"]:
+                m["liens"][source["nom"]] = c["url"]
+            if c["image"] and c["image"] not in m["images"]:
+                m["images"].append(c["image"])
+    return sortie
+
+
+def _adresse_collection(url: str) -> str:
+    """Image de collection Shopify demandée en 400 pixels de large (au lieu de l'original, parfois lourd)."""
+    p = urlsplit(url)
+    requete = [kv for kv in p.query.split("&") if kv and kv.split("=")[0] not in ("width", "height", "crop")]
+    return p._replace(query="&".join(requete + ["width=400"])).geturl()
+
+
+def _rapport(corps: bytes, ext: str) -> float | None:
+    """Largeur sur hauteur d'une image PNG, GIF, JPEG ou WebP ; None si illisible."""
+    try:
+        if ext == "png":
+            return int.from_bytes(corps[16:20], "big") / int.from_bytes(corps[20:24], "big")
+        if ext == "gif":
+            return int.from_bytes(corps[6:8], "little") / int.from_bytes(corps[8:10], "little")
+        if ext == "webp":
+            fmt = corps[12:16]
+            if fmt == b"VP8X":
+                return (int.from_bytes(corps[24:27], "little") + 1) / (int.from_bytes(corps[27:30], "little") + 1)
+            if fmt == b"VP8L":
+                v = int.from_bytes(corps[21:25], "little")
+                return ((v & 0x3FFF) + 1) / (((v >> 14) & 0x3FFF) + 1)
+            if fmt == b"VP8 ":
+                return (int.from_bytes(corps[26:28], "little") & 0x3FFF) / (int.from_bytes(corps[28:30], "little") & 0x3FFF)
+        if ext == "jpg":
+            i = 2
+            while i + 9 < len(corps):
+                if corps[i] != 0xFF:
+                    i += 1
+                    continue
+                marqueur = corps[i + 1]
+                if marqueur in (0xD8, 0x01) or 0xD0 <= marqueur <= 0xD7 or marqueur == 0xFF:
+                    i += 1 if marqueur == 0xFF else 2
+                    continue
+                if 0xC0 <= marqueur <= 0xCF and marqueur not in (0xC4, 0xC8, 0xCC):
+                    return int.from_bytes(corps[i + 7:i + 9], "big") / int.from_bytes(corps[i + 5:i + 7], "big")
+                i += 2 + int.from_bytes(corps[i + 2:i + 4], "big")
+    except (IndexError, ValueError, ZeroDivisionError):
+        pass
+    return None
+
+
 def _adresses(conf: dict):
-    """Adresses à essayer : l'adresse directe `icone`, puis (lues seulement si elle ne suffit pas)
-    les icônes de la page d'accueil de `site`. Rend aussi, en dernier, l'erreur de lecture de la page."""
+    """Adresses à essayer : l'adresse directe `icone`, puis les images des collections de la marque
+    chez les boutiques (`collections`), puis (lues seulement si elles ne suffisent pas) les icônes de
+    la page d'accueil de `site`. Rend aussi, en dernier, l'erreur de lecture de la page."""
     if conf.get("icone"):
         yield conf["icone"]
+    for image in (conf.get("collections") or [])[:IMAGES_COLLECTION_MAX]:
+        yield ("collection", _adresse_collection(image))
     if conf.get("site"):
         try:
             yield from _candidats(conf["site"])
@@ -231,9 +339,10 @@ def _adresses(conf: dict):
             yield ex
 
 
-def recuperer(conf: dict) -> tuple[bytes, str]:
-    """Rend (octets, format) de la meilleure icône : l'adresse directe `icone` si elle est donnée et
-    lisible, sinon les icônes de la page d'accueil de `site`. Dès qu'une icône d'au moins
+def recuperer_avec_source(conf: dict) -> tuple[bytes, str, str]:
+    """Rend (octets, format, adresse lue) de la meilleure icône : l'adresse directe `icone` si elle est
+    donnée et lisible, puis les images de collection (`collections`, ni ICO ni SVG ni bannière), sinon
+    les icônes de la page d'accueil de `site`. Dès qu'une icône d'au moins
     TAILLE_SUFFISANTE pixels (ou un SVG) est trouvée, elle est gardée et la page n'est pas lue ;
     sinon la plus grande des CANDIDATES_MAX premières. Lève la cause (LienRefuse) si la page
     d'accueil est illisible et qu'aucune adresse directe n'a servi, sinon ValueError."""
@@ -242,16 +351,20 @@ def recuperer(conf: dict) -> tuple[bytes, str]:
         if isinstance(url, Exception):
             erreur_page = url
             break
-        if essais >= CANDIDATES_MAX:
-            break
-        essais += 1
-        icone = _lire_icone(url)
+        collection = isinstance(url, tuple)
+        if not collection:  # les images de collection ont leur propre plafond (IMAGES_COLLECTION_MAX)
+            if essais >= CANDIDATES_MAX:
+                break
+            essais += 1
+        icone = _lire_icone(url[1] if collection else url)
         if not icone:
             continue
         corps, ext = icone
+        if collection and (ext in ("ico", "svg") or (_rapport(corps, ext) or 1) > RAPPORT_MAX):
+            continue
         score = 1 << 20 if ext == "svg" else (dimension(corps, ext) or 1)
         if score > meilleur_score:
-            meilleure, meilleur_score = icone, score
+            meilleure, meilleur_score = (*icone, url[1] if collection else url), score
         if meilleur_score >= TAILLE_SUFFISANTE:
             break
     if meilleure:
@@ -261,10 +374,52 @@ def recuperer(conf: dict) -> tuple[bytes, str]:
     raise ValueError("aucune icône lisible")
 
 
+def recuperer(conf: dict) -> tuple[bytes, str]:
+    """(octets, format) de la meilleure icône : voir recuperer_avec_source."""
+    return recuperer_avec_source(conf)[:2]
+
+
 class Logos:
-    def __init__(self, dossier: Path):
+    def __init__(self, dossier: Path, sources=lambda: []):
+        """`sources` : fonction qui rend les sources lues (data/sources.json) ; seules les boutiques
+        Shopify publient leurs collections."""
         self.dossier = Path(dossier) / "logos"
         self.fichier = self.dossier / "logos.json"
+        self.fichier_collections = Path(dossier) / "collections.json"
+        self.sources = sources
+
+    def collections(self) -> dict:
+        """{marque: {"liens": {boutique: adresse}, "images": [...]}} relevé aux boutiques."""
+        return _lire(self.fichier_collections, {}).get("marques", {})
+
+    def liens(self) -> dict[str, dict[str, str]]:
+        """{marque: {boutique: adresse de la marque chez cette boutique}}, pour la page."""
+        return {m: c["liens"] for m, c in self.collections().items() if c.get("liens")}
+
+    def actualiser_collections(self, age_max_j: float = COLLECTIONS_J) -> None:
+        """Relit les collections des boutiques Shopify au-delà de `age_max_j` jours, ou de
+        COLLECTIONS_ECHEC_J jours si une boutique n'a pas pu être lue la dernière fois. Une boutique
+        illisible garde ses collections précédentes."""
+        etat = _lire(self.fichier_collections, {})
+        le = etat.get("le")
+        delai = COLLECTIONS_ECHEC_J if etat.get("echec") else age_max_j
+        if le and time.time() - self._instant(le) < delai * 86400 - MARGE_S:
+            return
+        anciennes = etat.get("par_source", {})
+        par_source, echec = {}, False
+        for src in [s for s in self.sources() if s.get("type") == "shopify"]:
+            try:
+                par_source[src["id"]] = collections_boutique(src)
+            except Exception as ex:  # boutique illisible : ses collections précédentes restent
+                log.info("collections de %s non lues : %s", src["nom"], getattr(ex, "public", ex))
+                echec = True
+                if src["id"] in anciennes:
+                    par_source[src["id"]] = anciennes[src["id"]]
+            time.sleep(PAUSE_S)
+        noms = {s["id"]: s for s in self.sources()}
+        marques = regrouper([(noms[i], c) for i, c in par_source.items() if i in noms])
+        _ecrire(self.fichier_collections, {"le": time.strftime("%Y-%m-%dT%H:%M:%S"), "echec": echec,
+                                           "par_source": par_source, "marques": marques})
 
     def etat(self) -> dict:
         return _lire(self.fichier, {})
@@ -289,6 +444,8 @@ class Logos:
         un logo récupéré, après un échec le délai de ECHELLE_J selon le nombre d'échecs de suite."""
         if not e:
             return True
+        if e.get("regle", 1) < REGLE:   # règle de choix changée depuis le dernier essai
+            return True
         essai = e.get("essai") or e.get("le")  # anciens états : « le » est la date du dernier essai
         if not essai:
             return True
@@ -303,29 +460,43 @@ class Logos:
         """Récupère les logos absents, échus (`age_max_j` jours) ou en échec dont le délai de nouvel
         essai est écoulé. Rend {lus, echecs}."""
         with VERROU:
+            try:
+                self.actualiser_collections()
+            except Exception:  # sans collections, les logos se cherchent sur les sites
+                log.exception("collections des boutiques non lues")
+            images = {m: c.get("images") or [] for m, c in self.collections().items()}
+            # sans collections complètes (réseau absent au démarrage, boutique illisible), les logos
+            # gardent l'ancienne règle et seront repris quand les collections seront lues
+            # une boutique illisible : les logos sont repris au passage suivant, avec ses collections
+            shopify = any(src.get("type") == "shopify" for src in self.sources())
+            complet = images and not _lire(self.fichier_collections, {}).get("echec")
+            regle = REGLE if complet or not shopify else 1
             etat = self.etat()
             lus, echecs = 0, 0
-            for marque, conf in sites().items():
+            # marques de data/marques.json, puis celles qui n'ont qu'une collection en boutique (sans site connu)
+            confs = {**{m: {} for m in images if images[m]}, **sites()}
+            for marque, conf in confs.items():
+                conf = {**conf, "collections": images.get(marque, [])}
                 s = slug(marque)
                 e = etat.get(s) or {}
                 if not self.a_relire(e, age_max_j):
                     continue
                 maintenant = time.strftime("%Y-%m-%dT%H:%M:%S")
                 try:
-                    corps, ext = recuperer(conf)
+                    corps, ext, origine = recuperer_avec_source(conf)
                     self.dossier.mkdir(parents=True, exist_ok=True)
                     (self.dossier / f"{s}.{ext}").write_bytes(corps)
                     ancien = e.get("fichier") or ""
                     if ancien != f"{s}.{ext}" and re.fullmatch(r"[a-z0-9-]+\.[a-z]+", ancien):
                         (self.dossier / ancien).unlink(missing_ok=True)  # ancien format du même logo
                     etat[s] = {"marque": marque, "fichier": f"{s}.{ext}", "format": ext, "le": maintenant,
-                               "essai": maintenant, "taille": dimension(corps, ext),
-                               "source": conf.get("icone") or conf["site"]}
+                               "essai": maintenant, "taille": dimension(corps, ext), "regle": regle,
+                               "source": origine}
                     lus += 1
                 except Exception as ex:  # une marque sans logo garde sa pastille
                     log.info("logo %s non récupéré : %s", marque, getattr(ex, "public", ex))
                     # un logo déjà récupéré reste servi ; « le » garde la date de ce logo
-                    etat[s] = {**e, "marque": marque, "essai": maintenant, "erreur": True,
+                    etat[s] = {**e, "marque": marque, "essai": maintenant, "erreur": True, "regle": regle,
                                "echecs": max(1, int(e.get("echecs") or 1)) + 1 if e.get("erreur") else 1,
                                "motif": str(getattr(ex, "public", ex))[:200]}
                     if not e.get("fichier"):

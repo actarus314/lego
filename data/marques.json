@@ -1,5 +1,5 @@
 {
- "_note": "Site officiel (ou boutique de la marque) de chaque marque, dont le service récupère l'icône comme logo, gardée dans son dossier de données. « icone » : adresse directe d'une image, essayée avant les icônes du site (à renseigner quand le site n'en déclare pas de lisible). Une marque absente garde sa pastille à initiales (aucun site officiel trouvé : TGL, Xinzhuan). Une marque ajoutée ici est récupérée au passage suivant.",
+ "_note": "Site officiel (ou boutique de la marque) de chaque marque. Logo de la marque : « icone » (adresse directe d'une image) si elle est donnée, puis l'image de la collection de la marque chez les boutiques Shopify lues (logo de la marque chez KBS et Bausteinreich), puis l'icône du site. Une marque sans aucune de ces images garde sa pastille à initiales. Une marque ajoutée ici est récupérée au passage suivant.",
  "marques": {
   "LEGO officiel": {
    "site": "lego.com",

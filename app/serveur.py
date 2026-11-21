@@ -288,7 +288,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
         mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer,
-                "logos": self.logos.disponibles()}
+                "logos": self.logos.disponibles(), "liens_marques": self.logos.liens()}
         corps = injecter(MODELE.read_text("utf-8"), {"sets": [], "themes": [], "sources": []}, mode, nonce).encode()
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -318,7 +318,7 @@ def main():
     Gestionnaire.masquer = {n.strip() for n in reglage("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
-    Gestionnaire.logos = logos_mod.Logos(donnees)
+    Gestionnaire.logos = logos_mod.Logos(donnees, synchro.actives)
     Gestionnaire.logos.demarrer()
     Gestionnaire.alertes = alertes_mod.Alertes(donnees, Gestionnaire.index, Gestionnaire.depot,
                                                lambda: [s["id"] for s in synchro.actives()])

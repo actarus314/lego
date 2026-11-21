@@ -262,7 +262,8 @@ class Calendrier(unittest.TestCase):
     def il_y_a(self, jours: float) -> str:
         return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - jours * 86400))
 
-    def ecrire_etat(self, etat: dict):
+    def ecrire_etat(self, etat: dict, regle: int = logos.REGLE):
+        etat = {s: {**e, "regle": regle} for s, e in etat.items()}
         self.logos.dossier.mkdir(parents=True, exist_ok=True)
         self.logos.fichier.write_text(json.dumps(etat), "utf-8")
 
@@ -274,8 +275,8 @@ class Calendrier(unittest.TestCase):
             appels.append(conf["site"])
             if isinstance(resultat, Exception):
                 raise resultat
-            return resultat, logos._format(resultat)
-        with mock.patch.object(logos, "recuperer", fausse):
+            return resultat, logos._format(resultat), conf["site"]
+        with mock.patch.object(logos, "recuperer_avec_source", fausse):
             return self.logos.actualiser(), appels
 
     def test_marque_ajoutee_recuperee_au_passage_suivant(self):
@@ -479,6 +480,133 @@ class Encodage(unittest.TestCase):
             return reel(url, accept, entetes)
         with mock.patch.object(lien, "_get", faux_get), self.assertRaisesRegex(lien.LienRefuse, "refusée"):
             lien.recuperer("https://exemple.test/é")
+
+
+def png_rect(largeur: int, hauteur: int) -> bytes:
+    return b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR" + largeur.to_bytes(4, "big") + hauteur.to_bytes(4, "big") + b"\x08\x06\x00\x00\x00" + b"x" * 20
+
+
+class Collections(unittest.TestCase):
+    """Collections des boutiques Shopify : lien « Où acheter » et image de logo."""
+    SOURCE = {"id": "kbs", "nom": "KBS", "type": "shopify", "hote": "boutique.test", "prefixe": "/en"}
+
+    def lire(self, collections: list[dict]):
+        corps = json.dumps({"collections": collections}).encode()
+        rec, demandes = faux_reseau({"https://boutique.test/en/collections.json?limit=250&page=1": corps})
+        with mock.patch.object(logos.lien, "recuperer", rec):
+            return logos.collections_boutique(self.SOURCE), demandes
+
+    def test_titre_exact_d_une_marque_connue_seulement(self):
+        cols, _ = self.lire([
+            {"title": "Cada", "handle": "cada-1", "products_count": 40, "image": {"src": "https://cdn.test/cada.webp"}},
+            {"title": "Mould King Vitrinen Autos", "handle": "mk-vitrine", "products_count": 9},
+            {"title": "Neuheiten", "handle": "neu", "products_count": 90},
+            {"title": "Kazi", "handle": "../kazi", "products_count": 3},          # poignée refusée
+            {"title": "Wange", "handle": "wange", "products_count": 2, "image": {"src": "http://cdn.test/w.png"}}])
+        self.assertEqual(cols, [
+            {"marque": "CaDA", "url": "https://boutique.test/en/collections/cada-1", "image": "https://cdn.test/cada.webp", "produits": 40},
+            {"marque": "Wange", "url": "https://boutique.test/en/collections/wange", "image": None, "produits": 2}])
+
+    def test_regroupement_collection_la_plus_fournie_et_images_de_toutes(self):
+        b = {"id": "b", "nom": "Bausteinreich"}
+        r = logos.regrouper([
+            (self.SOURCE, [{"marque": "Panlos", "url": "u-vide", "image": "https://i/1", "produits": 0}]),
+            (b, [{"marque": "Panlos", "url": "u-petite", "image": None, "produits": 2},
+                 {"marque": "Panlos", "url": "u-grande", "image": "https://i/2", "produits": 9}])])
+        self.assertEqual(r["Panlos"], {"liens": {"Bausteinreich": "u-grande"}, "images": ["https://i/1", "https://i/2"]})
+
+    def test_image_de_collection_avant_les_icones_du_site_et_banniere_ecartee(self):
+        pages = {"https://cdn.test/banniere.png?width=400": png_rect(1200, 200),
+                 "https://cdn.test/logo.png?v=3&width=400": png_rect(300, 150),
+                 "https://marque.test/": b'<link rel="icon" href="/i.png">', "https://marque.test/i.png": png(512)}
+        rec, demandes = faux_reseau(pages)
+        with mock.patch.object(logos.lien, "recuperer", rec):
+            corps, ext, origine = logos.recuperer_avec_source(
+                {"site": "marque.test", "collections": ["https://cdn.test/banniere.png", "https://cdn.test/logo.png?v=3"]})
+        self.assertEqual((origine, logos.dimension(corps, ext)), ("https://cdn.test/logo.png?v=3&width=400", 300))
+        self.assertNotIn("https://marque.test", demandes)  # image suffisante : le site n'est pas lu
+
+    def test_logo_d_une_regle_ancienne_relu(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        L = logos.Logos(Path(tmp.name))
+        recent = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.assertTrue(L.a_relire({"fichier": "a.png", "le": recent, "essai": recent}))
+        self.assertFalse(L.a_relire({"fichier": "a.png", "le": recent, "essai": recent, "regle": logos.REGLE}))
+
+    def test_liens_pour_la_page_et_boutique_illisible_garde_l_ancien(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        L = logos.Logos(Path(tmp.name), lambda: [self.SOURCE])
+        ancien = [{"marque": "Reobrix", "url": "https://boutique.test/en/collections/reobrix", "image": None, "produits": 5}]
+        L.fichier_collections.write_text(json.dumps({"le": "2000-01-01T00:00:00", "par_source": {"kbs": ancien}}), "utf-8")
+        rec, _ = faux_reseau({"https://boutique.test/en/collections.json?limit=250&page=1": lien.LienRefuse("503")})
+        with mock.patch.object(logos.lien, "recuperer", rec), mock.patch.object(logos, "PAUSE_S", 0):
+            L.actualiser_collections()
+        self.assertEqual(L.liens(), {"Reobrix": {"KBS": "https://boutique.test/en/collections/reobrix"}})
+
+    def test_echec_de_lecture_reessaye_le_lendemain(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        L = logos.Logos(Path(tmp.name), lambda: [self.SOURCE])
+        rec, demandes = faux_reseau({})  # 404 partout
+        with mock.patch.object(logos.lien, "recuperer", rec), mock.patch.object(logos, "PAUSE_S", 0):
+            L.actualiser_collections()
+            L.actualiser_collections()   # tout de suite : pas de nouvel essai
+        self.assertEqual(len(demandes), 1)
+        etat = json.loads(L.fichier_collections.read_text("utf-8"))
+        self.assertTrue(etat["echec"])
+        etat["le"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - 86400))
+        L.fichier_collections.write_text(json.dumps(etat), "utf-8")
+        with mock.patch.object(logos.lien, "recuperer", rec), mock.patch.object(logos, "PAUSE_S", 0):
+            L.actualiser_collections()   # un jour après l'échec : nouvel essai
+        self.assertEqual(len(demandes), 2)
+
+    def test_reponse_mal_formee_et_page_ignoree(self):
+        cols, _ = self.lire(["pas un objet", {"title": "Cobi", "handle": "cobi", "products_count": "x", "image": {"src": 3}},
+                             {"title": "Cobi", "handle": "cobi", "products_count": 4}])
+        self.assertEqual(cols, [{"marque": "Cobi", "url": "https://boutique.test/en/collections/cobi", "image": None, "produits": 0}])
+        page = json.dumps({"collections": [{"title": f"c{i}", "handle": f"c{i}"} for i in range(250)]}).encode()
+        rec, demandes = faux_reseau({f"https://boutique.test/en/collections.json?limit=250&page={k}": page for k in (1, 2, 3, 4)})
+        with mock.patch.object(logos.lien, "recuperer", rec), mock.patch.object(logos, "PAUSE_S", 0):
+            logos.collections_boutique(self.SOURCE)
+        self.assertEqual(len(demandes), 2)  # la page 2 répète la page 1 : arrêt
+
+    def test_rapport_des_formats(self):
+        self.assertEqual(logos._rapport(png_rect(400, 100), "png"), 4)
+        self.assertEqual(logos._rapport(jpg(50), "jpg"), 1)
+        for fmt in (b"VP8X", b"VP8L", b"VP8 "):
+            self.assertAlmostEqual(logos._rapport(webp(fmt, 64), "webp"), 1)
+        self.assertEqual(logos._adresse_collection("https://cdn.test/a.png?v=2&width=50"), "https://cdn.test/a.png?v=2&width=400")
+
+    def test_sans_collections_les_logos_restent_a_reprendre(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        L = logos.Logos(Path(tmp.name), lambda: [self.SOURCE])
+        rec, _ = faux_reseau({})
+        with mock.patch.object(logos.lien, "recuperer", rec), mock.patch.object(logos, "PAUSE_S", 0), \
+                mock.patch.object(logos, "sites", lambda: {"Marque A": {"site": "a.test"}}), \
+                mock.patch.object(logos, "recuperer_avec_source", lambda conf: (png(64), "png", "https://a.test/i.png")):
+            L.actualiser()
+        e = L.etat()["marque-a"]
+        self.assertEqual((e["fichier"], e["regle"]), ("marque-a.png", 1))
+        self.assertTrue(L.a_relire(e))
+
+    def test_marque_connue_par_sa_seule_collection(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        L = logos.Logos(Path(tmp.name), lambda: [self.SOURCE])
+        L.fichier_collections.write_text(json.dumps({"le": time.strftime("%Y-%m-%dT%H:%M:%S"), "marques": {
+            "TGL": {"liens": {}, "images": ["https://cdn.test/tgl.png"]}}}), "utf-8")
+        vus = []
+        def fausse(conf):
+            vus.append(conf)
+            return png(200), "png", conf["collections"][0]
+        with mock.patch.object(logos, "sites", lambda: {}), mock.patch.object(logos, "recuperer_avec_source", fausse), \
+                mock.patch.object(logos, "PAUSE_S", 0):
+            L.actualiser()
+        self.assertEqual(vus, [{"collections": ["https://cdn.test/tgl.png"]}])
+        self.assertEqual(L.etat()["tgl"]["regle"], logos.REGLE)
 
 
 if __name__ == "__main__":

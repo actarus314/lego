@@ -67,11 +67,13 @@ Les photos restent chez leurs sources (lien seulement). Le service vérifie chaq
 
 ### Logos des marques
 
-Le service récupère l'icône du site officiel de chaque marque listée dans `data/marques.json` (adresse directe si elle est déclarée, puis page d'accueil : la plus grande icône déclarée, mesurée dans le fichier, logo de la page, `/favicon.ico`), une fois par mois, et la garde dans `logos/` du dossier de données. Un échec est réessayé au bout de 1, 3, 7 puis 30 jours. Les images sont vérifiées par leur signature et servies sans script ni ressource externe. Une marque sans site connu garde une pastille à initiales. Le dépôt ne contient aucun logo.
+Le logo de chaque marque vient, dans cet ordre : de l'adresse directe déclarée dans `data/marques.json` (`icone`) ; de l'image de la collection de la marque chez les boutiques Shopify lues (chez KBS et Bausteinreich, le logo de la marque, lisible sans le blocage anti-robot de certains sites de marques ; demandée en 400 pixels de large ; ICO, SVG et bannières plus larges que trois fois leur hauteur écartés ; trois images au plus) ; de l'icône du site officiel (la plus grande icône déclarée, mesurée dans le fichier, logo de la page, `/favicon.ico`). Récupéré une fois par mois et gardé dans `logos/` du dossier de données ; un échec est réessayé au bout de 1, 3, 7 puis 30 jours. Les images sont vérifiées par leur signature et servies sans script ni ressource externe. Une marque sans aucune image garde une pastille à initiales. Le dépôt ne contient aucun logo.
+
+Les collections des boutiques (`/collections.json`, relues tous les 7 jours, le lendemain après un échec, gardées dans `collections.json` du dossier de données) donnent aussi les liens « Où acheter » de la page Marques : la page de la marque chez chaque boutique (la collection qui a le plus de produits), sinon le site de la boutique.
 
 ### Données
 
-Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `photos.json` (photos vérifiées), `dimensions_<source>.json` et `reference_lego.json` (caches).
+Dans le dossier monté sur `/donnees` : `sources/<source>.json` (index), `synchro.json` (journal), `selection.json`, `logos/`, `collections.json` (collections des boutiques), `photos.json` (photos vérifiées), `dimensions_<source>.json` et `reference_lego.json` (caches).
 
 ## Développement
 
