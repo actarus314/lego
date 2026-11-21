@@ -15,6 +15,7 @@ services:
       UTILISATEURS: ${UTILISATEURS:?UTILISATEURS à renseigner (empreintes par python -m app.motdepasse)}
       AUTH_DESACTIVEE: ${AUTH_DESACTIVEE:-0}
       ACHATS_MASQUES_POUR: ${ACHATS_MASQUES_POUR:-}
+      ADMINS: ${ADMINS:-}
       RELEVE_HEURES: ${RELEVE_HEURES:-24}
       SOURCES: ${SOURCES:-}
       ALERTES: ${ALERTES:-}

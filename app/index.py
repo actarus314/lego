@@ -20,6 +20,8 @@ from .tests_auto import Tests
 from .photos import Photos, adresses as adresses_photos, appliquer as appliquer_photos
 from .donnees import _ecrire, _lire, dans
 
+TYPES = ("classique", "technic")   # types de briques connus (la page déclare les mêmes, avec libellé et icône)
+
 RACINE = Path(__file__).resolve().parent.parent
 log = logging.getLogger("index")
 VERROU = threading.RLock()
@@ -192,11 +194,38 @@ class Index:
             _ecrire(self.fichier(source_id), d)
             self._cache = None
 
+    # ----- corrections faites depuis la page -----
+    @property
+    def fichier_locales(self) -> Path:
+        return self.dossier.parent / "corrections_locales.json"
+
+    def corrections_locales(self) -> dict:
+        """{id du set: {type, par, le}} : types imposés depuis la fiche par un compte administrateur,
+        appliqués après data/corrections.json. Valeur mal formée ignorée."""
+        d = _lire(self.fichier_locales, {})
+        sets = d.get("sets") if isinstance(d, dict) else None
+        return {k: v for k, v in (sets or {}).items() if isinstance(k, str) and isinstance(v, dict)}
+
+    def imposer_type(self, ident: str, type_: str | None, par: str) -> None:
+        """Impose (ou retire, avec None) le type de briques d'un set ; le catalogue est reconstruit à la
+        lecture suivante."""
+        if type_ is not None and type_ not in TYPES:
+            raise ValueError("type inconnu")
+        with VERROU:
+            d = _lire(self.fichier_locales, {})
+            sets = d.setdefault("sets", {}) if isinstance(d, dict) else {}
+            if type_ is None:
+                sets.pop(ident, None)
+            else:
+                sets[ident] = {"type": type_, "par": par, "le": time.strftime("%Y-%m-%dT%H:%M:%S")}
+            _ecrire(self.fichier_locales, {"sets": sets})
+            self._cache = None
+
     # ----- catalogue regroupé -----
     def sets(self, actives: list[str]) -> list[dict]:
         intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
             "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json")] + [
-            self.dossier.parent / "livraison_lue.json", self.photos.fichier]
+            self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales]
         cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
                      self.tests.signature())
         if self._cache and self._cache[0] == cle_cache:
@@ -235,10 +264,13 @@ class Index:
                for cle, g in groupes.items() for i, paq in enumerate(_separer(g))]
         out = [s for s in out if s]
         types_par_serie(out)
+        locales = self.corrections_locales()
         for s in out:
             for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
                 if k in ("nom", "type", "themes", "dims"):
                     s[k] = v
+            if (locales.get(s["id"]) or {}).get("type") in TYPES:  # imposé depuis la fiche par un administrateur
+                s["type"] = locales[s["id"]]["type"]
         self.photos_brutes = adresses_photos(out)
         appliquer_photos(out, self.photos.ecartees(), self.photos.douteuses())
         self._cache = (cle_cache, out)

@@ -14,7 +14,7 @@
   --fg:#18212c; --muted:#4f5d6b; --faint:#85919d;
   --accent:#2f5bd3; --accent-soft:#e6edfc; --on-accent:#ffffff;
   --ok:#1f7a4a; --ok-soft:#e2f3e9; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b3261e; --bad-soft:#fbe5e3;
-  --f-theme:#7b3fb8; --f-theme-soft:#f1e8fb; --f-marque:#0b7a75; --f-marque-soft:#ddf3f1; --f-achat:#b5531a; --f-achat-soft:#fbe9dd; --f-type:#3a5f8a; --f-type-soft:#e3ecf6;
+  --f-theme:#7b3fb8; --f-theme-soft:#f1e8fb; --f-marque:#0a716c; --f-marque-soft:#ddf3f1; --f-achat:#b5531a; --f-achat-soft:#fbe9dd; --f-type:#3a5f8a; --f-type-soft:#e3ecf6; --f-dispo:#2a6e3c; --f-dispo-soft:#e2f2e6; --f-taille:#7d5f0c; --f-taille-soft:#f6eed6;
   --display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
   --body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -24,14 +24,14 @@
   --fg:#e3e9ef; --muted:#a4b0bc; --faint:#6c7a87;
   --accent:#7c9cf2; --accent-soft:#1d2a47; --on-accent:#0b1220;
   --ok:#5fc48c; --ok-soft:#14301f; --warn:#e3a94a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1714;
-  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738;
+  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#e2c46c; --f-taille-soft:#322a12;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f151c; --card:#161e26; --sunk:#111820; --line:#26313d;
   --fg:#e3e9ef; --muted:#a4b0bc; --faint:#6c7a87;
   --accent:#7c9cf2; --accent-soft:#1d2a47; --on-accent:#0b1220;
   --ok:#5fc48c; --ok-soft:#14301f; --warn:#e3a94a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1714;
-  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738;
+  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#e2c46c; --f-taille-soft:#322a12;
   color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -69,11 +69,11 @@ main{padding-block:20px 48px}
 .fgroups{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-start}
 .fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fgroup .flbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
-.fg-theme{--c:var(--f-theme);--cs:var(--f-theme-soft)} .fg-marque{--c:var(--f-marque);--cs:var(--f-marque-soft)} .fg-achat{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-type{--c:var(--f-type);--cs:var(--f-type-soft)} .fg-zone{--c:var(--f-marque);--cs:var(--f-marque-soft)}
+.fg-dispo{--c:var(--f-dispo);--cs:var(--f-dispo-soft)} .fg-prix{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-taille{--c:var(--f-taille);--cs:var(--f-taille-soft)} .fg-theme{--c:var(--f-theme);--cs:var(--f-theme-soft)} .fg-marque{--c:var(--f-marque);--cs:var(--f-marque-soft)} .fg-achat{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-type{--c:var(--f-type);--cs:var(--f-type-soft)} .fg-zone{--c:var(--f-marque);--cs:var(--f-marque-soft)}
 .fgroup .flbl{color:var(--muted)}
 .chip{height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:500 13px var(--body);cursor:pointer;white-space:nowrap}
 .chip:hover{color:var(--fg);border-color:var(--c,var(--line))}
-.chip[aria-pressed="true"]{background:var(--cs,var(--accent-soft));border-color:var(--c,var(--accent));color:var(--c,var(--accent))}
+.chip[aria-pressed="true"],.chip[aria-checked="true"]{background:var(--cs,var(--accent-soft));border-color:var(--c,var(--accent));color:var(--c,var(--accent))}
 .sel{height:30px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 8px;font:13px var(--body)}
 .more svg{transition:transform .15s}.more[aria-expanded="true"] svg{transform:rotate(180deg)}
 .sub-f{padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:-6px}
@@ -162,12 +162,22 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .filtres{position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px);max-height:calc(100dvh - 88px);overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
 .filtres .q{height:36px;width:100%;border:1px solid var(--line);background:var(--sunk);color:var(--fg);border-radius:8px;padding:0 10px;font:14px var(--body)}
 .fbloc{display:grid;gap:6px}
-.fbloc > .lbl{display:flex;justify-content:space-between;gap:8px}
+/* une couleur par sujet de filtre : libellé, puces actives, curseur */
+.fbloc[class*="fg-"] > .lbl{color:var(--c)}
+.fbloc[class*="fg-"] > .lbl::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:6px;vertical-align:1px}
+.fbloc[class*="fg-"] .curseur{accent-color:var(--c)}
+.fbloc[class*="fg-"] .chip:hover{border-color:var(--c)}
+/* Disponibilité : cases à cocher, chaque case ajoute ses sets */
+.coches .chip .case{width:14px;height:14px;border-radius:4px;border:1.5px solid currentColor;display:inline-grid;place-items:center;flex:none}
+.coches .chip[aria-checked="true"] .case{background:var(--c);border-color:var(--c)}
+.coches .chip[aria-checked="true"] .case::after{content:"";width:7px;height:4px;border:2px solid var(--card);border-top:0;border-right:0;transform:translate(0,-1px) rotate(-45deg)}
+.fbloc > .lbl{display:flex;justify-content:flex-start;align-items:center;gap:0}
+.fbloc > .lbl output{margin-left:auto}
 .fbloc > .lbl output{font-family:var(--mono);color:var(--fg);text-transform:none;letter-spacing:0;font-size:11.5px;font-weight:600}
 .puces{display:flex;flex-wrap:wrap;gap:5px}
 .puces .chip{height:28px;padding:0 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
 .puces .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint);min-width:3ch;text-align:right}
-.puces .chip[aria-pressed="true"] .n{color:inherit}
+.puces .chip[aria-pressed="true"] .n,.puces .chip[aria-checked="true"] .n{color:inherit}
 .marques-g{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .marques-g .chip{justify-content:flex-start;padding:0 8px;min-width:0}
 .marques-g .chip span.t{overflow:hidden;text-overflow:ellipsis}
@@ -203,6 +213,9 @@ nav .m-ico{display:none;vertical-align:-3px}
 .alerte-l{color:var(--warn)}
 .res-tete{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
 .res-tete p{margin:0;color:var(--muted)}
+.res-tete .n-big{font:600 20px var(--display);color:var(--fg);margin-right:4px;font-variant-numeric:tabular-nums}
+#releve-date{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:12.5px;text-decoration:none}
+#releve-date:hover{color:var(--accent)}
 .ligne-marque{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .f-barre{display:none}
 @media (max-width:1100px){
@@ -377,12 +390,12 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
     <aside class="filtres" id="filtres" aria-label="Filtres">
       <input class="q" id="q" type="search" placeholder="Set, numéro, marque, thème…" aria-label="Rechercher un set">
       <div class="fhaut"><select id="tri" aria-label="Trier par"><option value="prix|asc">Prix croissant</option><option value="prix|desc">Prix décroissant</option><option value="pieces|desc">Pièces, du plus grand</option><option value="taille|desc">Taille, du plus grand</option><option value="nom|asc">Nom</option></select><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
-      <div class="fbloc"><span class="lbl">Disponibilité</span><div class="puces" id="f-dispo"></div></div>
-      <div class="fbloc"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
-      <div class="fbloc"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
-      <div class="fbloc"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur" id="f-prix" type="range" min="0" step="1"></div>
-      <div class="fbloc"><label class="lbl" for="f-taille">Taille maximum<output id="o-taille"></output></label><input class="curseur" id="f-taille" type="range" min="0" step="1"><span class="sub" id="n-sansdim"></span></div>
-      <div class="fbloc"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
+      <div class="fbloc fg-dispo"><span class="lbl" id="l-dispo">Disponibilité</span><div class="puces coches" id="f-dispo" role="group" aria-labelledby="l-dispo"></div></div>
+      <div class="fbloc fg-theme"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
+      <div class="fbloc fg-type"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
+      <div class="fbloc fg-prix"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur" id="f-prix" type="range" min="0" step="1"></div>
+      <div class="fbloc fg-taille"><label class="lbl" for="f-taille">Taille maximum<output id="o-taille"></output></label><input class="curseur" id="f-taille" type="range" min="0" step="1"><span class="sub" id="n-sansdim"></span></div>
+      <div class="fbloc fg-marque"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
       <button class="btn primary voir" id="f-voir"></button>
     </aside>
     <div class="view">
@@ -626,9 +639,10 @@ function filterGroups(container, groups){
 }
 
 /* ---------- Recherche ---------- */
+const DISPO_DEFAUT = ["vente","precommande"];   // ce qui s'achète maintenant ou à réception
 const PRIX = [30,50,75,100,150,200,250,300,400,500,750,1000,1500,2000,Infinity];
 const TAILLE = [20,30,40,50,60,70,80,100,120,150,Infinity];
-const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(["vente"]), prix:PRIX.length - 1, taille:TAILLE.length - 1};
+const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(DISPO_DEFAUT), prix:PRIX.length - 1, taille:TAILLE.length - 1};
 const sI = {key:"prix", dir:"asc", def:"prix", defDir:"asc"};
 const TYPES = [["classique","Classique",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="6" width="14" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/><rect x="9.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/></svg>'],
   ["technic","Technic",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="8" r="1.3" fill="currentColor"/></svg>']];
@@ -697,9 +711,13 @@ function filtrer(sauf, toks = jetons()){
     (!toks.length || correspond(r, toks)));
 }
 const compter = (rows, cle) => rows.reduce((m, r) => { for (const v of [].concat(cle(r))) m[v] = (m[v] || 0) + 1; return m; }, {});
-function puces(el, sel, items, compte){
-  el.innerHTML = items.map(([v, l, ico]) => `<button class="chip" data-v="${esc(v)}" aria-pressed="${sel.has(v)}">${ico || ""}<span class="t">${esc(l)}</span><span class="n">${compte(v)}</span></button>`).join("");
-  el.querySelectorAll(".chip").forEach(b => b.onclick = () => { const v = b.dataset.v; sel.has(v) ? sel.delete(v) : sel.add(v); renderIdees(); });
+function puces(el, sel, items, compte, cases = false){
+  // cases : cases à cocher dont chacune ajoute ses sets ; sinon puces qui restreignent (aucune = toutes)
+  el.innerHTML = items.map(([v, l, ico]) => `<button class="chip" data-v="${esc(v)}" ${cases ? "role=\"checkbox\" aria-checked" : "aria-pressed"}="${sel.has(v)}">${ico || ""}<span class="t">${esc(l)}</span><span class="n">${compte(v)}</span></button>`).join("");
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    const v = b.dataset.v; sel.has(v) ? sel.delete(v) : sel.add(v); renderIdees();
+    const nb = el.querySelector(`.chip[data-v="${CSS.escape(v)}"]`); if (nb) nb.focus();   // le focus suit la puce reconstruite
+  });
 }
 const colsI = [
   {key:"img",label:"",cls:"ph-h"},
@@ -712,13 +730,15 @@ const colsI = [
 const LARGEURS = ["152px", "auto", "84px", "84px", "230px", "112px"];
 let MARQUES_ORD = [];
 function renderIdees(){
+  if (fI.types.has("inconnu") && !(MODE.admin && IDEES.some(r => r._ty === "inconnu"))) fI.types.delete("inconnu");  // plus rien à classer
   const toks = jetons(), rows = filtrer(null, toks);
   // Compteurs en un passage par groupe de filtres
   const cDispo = compter(filtrer("dispo", toks), r => r.dispo), cTh = compter(filtrer("themes", toks), r => r._th);
   const cTy = compter(filtrer("types", toks), r => r._ty), cMq = compter(filtrer("marques", toks), r => r.marque);
-  puces($("#f-dispo"), fI.dispo, [["precommande","Précommande"],["epuise","Épuisés"]], v => cDispo[v] || 0);
+  puces($("#f-dispo"), fI.dispo, [["vente","En vente"],["precommande","Précommande"],["epuise","Épuisé"]].map(([v, l]) => [v, l, '<span class="case" aria-hidden="true"></span>']), v => cDispo[v] || 0, true);
   puces($("#f-themes"), fI.themes, [...CAT.themes.map(t => [t.id, t.nom]), ["autres","Autres"]], v => cTh[v] || 0);
-  puces($("#f-types"), fI.types, [...TYPES, ["inconnu","Non précisé"]], v => cTy[v] || 0);
+  // sets sans type : visibles et filtrables par les seuls administrateurs, pour les classer depuis la fiche
+  puces($("#f-types"), fI.types, [...TYPES, ...(MODE.admin && (cTy.inconnu || fI.types.has("inconnu")) ? [["inconnu","À classer"]] : [])], v => cTy[v] || 0);
   if (MARQUES_ORD.length !== new Set(IDEES.map(r => r.marque)).size){
     const n = compter(IDEES, r => r.marque);
     MARQUES_ORD = Object.keys(n).sort((a, b) => n[b] - n[a]);
@@ -732,11 +752,11 @@ function renderIdees(){
   const avecTaille = fI.taille !== TAILLE.length - 1;
   const sansDim = filtrer("taille", toks).filter(r => r._lg == null).length;
   $("#n-sansdim").textContent = avecTaille && sansDim ? `${sansDim} set${sansDim > 1 ? "s" : ""} sans dimension connue masqué${sansDim > 1 ? "s" : ""}` : "";
-  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size - 1) + (fI.prix !== PRIX.length - 1) + avecTaille;
+  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size !== DISPO_DEFAUT.length || DISPO_DEFAUT.some(d => !fI.dispo.has(d))) + (fI.prix !== PRIX.length - 1) + avecTaille;
   $("#f-ouvrir").textContent = nf ? `Filtres (${nf})` : "Filtres";
   const nbTxt = `${rows.length} set${rows.length > 1 ? "s" : ""}`;
   $("#f-voir").textContent = "Voir " + nbTxt;
-  $("#n-res").innerHTML = IDEES.length ? esc(nbTxt) + (ELARGI.length ? ` <span class="sub">· thème ${esc(ELARGI.join(", "))}</span>` : "")
+  $("#n-res").innerHTML = IDEES.length ? `<b class="n-big">${rows.length}</b> set${rows.length > 1 ? "s" : ""}${rows.length < IDEES.length ? `<span class="sub"> sur ${IDEES.length}</span>` : ""}` + (ELARGI.length ? ` <span class="sub">· thème ${esc(ELARGI.join(", "))}</span>` : "")
     + [...new Set(ELARGISSABLE.map(x => x[1]))].map(th => ` <button class="btn small ghost" data-elargir="${esc(ELARGISSABLE.filter(x => x[1] === th).map(x => x[0]).join(" "))}">Inclure le thème ${esc(th)}</button>`).join("") : "";
   $("#n-res").querySelectorAll("[data-elargir]").forEach(b => b.onclick = () => { b.dataset.elargir.split(" ").forEach(m => elargis.add(m)); renderIdees(); });
   $("#tri").value = `${sI.key}|${sI.dir}`;
@@ -744,7 +764,8 @@ function renderIdees(){
   let vide = IDEES.length ? "Aucun set ne correspond." : (MODE.serveur ? "Catalogue en cours de chargement…" : "Catalogue vide.");
   if (IDEES.length && !rows.length){
     const masques = filtrer("dispo", toks).filter(r => !fI.dispo.has(r.dispo));
-    if (masques.length) vide = `Aucun set en vente : ${masques.length} épuisé${masques.length > 1 ? "s" : ""} ou en précommande. <button class="btn small" id="voir-epuises">Les afficher</button>`;
+    if (!fI.dispo.size) vide = 'Aucune disponibilité cochée. <button class="btn small" id="voir-dispo">Cocher les trois</button>';
+    else if (masques.length) vide = `Aucun set ne correspond parmi les disponibilités cochées ; ${masques.length} set${masques.length > 1 ? "s" : ""} avec une autre disponibilité. <button class="btn small" id="voir-dispo">Cocher les trois</button>`;
   }
   sortable("t-idees", colsI, rows, sI, r => {
     const o = r._meilleure, inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url))), nbB = new Set(r.offres.map(x => x.boutique)).size;
@@ -761,7 +782,7 @@ function renderIdees(){
   }, vide);
   const t = $("#t-idees");
   if (!t.querySelector("colgroup")) t.insertAdjacentHTML("afterbegin", `<colgroup>${LARGEURS.map(w => `<col style="width:${w}">`).join("")}</colgroup>`);
-  const ve = $("#voir-epuises"); if (ve) ve.onclick = () => { fI.dispo = new Set(["vente","precommande","epuise"]); renderIdees(); };
+  const ve = $("#voir-dispo"); if (ve) ve.onclick = () => { fI.dispo = new Set(["vente","precommande","epuise"]); renderIdees(); };
 }
 $("#t-idees").addEventListener("click", e => {
   const add = e.target.closest("[data-add]");
@@ -784,7 +805,7 @@ fTaille.oninput = () => { fI.taille = +fTaille.value; $("#o-taille").textContent
 let qT; const surQ = v => { clearTimeout(qT); qT = setTimeout(() => { fI.q = v; renderIdees(); }, 120); };
 $("#q").oninput = e => { $("#q2").value = e.target.value; surQ(e.target.value); };
 $("#q2").oninput = e => { $("#q").value = e.target.value; surQ(e.target.value); };
-$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(["vente"]); fI.prix = PRIX.length - 1; fI.taille = TAILLE.length - 1; fPrix.value = fI.prix; fTaille.value = fI.taille; renderIdees(); };
+$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(DISPO_DEFAUT); fI.prix = PRIX.length - 1; fI.taille = TAILLE.length - 1; fPrix.value = fI.prix; fTaille.value = fI.taille; renderIdees(); };
 $("#f-ouvrir").onclick = e => { const b = e.currentTarget, o = !$("#filtres").classList.contains("ouvert"); $("#filtres").classList.toggle("ouvert", o); b.setAttribute("aria-expanded", o); };
 document.addEventListener("click", e => { if ($("#filtres").classList.contains("ouvert") && !e.target.closest("#filtres,#f-ouvrir")){ $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); } });
 sI.render = renderIdees;
@@ -827,7 +848,7 @@ function openFiche(id){
         <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">${o.port == null ? "port non relevé" : o.port_estime ? "port estimé compris" : "port compris"} · ${esc(o.boutique)}${o.delai ? " · " + esc(o.delai) : ""}</span></div>
         <div class="fact"><span class="lbl">Pièces</span><b>${r.pieces ?? "—"}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>
         <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
-        <div class="fact"><span class="lbl">Briques</span><b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b></div>
+        <div class="fact"><span class="lbl">Briques</span>${MODE.admin ? `<select class="sel" id="f-type" aria-label="Type de briques (administrateur)"><option value=""${r.type ? "" : " selected"}>${r.type ? "Type calculé" : "À classer"}</option>${TYPES.map(([v, l]) => `<option value="${v}"${r.type === v ? " selected" : ""}>${l}</option>`).join("")}</select>` : `<b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b>`}</div>
       </div>
       <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(datesLisibles(r.retrait))}</span>` : ""}</div>
       <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("")}<div class="liens-tests" id="f-liens"></div>
@@ -838,6 +859,16 @@ function openFiche(id){
       </div>
     </div></div>`;
   $("#f-close").onclick = () => dlg.close();
+  const fType = $("#f-type");
+  if (fType) fType.onchange = async () => {
+    fType.disabled = true;
+    try {
+      await api("POST", "api/type", {id:r.id, type:fType.value || null});
+      if (fType.value){ r.type = fType.value; r._ty = r.type; toast("Type enregistré : " + fType.options[fType.selectedIndex].text); renderIdees(); }
+      else { toast("Type calculé rétabli"); chargerCatalogue(); }
+    } catch (e) { fType.value = r.type || ""; toast("Type non enregistré : " + e.message, true); }
+    fType.disabled = false;
+  };
   $("#f-add").onclick = e => { addFromIdee(r.id); e.currentTarget.disabled = true; e.currentTarget.textContent = "Dans la sélection"; };
   $("#f-offres").addEventListener("toggle", e => { if (e.target.matches("details.autres")) OUVERT_AUTRES = e.target.open; }, true);
   const relire = $("#f-relire");
@@ -1276,7 +1307,7 @@ const colsR = [
 const colsH = [
   {key:"le",label:"Fin",val:r => r.le,first:"desc"},
   {key:"par",label:"Lancée par",val:r => r.par},
-  {key:"lus",label:"Sets",val:r => r.lus,cls:"num"},
+  {key:"lus",label:"Offres lues",val:r => r.lus,cls:"num"},
   {key:"echecs",label:"Sources en échec",val:r => r.echecs,cls:"num"},
   {key:"duree_s",label:"Durée",val:r => r.duree_s,cls:"num hide-m"},
 ];
@@ -1325,7 +1356,7 @@ function renderSynchro(){
   $("#r-ico").setAttribute("aria-label", "Synchronisation" + (run ? " : en cours" : arret ? " : programmée arrêtée" : enEchec.length ? ` : ${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec` : ""));
   if (d){
     $("#pied").textContent = `Prix synchronisés le ${quand(d.le)} · à vérifier sur le site avant d'acheter.`;
-    $("#releve-date").innerHTML = "Synchronisé le " + esc(quand(d.le)) + (enEchec.length ? ` · <span class="r-alerte">${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec</span>` : "");
+    $("#releve-date").innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Prix du ${esc(quand(d.le))}` + (enEchec.length ? ` · <span class="r-alerte">${enEchec.length} source${enEchec.length > 1 ? "s" : ""} en échec</span>` : "");
   }
   const pourquoi = (id, raison) => { const w = $(id); if (raison) w.dataset.pourquoi = raison; else w.removeAttribute("data-pourquoi"); };
   $("#r-lancer").disabled = run; pourquoi("#pq-lancer", run ? "Synchronisation en cours" : "");
@@ -1350,18 +1381,21 @@ function renderSynchro(){
   } else if (rFin){
     prog.innerHTML = `<span class="lbl">Synchronisation terminée</span>
       <div class="track"><i style="width:100%"></i></div>
-      <div class="ligne"><span><b>${rFin.lus}</b> sets</span>${rFin.echecs ? `<span class="r-alerte">${rFin.echecs} source${rFin.echecs > 1 ? "s" : ""} en échec</span>` : "<span>aucun échec</span>"}<span>${duree(rFin.duree_s)}</span></div>
+      <div class="ligne"><span><b>${rFin.lus}</b> offres lues</span>${rFin.echecs ? `<span class="r-alerte">${rFin.echecs} source${rFin.echecs > 1 ? "s" : ""} en échec</span>` : "<span>aucun échec</span>"}<span>${duree(rFin.duree_s)}</span></div>
       <div></div>`;
   }
   const prochain = e.heures > 0 ? (e.programme_actif ? quand(e.prochain) : "arrêtée") : "désactivée";
   $("#r-resume").innerHTML = `
     <div><span class="lbl">Dernière synchronisation</span><b>${d ? esc(quand(d.le)) : "aucune"}</b>${d ? `<span class="sub">${esc(parLbl(d.par))} · ${duree(d.duree_s)}</span>` : ""}</div>
     <div><span class="lbl">Sets au catalogue</span><b>${IDEES.length}</b></div>
+    ${MODE.admin && IDEES.some(r => !r.type) ? `<div><span class="lbl">Briques à classer</span><b class="r-alerte">${IDEES.filter(r => !r.type).length}</b><span class="sub"><a href="#idees" id="a-classer">Les afficher</a> · type à choisir dans la fiche</span></div>` : ""}
     <div><span class="lbl">Sources en échec</span><b${enEchec.length ? ' class="r-alerte"' : ""}>${enEchec.length} / ${lignes.length}</b></div>
     <div><span class="lbl">Prochaine</span><b>${esc(prochain)}</b></div>
     ${R.rotation ? `<div><span class="lbl">Fiches LEGO officiel</span><b>${R.rotation.lues} / ${R.rotation.fiches}</b><span class="sub">${R.rotation.adultes} pour adultes · la plus ancienne date de ${R.rotation.plus_ancienne_h} h${R.rotation.erreurs ? ` · <span class="r-alerte">${R.rotation.erreurs} en échec</span>` : ""}</span></div>` : ""}
     ${R.photos && R.photos.total ? `<div><span class="lbl">Photos trouvées</span><b>${R.photos.trouvees} / ${R.photos.total}</b><span class="sub">${[R.photos.ecartees ? `${R.photos.ecartees} introuvable${R.photos.ecartees > 1 ? "s" : ""}` : "", R.photos.non_verifiables ? `${R.photos.non_verifiables} non vérifiable${R.photos.non_verifiables > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</span></div>` : ""}
     <div class="large"><span class="lbl">Alertes de la sélection</span><b>${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.canal === "signal" ? "Signal" : "Courriel")).join(", ") : "aucune"}</b><span class="sub">${ALERTES && ALERTES.canaux.length ? ALERTES.canaux.map(c => esc(c.adresse)).join(", ") + ' · <button class="btn small ghost" id="essai-alertes">Envoyer un essai</button>' : "pour ce compte"}</span></div>`;
+  const ac = $("#a-classer");
+  if (ac) ac.onclick = () => { $("#f-raz").click(); fI.types = new Set(["inconnu"]); fI.dispo = new Set(["vente","precommande","epuise"]); renderIdees(); };
   const ea = $("#essai-alertes");
   if (ea) ea.onclick = async () => {
     ea.disabled = true; ea.textContent = "Envoi…";
@@ -1380,7 +1414,7 @@ function renderSynchro(){
   sortable("t-hist", colsH, R.historique || [], sH, r => `<tr>
     <td data-k="Fin">${esc(quand(r.le))}</td>
     <td data-k="Lancée par">${esc(parLbl(r.par))}</td>
-    <td class="num" data-k="Sets">${r.lus}</td>
+    <td class="num" data-k="Offres lues">${r.lus}</td>
     <td class="num" data-k="Sources en échec">${r.echecs ? `<span class="r-alerte">${r.echecs}</span>` : 0}</td>
     <td class="num hide-m" data-k="Durée">${duree(r.duree_s)}</td>
   </tr>`, "Aucune synchronisation pour l'instant");

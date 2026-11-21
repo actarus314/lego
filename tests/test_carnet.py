@@ -540,6 +540,7 @@ class Serveur(unittest.TestCase):
         G.gardien = acces.Gardien({"bruno": acces.empreinte("motdepasse-b", iterations=1000),
                                    "alice": acces.empreinte("motdepasse-a", iterations=1000)})
         G.masquer = {"bruno"}
+        G.admins = {"alice"}
         cls.srv = ThreadingHTTPServer(("127.0.0.1", 0), G)
         cls.base = f"http://127.0.0.1:{cls.srv.server_address[1]}"
         threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
@@ -580,6 +581,38 @@ class Serveur(unittest.TestCase):
         with urllib.request.urlopen(r) as rep:
             self.assertEqual(rep.headers["Content-Encoding"], "gzip")
             self.assertIn("sets", json.loads(gzip.decompress(rep.read())))
+
+    def test_type_impose_par_un_administrateur(self):
+        code, corps, _ = self.req("GET", "/api/catalogue", "alice")
+        sid = json.loads(corps)["sets"][0]["id"]
+        self.assertEqual(self.req("POST", "/api/type", "bruno", {"id": sid, "type": "technic"})[0], 403)
+        self.assertEqual(self.req("POST", "/api/type", "alice", {"id": sid, "type": "duplo"})[0], 400)
+        self.assertEqual(self.req("POST", "/api/type", "alice", {"id": "inconnu-0", "type": "technic"})[0], 404)
+        # requête d'une page tierce : refusée même avec les identifiants du navigateur
+        r = urllib.request.Request(self.base + "/api/type", method="POST", data=json.dumps({"id": sid, "type": "technic"}).encode(),
+                                   headers={"Content-Type": "text/plain", "Authorization": "Basic " + base64.b64encode(b"alice:motdepasse-a").decode()})
+        with self.assertRaises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(r)
+        self.assertEqual(e.exception.code, 403)
+        r = urllib.request.Request(self.base + "/api/type", method="POST", data=json.dumps({"id": sid, "type": "technic"}).encode(),
+                                   headers={"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site",
+                                            "Authorization": "Basic " + base64.b64encode(b"alice:motdepasse-a").decode()})
+        with self.assertRaises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(r)
+        self.assertEqual(e.exception.code, 403)
+        self.assertEqual(self.req("POST", "/api/type", "alice", ["liste"])[0], 400)
+        self.assertEqual(self.req("POST", "/api/type", "alice", {"id": sid, "type": "technic"})[0], 200)
+        d = json.loads(self.req("GET", "/api/catalogue", "alice")[1])
+        self.assertEqual(next(x for x in d["sets"] if x["id"] == sid)["type"], "technic")
+        self.assertEqual(self.req("POST", "/api/type", "alice", {"id": sid, "type": "classique"})[0], 200)
+        d = json.loads(self.req("GET", "/api/catalogue", "alice")[1])
+        self.assertEqual(next(x for x in d["sets"] if x["id"] == sid)["type"], "classique")
+        self.assertIn('"admin": true', self.req("GET", "/", "alice")[1])
+        self.assertIn('"admin": false', self.req("GET", "/", "bruno")[1])
+        self.assertEqual(self.req("POST", "/api/type", "alice", {"id": sid, "type": None})[0], 200)
+        # fichier local mal formé : ignoré sans priver le catalogue
+        (Path(self.tmp.name) / "corrections_locales.json").write_text('{"sets": {"x": "technic", "' + sid + '": {"type": "duplo"}}}')
+        self.assertEqual(self.req("GET", "/api/catalogue", "alice")[0], 200)
 
     def test_logo_isole(self):
         code, corps, h = self.req("GET", "/logos/cobi")

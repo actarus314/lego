@@ -1,5 +1,5 @@
 {
- "_note": "Corrections à la main, appliquées à chaque reconstruction du catalogue. « regrouper » : listes de clés d'offres (« kbs:poignee-du-produit », visibles dans le lien « Voir chez… » et dans l'index) à réunir en un seul set ; « separer » : clés d'offres à sortir de leur set ; « sets » : par identifiant de set (adresse #idees, champ id du catalogue), valeurs imposées parmi nom, type (technic, classique), themes (identifiants de data/themes.json), dims (cm). Types imposés le 20/11/2026 d'après les photos des produits (briques à picots ou poutres percées), pour les sets que ni la boutique, ni les étiquettes, ni la série ne tranchaient ; les cas ambigus (armes, mechas, horloges mécaniques) restent sans type.",
+ "_note": "Corrections à la main, appliquées à chaque reconstruction du catalogue. « regrouper » : listes de clés d'offres (« kbs:poignee-du-produit », visibles dans le lien « Voir chez… » et dans l'index) à réunir en un seul set ; « separer » : clés d'offres à sortir de leur set ; « sets » : par identifiant de set (adresse #idees, champ id du catalogue), valeurs imposées parmi nom, type (technic, classique), themes (identifiants de data/themes.json), dims (cm). Types imposés le 20/11/2026 d'après les photos des produits (briques à picots ou poutres percées), pour les sets que ni la boutique, ni les étiquettes, ni la série ne tranchaient ; les cas ambigus (armes, mechas, horloges mécaniques) étaient alors laissés sans type. Le 21/11/2026, les sets mixtes restés sans type ont été tranchés sur photos par une règle : mécanisme en Technic (armes à poutres percées 14xxx, horloges mécaniques, contraption à billes, robots motorisés, voiture 2 en 1) → technic ; personnages articulés à rotules et briques à picots (mechas 93xxx, généraux légendaires, zodiaque) → classique. Un compte administrateur (ADMINS) peut aussi imposer un type depuis la fiche : corrections_locales.json du dossier de données, appliqué après ce fichier.",
  "regrouper": [],
  "separer": [],
  "sets": {
@@ -140,6 +140,93 @@
   },
   "mould-king-26011": {
    "type": "technic"
+  },
+  "mould-king-14014": {
+   "type": "technic"
+  },
+  "mould-king-26018": {
+   "type": "technic"
+  },
+  "mould-king-14033": {
+   "type": "technic"
+  },
+  "mould-king-10180": {
+   "type": "technic"
+  },
+  "mould-king-13114": {
+   "type": "technic"
+  },
+  "mould-king-14022": {
+   "type": "technic"
+  },
+  "mould-king-10160": {
+   "type": "technic"
+  },
+  "mould-king-10187": {
+   "type": "technic"
+  },
+  "mould-king-10159": {
+   "type": "technic"
+  },
+  "mould-king-14005": {
+   "type": "technic"
+  },
+  "mould-king-14010": {
+   "type": "technic"
+  },
+  "mould-king-14001": {
+   "type": "technic"
+  },
+  "mould-king-14016": {
+   "type": "technic"
+  },
+  "mould-king-14018": {
+   "type": "technic"
+  },
+  "mould-king-14026": {
+   "type": "technic"
+  },
+  "mould-king-14002": {
+   "type": "technic"
+  },
+  "mould-king-14004": {
+   "type": "technic"
+  },
+  "mould-king-10061": {
+   "type": "technic"
+  },
+  "mould-king-93012": {
+   "type": "classique"
+  },
+  "mould-king-93010": {
+   "type": "classique"
+  },
+  "mould-king-93007": {
+   "type": "classique"
+  },
+  "mould-king-10078": {
+   "type": "classique"
+  },
+  "mould-king-10077": {
+   "type": "classique"
+  },
+  "mould-king-93001": {
+   "type": "classique"
+  },
+  "mould-king-93006": {
+   "type": "classique"
+  },
+  "mould-king-93005": {
+   "type": "classique"
+  },
+  "mould-king-93004": {
+   "type": "classique"
+  },
+  "mould-king-93003": {
+   "type": "classique"
+  },
+  "mould-king-93002": {
+   "type": "classique"
   }
  }
 }

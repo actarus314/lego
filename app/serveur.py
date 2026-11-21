@@ -28,7 +28,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, alertes as alertes_mod, qualite, lien, logos as logos_mod, normalise, surveillance, synchro, tests_auto
+from . import acces, alertes as alertes_mod, index as index_mod, lien, logos as logos_mod, normalise, qualite, surveillance, synchro, tests_auto
 from .reglage import reglage
 from .donnees import Depot, dans
 from .index import Index
@@ -68,6 +68,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
     surveillance: surveillance.Surveillance | None = None
     gardien: acces.Gardien | None
     masquer: set[str]
+    admins: set[str] = set()
 
     # ---------- réponses ----------
     def _entetes_securite(self, nonce: str | None = None):
@@ -269,6 +270,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             if erreurs:
                 return self._json(502, {"erreur": "; ".join(erreurs), "erreurs": erreurs})
             return self._json(200, {"erreurs": []})
+        if urlsplit(self.path).path == "/api/type":
+            return self._imposer_type(compte)
         if urlsplit(self.path).path == "/api/synchro":
             try:
                 corps = self._corps_json()
@@ -285,9 +288,32 @@ class Gestionnaire(BaseHTTPRequestHandler):
             return self._json(202, {"etat": "lance", "total": total})
         self._erreur(404, "introuvable")
 
+    def _imposer_type(self, compte: str):
+        """Type de briques imposé à un set depuis sa fiche, par un compte de ADMINS seulement. Requête
+        JSON du même site exigée (une page tierce ne peut pas l'envoyer avec les identifiants du navigateur)."""
+        if compte not in self.admins:
+            return self._erreur(403, "réservé aux comptes administrateurs")
+        if (self.headers.get("Content-Type") or "").split(";")[0].strip() != "application/json" \
+                or self.headers.get("Sec-Fetch-Site", "same-origin") not in ("same-origin", "none"):
+            return self._erreur(403, "requête refusée")
+        try:
+            corps = self._corps_json(4096)
+        except ValueError:
+            return self._erreur(400, "requête invalide")
+        ident = corps.get("id") if isinstance(corps, dict) else None
+        type_ = corps.get("type") if isinstance(corps, dict) else None
+        if not isinstance(ident, str) or (type_ is not None and type_ not in index_mod.TYPES):
+            return self._erreur(400, "requête invalide")
+        if not any(x["id"] == ident for x in self._catalogue()["sets"]):
+            return self._erreur(404, "set introuvable")
+        self.index.imposer_type(ident, type_, compte)
+        log.info("type de %s imposé à %s par %s", ident, type_, compte)
+        return self._json(200, {"id": ident, "type": type_})
+
     def _page(self, compte: str):
         nonce = secrets.token_urlsafe(16)
         mode = {"serveur": True, "compte": compte, "version": VERSION, "achats_masques": compte in self.masquer,
+                "admin": compte in self.admins,
                 "logos": self.logos.disponibles(), "liens_marques": self.logos.liens(),
                 "qualite": qualite.pour_la_page()}
         corps = injecter(MODELE.read_text("utf-8"), {"sets": [], "themes": [], "sources": []}, mode, nonce).encode()
@@ -317,6 +343,7 @@ def main():
     if manque:
         raise SystemExit("Réglages obligatoires absents du .env : " + " ; ".join(manque))
     Gestionnaire.masquer = {n.strip() for n in reglage("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
+    Gestionnaire.admins = {n.strip() for n in reglage("ADMINS", "").split(",") if n.strip()}
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
     Gestionnaire.logos = logos_mod.Logos(donnees, synchro.actives)

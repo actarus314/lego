@@ -115,7 +115,7 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
                         completer_dimensions(index, src, offres, pause)
                     r.update(etat="ok", lus=len(offres), dims=sum(1 for o in offres if o.get("dims")),
                              **index.enregistrer(src["id"], offres))
-                log.info("source %s : %s sets (%s nouveaux, %s disparus)", src["nom"], r["lus"], r["nouveaux"], r["disparus"])
+                log.info("source %s : %s offres (%s nouveaux, %s disparus)", src["nom"], r["lus"], r["nouveaux"], r["disparus"])
             except Exception as e:  # une source en panne n'arrête pas les autres
                 r.update(etat="echec", raison=_raison(e))
                 if isinstance(e, (lien.LienRefuse, OSError, ValueError)):
@@ -138,7 +138,7 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
             log.exception("journal de synchronisation impossible à écrire")
         _maj(en_cours=False, courant=None)
         EN_COURS.release()
-    log.info("synchronisation finie : %s sets, %s sources en échec, %s s", j["lus"], j["echecs"], j["duree_s"])
+    log.info("synchronisation finie : %s offres, %s sources en échec, %s s", j["lus"], j["echecs"], j["duree_s"])
     return j
 
 
