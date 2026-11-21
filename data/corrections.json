@@ -1,5 +1,5 @@
 {
- "_note": "Corrections à la main, appliquées à chaque reconstruction du catalogue. « regrouper » : listes de clés d'offres (« kbs:poignee-du-produit », visibles dans le lien « Voir chez… » et dans l'index) à réunir en un seul set ; « separer » : clés d'offres à sortir de leur set ; « sets » : par identifiant de set (adresse #idees, champ id du catalogue), valeurs imposées parmi nom, type (technic, classique), themes (identifiants de data/themes.json), dims (cm). Types imposés le 20/11/2026 d'après les photos des produits (briques à picots ou poutres percées), pour les sets que ni la boutique, ni les étiquettes, ni la série ne tranchaient ; les cas ambigus (armes, mechas, horloges mécaniques) étaient alors laissés sans type. Le 21/11/2026, les sets mixtes restés sans type ont été tranchés sur photos par une règle : mécanisme en Technic (armes à poutres percées 14xxx, horloges mécaniques, contraption à billes, robots motorisés, voiture 2 en 1) → technic ; personnages articulés à rotules et briques à picots (mechas 93xxx, généraux légendaires, zodiaque) → classique. Un compte administrateur (ADMINS) peut aussi imposer un type depuis la fiche : corrections_locales.json du dossier de données, appliqué après ce fichier.",
+ "_note": "Corrections à la main, appliquées à chaque reconstruction du catalogue. « regrouper » : listes de clés d'offres (« kbs:poignee-du-produit », visibles dans le lien « Voir chez… » et dans l'index) à réunir en un seul set ; « separer » : clés d'offres à sortir de leur set ; « sets » : par identifiant de set (adresse #idees, champ id du catalogue), valeurs imposées parmi nom, type (technic, classique), themes (identifiants de data/themes.json), dims (cm). Types imposés le 20/11/2026 d'après les photos des produits (briques à picots ou poutres percées), pour les sets que ni la boutique, ni les étiquettes, ni la série ne tranchaient ; les cas ambigus (armes, mechas, horloges mécaniques) étaient alors laissés sans type. Le 21/11/2026, les sets mixtes restés sans type ont été tranchés sur photos par une règle : mécanisme en Technic (armes à poutres percées 14xxx, horloges mécaniques, contraption à billes, robots motorisés) → technic ; personnages articulés à rotules et briques à picots (mechas 93xxx, généraux légendaires, zodiaque) → classique. Un compte administrateur (ADMINS) peut aussi imposer un type depuis la fiche : corrections_locales.json du dossier de données, appliqué après ce fichier.",
  "regrouper": [],
  "separer": [],
  "sets": {
@@ -193,7 +193,7 @@
    "type": "technic"
   },
   "mould-king-10061": {
-   "type": "technic"
+   "type": "classique"
   },
   "mould-king-93012": {
    "type": "classique"

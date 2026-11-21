@@ -146,13 +146,16 @@ def themes(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "") 
     return trouves
 
 
-# Étiquettes de boutique qui désignent un type sans le nommer, retenues après mesure sur les sets dont
-# KBS donne le type (catégorie de produit « Technic set » ou « Brickbuild-Set »), le 20/11/2026 : les
-# étiquettes de Mould King « Construction & Heavy Duty » (35 Technic sur 35), « Motorized Model Building
-# Kit » (19 sur 19), « Transport and Logistics » (16 sur 16) ; « movie and anime » (11 classiques sur
-# 11), « Modular Buildings » (6 sur 6), « Ships And Pirates » (5 sur 5). Les séries « mini » et
-# botaniques de Mould King sont en briques classiques (aucun set Technic dans ces collections).
-_ETIQ_TECHNIC = re.compile(r"^(construction & heavy duty|construction|motorized model building kit|transport and logistics|supercars)$")
+# Étiquettes de boutique qui désignent un type sans le nommer. Mesure du 21/11/2026 contre l'étalon des
+# photos (766 sets tranchés au premier relevé ; data/types_photos.json en garde 812 après relecture des
+# incertains). La mesure du 20/11 contre la catégorie de KBS était faussée : KBS classe « Technic set »
+# 29 sets à picots sur 163 (82 % de justesse, signal gardé faute de mieux, après la série ; « Brickbuild-
+# Set » : 105 classiques sur 108). Autres mesures : étiquette « Construction » de Mould King, 48 Technic
+# sur 48 ; étiquettes classiques de Mould King, 99 sur 100. Écartées : « Construction & Heavy Duty »
+# (43 sur 53), « Motorized Model Building Kit » (2 Technic sur 14), « Technic-Vehicles » (88 sur 132 :
+# Mould King y range ses voitures « Creative Idea » à picots) ; le mot « Technic » ne compte donc que
+# dans le nom du produit, pas dans ses étiquettes.
+_ETIQ_TECHNIC = re.compile(r"^(construction)$")
 _ETIQ_CLASSIQUE = re.compile(r"^(modular buildings|movie and anime|ships and pirates|mini-world|mini heavy duty|mini famous cars|"
                              r"mini city & decor|botanicals and home decor)$")
 # Marques qui ne vendent que des briques classiques.
@@ -162,15 +165,15 @@ CLASSIQUE_SEULEMENT = {"Cobi", "Sembo", "Kazi"}
 def type_briques(type_produit: str = "", etiquettes: list[str] | tuple = (), titre: str = "",
                  marque: str | None = None) -> str | None:
     """Technic, classique, ou None si rien ne permet de le dire. Ordre : catégorie de produit de la
-    boutique, mots du nom et des étiquettes, étiquettes mesurées, marque."""
+    boutique, mot « Technic » du nom, mots classiques du nom et des étiquettes, étiquettes mesurées, marque."""
     pt = sans_accents(type_produit)
     if re.search(r"techni[ck]", pt):
         return "technic"
     if re.search(r"brick|block|baustein", pt):
         return "classique"
-    s = sans_accents(" ".join([titre, *etiquettes]))
-    if re.search(r"techni[ck]", s):
+    if re.search(r"\btechni[ck]\b", sans_accents(titre)):   # « Technical » ne compte pas
         return "technic"
+    s = sans_accents(" ".join([titre, *etiquettes]))
     if re.search(r"brick ?build|brick building|building brick|klemmbaustein|modular", s):
         return "classique"
     tags = [sans_accents(e).strip() for e in etiquettes]

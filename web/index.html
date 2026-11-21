@@ -14,7 +14,7 @@
   --fg:#18212c; --muted:#4f5d6b; --faint:#85919d;
   --accent:#2f5bd3; --accent-soft:#e6edfc; --on-accent:#ffffff;
   --ok:#1f7a4a; --ok-soft:#e2f3e9; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b3261e; --bad-soft:#fbe5e3;
-  --f-theme:#7b3fb8; --f-theme-soft:#f1e8fb; --f-marque:#0a716c; --f-marque-soft:#ddf3f1; --f-achat:#b5531a; --f-achat-soft:#fbe9dd; --f-type:#3a5f8a; --f-type-soft:#e3ecf6; --f-dispo:#2a6e3c; --f-dispo-soft:#e2f2e6; --f-taille:#7d5f0c; --f-taille-soft:#f6eed6;
+  --f-theme:#7b3fb8; --f-theme-soft:#f1e8fb; --f-marque:#0a716c; --f-marque-soft:#ddf3f1; --f-achat:#b5531a; --f-achat-soft:#fbe9dd; --f-type:#3a5f8a; --f-type-soft:#e3ecf6; --f-dispo:#2a6e3c; --f-dispo-soft:#e2f2e6; --f-taille:#a3305f; --f-taille-soft:#fbe6ef;
   --display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
   --body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -24,14 +24,14 @@
   --fg:#e3e9ef; --muted:#a4b0bc; --faint:#6c7a87;
   --accent:#7c9cf2; --accent-soft:#1d2a47; --on-accent:#0b1220;
   --ok:#5fc48c; --ok-soft:#14301f; --warn:#e3a94a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1714;
-  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#e2c46c; --f-taille-soft:#322a12;
+  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#f29bbf; --f-taille-soft:#3a1626;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f151c; --card:#161e26; --sunk:#111820; --line:#26313d;
   --fg:#e3e9ef; --muted:#a4b0bc; --faint:#6c7a87;
   --accent:#7c9cf2; --accent-soft:#1d2a47; --on-accent:#0b1220;
   --ok:#5fc48c; --ok-soft:#14301f; --warn:#e3a94a; --warn-soft:#33270f; --bad:#f08a80; --bad-soft:#3a1714;
-  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#e2c46c; --f-taille-soft:#322a12;
+  --f-theme:#c39bf0; --f-theme-soft:#2a1d3d; --f-marque:#5fd0c8; --f-marque-soft:#0f2e2c; --f-achat:#f0a070; --f-achat-soft:#3a2416; --f-type:#8fb4dc; --f-type-soft:#1a2738; --f-dispo:#7fd49a; --f-dispo-soft:#15301d; --f-taille:#f29bbf; --f-taille-soft:#3a1626;
   color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
@@ -69,7 +69,7 @@ main{padding-block:20px 48px}
 .fgroups{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-start}
 .fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fgroup .flbl{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
-.fg-dispo{--c:var(--f-dispo);--cs:var(--f-dispo-soft)} .fg-prix{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-taille{--c:var(--f-taille);--cs:var(--f-taille-soft)} .fg-theme{--c:var(--f-theme);--cs:var(--f-theme-soft)} .fg-marque{--c:var(--f-marque);--cs:var(--f-marque-soft)} .fg-achat{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-type{--c:var(--f-type);--cs:var(--f-type-soft)} .fg-zone{--c:var(--f-marque);--cs:var(--f-marque-soft)}
+.fg-dispo{--c:var(--f-dispo);--cs:var(--f-dispo-soft)} .fg-prix{--c:var(--accent);--cs:var(--accent-soft)} .fg-taille{--c:var(--f-taille);--cs:var(--f-taille-soft)} .fg-theme{--c:var(--f-theme);--cs:var(--f-theme-soft)} .fg-marque{--c:var(--f-marque);--cs:var(--f-marque-soft)} .fg-achat{--c:var(--f-achat);--cs:var(--f-achat-soft)} .fg-type{--c:var(--f-type);--cs:var(--f-type-soft)} .fg-zone{--c:var(--f-marque);--cs:var(--f-marque-soft)}
 .fgroup .flbl{color:var(--muted)}
 .chip{height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:500 13px var(--body);cursor:pointer;white-space:nowrap}
 .chip:hover{color:var(--fg);border-color:var(--c,var(--line))}
@@ -182,6 +182,14 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .marques-g .chip{justify-content:flex-start;padding:0 8px;min-width:0}
 .marques-g .chip span.t{overflow:hidden;text-overflow:ellipsis}
 .curseur{width:100%;accent-color:var(--accent);margin:0}
+/* prix : piste en dégradé, du moins cher (vert) au plus cher (orange) ; curseur au bleu du site */
+.curseur.degrade{-webkit-appearance:none;appearance:none;height:22px;background:transparent}
+.curseur.degrade{--degrade:linear-gradient(90deg,var(--ok),#b8901a 55%,#c4621f)}
+.curseur.degrade::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:var(--degrade)}
+.curseur.degrade::-moz-range-track{height:8px;border-radius:999px;background:var(--degrade)}
+.curseur.degrade::-webkit-slider-thumb{-webkit-appearance:none;box-sizing:border-box;width:18px;height:18px;margin-top:-5px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 0 0 1px var(--card),0 1px 3px rgba(0,0,0,.35)}
+.curseur.degrade::-moz-range-thumb{box-sizing:border-box;width:18px;height:18px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 0 0 1px var(--card),0 1px 3px rgba(0,0,0,.35)}
+.curseur.degrade:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fpied{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
 .logo{width:18px;height:18px;border-radius:5px;display:inline-grid;place-items:center;font:700 9px var(--mono);letter-spacing:-.02em;color:var(--muted);background:var(--sunk);border:1px solid var(--line);flex:none;overflow:hidden}
 .logo.img{width:auto;min-width:18px;max-width:48px;padding:0 1px;background:#fff;border-color:var(--line)}
@@ -393,8 +401,8 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
       <div class="fbloc fg-dispo"><span class="lbl" id="l-dispo">Disponibilité</span><div class="puces coches" id="f-dispo" role="group" aria-labelledby="l-dispo"></div></div>
       <div class="fbloc fg-theme"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
       <div class="fbloc fg-type"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
-      <div class="fbloc fg-prix"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur" id="f-prix" type="range" min="0" step="1"></div>
-      <div class="fbloc fg-taille"><label class="lbl" for="f-taille">Taille maximum<output id="o-taille"></output></label><input class="curseur" id="f-taille" type="range" min="0" step="1"><span class="sub" id="n-sansdim"></span></div>
+      <div class="fbloc fg-prix"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur degrade" id="f-prix" type="range" min="0" step="1"></div>
+      <div class="fbloc fg-taille"><span class="lbl">Taille</span><div class="puces" id="f-taille"></div><span class="sub" id="n-sansdim"></span></div>
       <div class="fbloc fg-marque"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
       <button class="btn primary voir" id="f-voir"></button>
     </aside>
@@ -641,8 +649,10 @@ function filterGroups(container, groups){
 /* ---------- Recherche ---------- */
 const DISPO_DEFAUT = ["vente","precommande"];   // ce qui s'achète maintenant ou à réception
 const PRIX = [30,50,75,100,150,200,250,300,400,500,750,1000,1500,2000,Infinity];
-const TAILLE = [20,30,40,50,60,70,80,100,120,150,Infinity];
-const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(DISPO_DEFAUT), prix:PRIX.length - 1, taille:TAILLE.length - 1};
+// Taille par la longueur du set monté ; bornes posées le 21/11/2026 près des tiers du catalogue (40.9 et 59 cm)
+const TAILLES = [["petit","Petit","moins de 40 cm",0,40],["moyen","Moyen","40 à 59 cm",40,60],["grand","Grand","60 cm et plus",60,Infinity]];
+const tailleDe = lg => lg == null ? null : (TAILLES.find(t => lg >= t[3] && lg < t[4]) || [])[0];
+const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(DISPO_DEFAUT), prix:PRIX.length - 1, tailles:new Set()};
 const sI = {key:"prix", dir:"asc", def:"prix", defDir:"asc"};
 const TYPES = [["classique","Classique",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="6" width="14" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/><rect x="9.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/></svg>'],
   ["technic","Technic",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="8" r="1.3" fill="currentColor"/></svg>']];
@@ -671,7 +681,6 @@ const Q_SENS = {comme_lego:["f","+","Égal au LEGO officiel ou mieux"],proche:["
 const Q_RANG = {test:"test",forum:"forum",acheteur:"avis d'acheteur",article:"article",marque:"page commerciale",lie:"source liée à la marque"};
 const qOuverts = new Set();
 const prixLbl = i => PRIX[i] === Infinity ? "tous" : `${PRIX[i]} €`;
-const tailleLbl = i => TAILLE[i] === Infinity ? "toutes" : `${TAILLE[i]} cm`;
 const portLbl = o => o.port == null ? "port non relevé" : o.port ? `+ ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
 
 function themesDe(tok){
@@ -700,14 +709,14 @@ function correspond(r, toks){
   return toks.every(t => r._txt.includes(t.mot) || r.themes.some(th => t.themes.has(th)));
 }
 function filtrer(sauf, toks = jetons()){
-  const pMax = PRIX[fI.prix], tMax = TAILLE[fI.taille];
+  const pMax = PRIX[fI.prix];
   return IDEES.filter(r =>
     (sauf === "dispo" || fI.dispo.has(r.dispo)) &&
     (sauf === "themes" || !fI.themes.size || r._th.some(t => fI.themes.has(t))) &&
     (sauf === "types" || !fI.types.size || fI.types.has(r._ty)) &&
     (sauf === "marques" || !fI.marques.size || fI.marques.has(r.marque)) &&
     (pMax === Infinity || total(r._meilleure) <= pMax) &&
-    (sauf === "taille" || tMax === Infinity || (r._lg != null && r._lg <= tMax)) &&
+    (sauf === "taille" || !fI.tailles.size || fI.tailles.has(tailleDe(r._lg))) &&
     (!toks.length || correspond(r, toks)));
 }
 const compter = (rows, cle) => rows.reduce((m, r) => { for (const v of [].concat(cle(r))) m[v] = (m[v] || 0) + 1; return m; }, {});
@@ -748,11 +757,13 @@ function renderIdees(){
   $("#f-plusm").hidden = MARQUES_ORD.length <= 8;
   $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${MARQUES_ORD.length})`;
   $("#f-plusm").setAttribute("aria-expanded", toutesMarques);
-  $("#o-prix").textContent = prixLbl(fI.prix); $("#o-taille").textContent = tailleLbl(fI.taille);
-  const avecTaille = fI.taille !== TAILLE.length - 1;
+  $("#o-prix").textContent = prixLbl(fI.prix); $("#f-prix").setAttribute("aria-valuetext", prixLbl(fI.prix));
+  const avecTaille = fI.tailles.size > 0;
+  const cTa = compter(filtrer("taille", toks), r => tailleDe(r._lg) || "aucune");
+  puces($("#f-taille"), fI.tailles, TAILLES.map(([v, l, d]) => [v, `${l} · ${d}`]), v => cTa[v] || 0);
   const sansDim = filtrer("taille", toks).filter(r => r._lg == null).length;
   $("#n-sansdim").textContent = avecTaille && sansDim ? `${sansDim} set${sansDim > 1 ? "s" : ""} sans dimension connue masqué${sansDim > 1 ? "s" : ""}` : "";
-  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size !== DISPO_DEFAUT.length || DISPO_DEFAUT.some(d => !fI.dispo.has(d))) + (fI.prix !== PRIX.length - 1) + avecTaille;
+  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size !== DISPO_DEFAUT.length || DISPO_DEFAUT.some(d => !fI.dispo.has(d))) + (fI.prix !== PRIX.length - 1) + fI.tailles.size;
   $("#f-ouvrir").textContent = nf ? `Filtres (${nf})` : "Filtres";
   const nbTxt = `${rows.length} set${rows.length > 1 ? "s" : ""}`;
   $("#f-voir").textContent = "Voir " + nbTxt;
@@ -797,15 +808,14 @@ let toutesMarques = false;
 $("#tri").onchange = e => { const [k, d] = e.target.value.split("|"); sI.key = k; sI.dir = d; renderIdees(); };
 $("#f-voir").onclick = () => { $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); };
 $("#f-plusm").onclick = () => { toutesMarques = !toutesMarques; renderIdees(); };
-const fPrix = $("#f-prix"), fTaille = $("#f-taille");
-fPrix.max = PRIX.length - 1; fPrix.value = fI.prix; fTaille.max = TAILLE.length - 1; fTaille.value = fI.taille;
+const fPrix = $("#f-prix");
+fPrix.max = PRIX.length - 1; fPrix.value = fI.prix;
 let rafI = 0; const plusTard = () => { cancelAnimationFrame(rafI); rafI = requestAnimationFrame(renderIdees); };
 fPrix.oninput = () => { fI.prix = +fPrix.value; $("#o-prix").textContent = prixLbl(fI.prix); plusTard(); };
-fTaille.oninput = () => { fI.taille = +fTaille.value; $("#o-taille").textContent = tailleLbl(fI.taille); plusTard(); };
 let qT; const surQ = v => { clearTimeout(qT); qT = setTimeout(() => { fI.q = v; renderIdees(); }, 120); };
 $("#q").oninput = e => { $("#q2").value = e.target.value; surQ(e.target.value); };
 $("#q2").oninput = e => { $("#q").value = e.target.value; surQ(e.target.value); };
-$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(DISPO_DEFAUT); fI.prix = PRIX.length - 1; fI.taille = TAILLE.length - 1; fPrix.value = fI.prix; fTaille.value = fI.taille; renderIdees(); };
+$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(DISPO_DEFAUT); fI.prix = PRIX.length - 1; fI.tailles.clear(); fPrix.value = fI.prix; renderIdees(); };
 $("#f-ouvrir").onclick = e => { const b = e.currentTarget, o = !$("#filtres").classList.contains("ouvert"); $("#filtres").classList.toggle("ouvert", o); b.setAttribute("aria-expanded", o); };
 document.addEventListener("click", e => { if ($("#filtres").classList.contains("ouvert") && !e.target.closest("#filtres,#f-ouvrir")){ $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); } });
 sI.render = renderIdees;

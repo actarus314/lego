@@ -56,15 +56,32 @@ def _serie(s: dict) -> tuple[str, str] | None:
     return (s["marque"], m.group(1)) if m else None
 
 
-def types_par_serie(sets: list[dict]) -> None:
+def types_photos() -> dict[str, str]:
+    """Types relevés sur les photos des produits (`data/types_photos.json`) : étalon du tri, appliqué aux
+    sets qu'il couvre avant toute règle. Fichier absent ou illisible : aucun type, journalisé."""
+    try:
+        brut = json.loads((RACINE / "data" / "types_photos.json").read_text("utf-8"))
+    except FileNotFoundError:
+        return {}
+    except ValueError:
+        log.exception("data/types_photos.json illisible : types des photos ignorés")
+        return {}
+    return {k: v for k, v in (brut.get("sets") or {}).items() if isinstance(k, str) and v in ("technic", "classique")}
+
+
+def types_par_serie(sets: list[dict], surs: set[str] | None = None) -> None:
     """Type de briques d'un set sans type, d'après sa série (marque et deux premiers chiffres du numéro) :
     quand au moins 10 sets de la série ont un type connu et que 90 % d'entre eux ont le même. Mesure du
     20/11/2026, chaque set connu prédit par les autres de sa série : 240 justes, 6 faux (Mould King 15, 16,
-    17, 19, 20…, CaDA 61, Reobrix 33 et 66). Calculé à chaque reconstruction, sur les données du moment."""
+    17, 19, 20…, CaDA 61, Reobrix 33 et 66). Calculé à chaque reconstruction, sur les données du moment.
+    Avec `surs` (identifiants des sets dont le type est sûr : photos, corrections), la série se compte sur
+    eux seuls et l'emporte sur le tri par étiquettes pour les autres sets : mesure du 21/11/2026 contre
+    l'étalon des photos, chaque set prédit sans lui-même, série puis étiquettes sûres : 581 justes, 22 faux,
+    163 laissés sans type ; étiquettes seules (tri de la v3.13) : 286 justes sur 389 Technic."""
     par_serie: dict[tuple, dict[str, int]] = {}
     for s in sets:
         k = _serie(s)
-        if k and s.get("type"):
+        if k and s.get("type") and (surs is None or s.get("id") in surs):
             par_serie.setdefault(k, {}).setdefault(s["type"], 0)
             par_serie[k][s["type"]] += 1
     regle = {}
@@ -74,7 +91,8 @@ def types_par_serie(sets: list[dict]) -> None:
         if total >= SERIE_MIN and n / total >= SERIE_PART:
             regle[k] = t
     for s in sets:
-        if not s.get("type") and _serie(s) in regle:
+        a_remplir = not s.get("type") if surs is None else s.get("id") not in surs
+        if a_remplir and _serie(s) in regle:
             s["type"] = regle[_serie(s)]
 
 
@@ -224,7 +242,7 @@ class Index:
     # ----- catalogue regroupé -----
     def sets(self, actives: list[str]) -> list[dict]:
         intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
-            "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json")] + [
+            "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json", "types_photos.json")] + [
             self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales]
         cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
                      self.tests.signature())
@@ -263,14 +281,20 @@ class Index:
         out = [_set(cle if i == 0 else f"{cle}-{i}", paq, edito, self.tests if i == 0 else None)
                for cle, g in groupes.items() for i, paq in enumerate(_separer(g))]
         out = [s for s in out if s]
-        types_par_serie(out)
+        photos = types_photos()
         locales = self.corrections_locales()
+        surs = set(photos) | {i for i, c in corr.get("sets", {}).items() if c.get("type")} \
+            | {i for i, c in locales.items() if c.get("type") in TYPES}
+        # ordre de preuve du type : choix d'un administrateur, corrections à la main, photos, série, étiquettes
         for s in out:
+            if s["id"] in photos:
+                s["type"] = photos[s["id"]]
             for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
                 if k in ("nom", "type", "themes", "dims"):
                     s[k] = v
             if (locales.get(s["id"]) or {}).get("type") in TYPES:  # imposé depuis la fiche par un administrateur
                 s["type"] = locales[s["id"]]["type"]
+        types_par_serie(out, surs)
         self.photos_brutes = adresses_photos(out)
         appliquer_photos(out, self.photos.ecartees(), self.photos.douteuses())
         self._cache = (cle_cache, out)
@@ -394,4 +418,9 @@ def sets_hors_ligne() -> list[dict]:
     for o in offres:
         groupes.setdefault(_cle_set(o), []).append(o)
     edito = {e["cle"]: e for e in editorial()}
-    return [_set(cle, g, edito) for cle, g in groupes.items()]
+    out = [_set(cle, g, edito) for cle, g in groupes.items()]
+    photos, corr = types_photos(), corrections().get("sets", {})
+    for s in out:   # même ordre de preuve que le service : les corrections priment sur les photos
+        if s and (corr.get(s["id"]) or {}).get("type") or s and s["id"] in photos:
+            s["type"] = (corr.get(s["id"]) or {}).get("type") or photos[s["id"]]
+    return out

@@ -712,7 +712,10 @@ class Classement(unittest.TestCase):
     def test_type_de_briques(self):
         from app import normalise as n
         self.assertEqual(n.type_briques("Brickbuild-Set", ["Technik Sets"]), "classique", "catégorie de la boutique d'abord")
-        self.assertEqual(n.type_briques("Building Toys", ["Construction & Heavy Duty"], "Mould King 17106 Crawler Crane"), "technic")
+        self.assertEqual(n.type_briques("Building Toys", ["Construction"], "Mould King 17106 Crawler Crane"), "technic")
+        self.assertIsNone(n.type_briques("Building Toys", ["Technic-Vehicles"], "Mould King 10114 Vintage Convertible"),
+                          "le mot Technic d'une étiquette ne suffit pas (voitures à picots de Mould King)")
+        self.assertIsNone(n.type_briques("Building Toys", ["Motorized Model Building Kit"], "Mould King 12007 BR18 Train"))
         self.assertEqual(n.type_briques("Building Toys", ["Botanicals And Home Decor"], "Mould King 10290 Vine"), "classique")
         self.assertEqual(n.type_briques("", [], "Cobi 2670 Panzer", "Cobi"), "classique")
         self.assertIsNone(n.type_briques("Building Toys", ["Robots and Mecha"], "Mould King 93012 Sentinel", "Mould King"))
@@ -756,6 +759,35 @@ class Corrections(unittest.TestCase):
         groupes = sorted(sorted(o["cle"] for o in s["offres"]) for s in sets.values() if s["offres"][0]["source"] != "editorial")
         self.assertEqual(groupes, [["kbs:a"], ["kbs:b", "kbs:c"], ["mouldkingcorp:a"]])
         self.assertEqual((sets["mould-king-17001"]["type"], sets["mould-king-17001"]["nom"]), ("technic", "Camion"))
+
+    def test_ordre_de_preuve_du_type(self):
+        """Administrateur, puis corrections, puis photos, puis série et signaux des boutiques."""
+        from app import index as ix
+        offre = lambda num, t: {"source": "kbs", "boutique": "B", "pays": "Allemagne", "cle": f"kbs:{num}", "url": f"https://x/{num}",
+                                "nom": f"Marque Essai {num}", "marque": "Mould King", "numero": num, "prix": 100.0,
+                                "dispo": "vente", "themes": [], "type": t}
+        vrais = ix.corrections, ix.types_photos
+        with tempfile.TemporaryDirectory() as d:
+            i = Index(Path(d))
+            i.enregistrer("kbs", [offre("88001", "technic"), offre("88002", "technic"), offre("88003", "technic"), offre("88004", None)])
+            try:
+                ix.types_photos = lambda: {"mould-king-88001": "classique", "mould-king-88002": "classique", "mould-king-88003": "classique"}
+                ix.corrections = lambda: {"sets": {"mould-king-88002": {"type": "technic"}}}
+                i.imposer_type("mould-king-88003", "technic", "alice")
+                i._cache = None
+                t = {s["id"]: s["type"] for s in i.sets(["kbs"])}
+            finally:
+                ix.corrections, ix.types_photos = vrais
+        self.assertEqual([t[f"mould-king-8800{k}"] for k in (1, 2, 3)], ["classique", "technic", "technic"],
+                         "photo sur l'étiquette ; correction sur la photo ; administrateur sur tout")
+        self.assertIsNone(t["mould-king-88004"], "série trop petite : pas de type inventé")
+
+    def test_etalon_et_corrections_sans_contradiction(self):
+        from app.index import types_photos, corrections
+        photos = types_photos()
+        ecarts = {i: (c["type"], photos[i]) for i, c in corrections().get("sets", {}).items()
+                  if c.get("type") and i in photos and photos[i] != c["type"]}
+        self.assertEqual(ecarts, {}, "une correction qui contredit l'étalon des photos doit être tranchée dans l'un des deux fichiers")
 
 
 class Relecture(unittest.TestCase):
@@ -880,6 +912,21 @@ class TypeParSerie(unittest.TestCase):
         sets[-3]["type"] = None
         types_par_serie(sets)
         self.assertIsNone(sets[-3]["type"], "8 sur 10 : sous le seuil de 90 %")
+
+    def test_serie_comptee_sur_les_types_surs(self):
+        from app.index import types_par_serie
+        # 10 sets sûrs (photos) à picots dans la série 10 ; un set de la série classé Technic par une étiquette
+        sets = [{"id": f"s{k}", "marque": "Mould King", "numero": f"100{k:02d}", "type": "classique"} for k in range(10)]
+        sets += [{"id": "x", "marque": "Mould King", "numero": "10114", "type": "technic"},
+                 {"id": "y", "marque": "Mould King", "numero": "10115", "type": "technic"}]
+        types_par_serie(sets, surs={f"s{k}" for k in range(10)} | {"y"})
+        self.assertEqual((sets[-2]["type"], sets[-1]["type"]), ("classique", "technic"),
+                         "la série l'emporte sur l'étiquette, jamais sur un type sûr")
+
+    def test_types_photos_valides(self):
+        from app.index import types_photos
+        t = types_photos()
+        self.assertTrue(t and set(t.values()) <= {"technic", "classique"})
 
 
 if __name__ == "__main__":
