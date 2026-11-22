@@ -884,7 +884,11 @@ function openFiche(id){
   dlg.onkeydown = null;
   const o = r._meilleure, c = cents(o.prix, r.pieces), tests = r.tests || [];
   const inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url)));
-  const qTests = encodeURIComponent(`"${r.marque === "LEGO officiel" ? "LEGO" : r.marque}" ${r.numero || r.nom} test OR review OR avis`);
+  // recherche de tests : marque, numéro sans sa lettre de variante (19014S → 19014, titre courant des tests) et nom
+  // d'origine, sans filtre de région (les tests sont surtout en anglais et en allemand) ; essai du 22/11/2026 sur
+  // DuckDuckGo : « "Mould King" 19014 Pneumatic Concrete Pump Truck review » rend deux tests vidéo en tête
+  const numTest = (r.numero || "").replace(/(\d{4,})[A-Z]{1,2}$/, "$1");
+  const qTests = encodeURIComponent([`"${r.marque === "LEGO officiel" ? "LEGO" : r.marque}"`, numTest, r.nom_origine || r.nom, "review"].filter(Boolean).join(" "));
   dlg.innerHTML = `<div class="fiche">
     <div class="fiche-img"><div class="grande" id="f-grande">${r.img ? `<img id="f-photo" src="${esc(thumbUrl(safeUrl(r.img), 900))}" alt="${esc(r.nom)}" draggable="false">` : BRICK}<button type="button" class="defile prec" id="f-prec" aria-label="Photo précédente" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="defile suiv" id="f-suiv" aria-label="Photo suivante" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><span class="compte" id="f-compte" aria-live="polite" hidden></span></div><div class="galerie" id="f-galerie" hidden></div></div>
     <div class="fiche-body">
@@ -898,7 +902,7 @@ function openFiche(id){
       </div>
       <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(datesLisibles(r.retrait))}</span>` : ""}</div>
       <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("")}<div class="liens-tests" id="f-liens"></div>
-        <a class="btn small" href="https://duckduckgo.com/?q=${qTests}&kl=fr-fr&ia=web" target="_blank" rel="noopener">Rechercher des tests sur le web</a></div>
+        <a class="btn small" href="https://duckduckgo.com/?q=${qTests}&ia=web" target="_blank" rel="noopener">Rechercher des tests sur le web</a></div>
       <div class="fiche-actions">
         <a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">Voir chez ${esc(o.boutique)}</a>
         <button class="btn" id="f-add" ${inSel ? "disabled" : ""}>${inSel ? "Dans la sélection" : "Ajouter à la sélection"}</button>

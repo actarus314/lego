@@ -1,5 +1,8 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.15.2
+- Fiche, « Rechercher des tests sur le web » : la recherche portait sur la marque et le numéro seul (avec sa lettre de variante, « 19014S »), restreinte aux résultats français ; elle porte désormais sur la marque, le numéro sans lettre de variante et le nom d'origine du set, sans filtre de région (essai du 22/11/2026 : deux tests vidéo en tête pour la pompe à béton Mould King 19014S).
+
 ## v3.15.1
 - Documentation : `docs/mecanique-et-llm.md` dit ce que le service fait par script (tout ce qu'il calcule : il n'appelle aucun LLM) et quelles données viennent d'une passe LLM faite une fois (type sur photos, qualité des briques, verdicts des testeurs, fiches des boutiques et des marques, listes de mots), avec la date et le contrôle de chaque passe. Un test échoue si un fichier de `data/` n'y est pas classé ou si sa version n'est pas celle du dépôt.
 - Page Marques : rapport au prix du LEGO officiel écrit à la main retiré de la table des marques (jamais affiché : la page le calcule sur l'index).

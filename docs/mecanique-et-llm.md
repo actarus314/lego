@@ -1,6 +1,6 @@
 # Mécanique ou LLM : qui fait quoi
 
-État de la v3.15.1 (22/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
+État de la v3.15.2 (22/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
 
 **Le service n'appelle aucun LLM** (aucune clé, aucun appel vers un service d'intelligence artificielle). Tout ce qu'il calcule, il le calcule par script : sur les mêmes données lues, le même calcul. Les LLM sont intervenus en amont, hors du service, pour produire une partie des données qu'il applique. Ces données sont figées : elles ne changent qu'à une nouvelle passe, faite à la demande dans une conversation.
 
