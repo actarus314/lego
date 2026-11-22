@@ -992,5 +992,20 @@ class TypeParSerie(unittest.TestCase):
         self.assertTrue(t and set(t.values()) <= {"technic", "classique"})
 
 
+class Documentation(unittest.TestCase):
+    def test_doc_mecanique_et_llm(self):
+        """docs/mecanique-et-llm.md classe chaque fichier de data/ et les tables écrites à la main de la page."""
+        racine = Path(__file__).resolve().parent.parent
+        doc = (racine / "docs" / "mecanique-et-llm.md").read_text("utf-8")
+        oublis = [f.name for f in sorted((racine / "data").glob("*.json")) if f"`{f.name}`" not in doc and f"`data/{f.name}`" not in doc]
+        self.assertEqual(oublis, [], "fichiers de data/ à classer dans docs/mecanique-et-llm.md")
+        page = (racine / "web" / "index.html").read_text("utf-8")
+        for table in ("BOUTIQUES", "MARQUES"):
+            self.assertIn(f"const {table} = [", page)
+            self.assertIn(f"`{table}`", doc)
+        version = (racine / "VERSION").read_text().strip()
+        self.assertIn(f"v{version}", doc.splitlines()[2], "version du document à jour")
+
+
 if __name__ == "__main__":
     unittest.main()

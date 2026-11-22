@@ -1,5 +1,9 @@
 # v3.x — Moteur de recherche : catalogues des boutiques et LEGO officiel tenus à jour en continu, meilleur prix, filtres toujours visibles.
 
+## v3.15.1
+- Documentation : `docs/mecanique-et-llm.md` dit ce que le service fait par script (tout ce qu'il calcule : il n'appelle aucun LLM) et quelles données viennent d'une passe LLM faite une fois (type sur photos, qualité des briques, verdicts des testeurs, fiches des boutiques et des marques, listes de mots), avec la date et le contrôle de chaque passe. Un test échoue si un fichier de `data/` n'y est pas classé ou si sa version n'est pas celle du dépôt.
+- Page Marques : rapport au prix du LEGO officiel écrit à la main retiré de la table des marques (jamais affiché : la page le calcule sur l'index).
+
 ## v3.15.0
 - Sélection relue chaque heure : les offres de boutique de chaque set suivi (pas seulement l'offre choisie) sont relues sur leur boutique juste avant la vérification des alertes, qui partent donc dans l'heure (avant : prix d'au plus 24 h). Vue Synchronisation : « Sélection relue ».
 - Historique des prix (`historique_prix.json` du dossier de données) : prix, prix barré et disponibilité de chaque offre, un point par jour, 120 jours, alimenté par chaque lecture. Fiche : courbe des prix relevés, prix barré, plus bas prix relevé sur les 30 jours précédents (« sur N jours » tant que l'historique est plus court) ; un prix barré est signalé quand la boutique vendait déjà au prix du jour ou moins dans les 30 jours précédant sa remise (« déjà 150.00 € avant la remise » ; jugé seulement si l'historique remonte avant la remise). Liste : remise annoncée (« −8 % », au gris si douteuse) ou « Plus bas relevé » (7 jours d'historique au moins).
