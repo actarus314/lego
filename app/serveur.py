@@ -12,6 +12,8 @@ Routes :
   DELETE /api/selection/<id>     retire un produit
   GET    /api/lien?url=…         lit une page produit (nom, prix, photo, pièces)
   GET    /api/alertes            canaux d'alerte du compte connecté (adresses masquées)
+  GET    /api/boutiques          champs relevés de chaque boutique, avec leur origine (boutiques.py)
+  GET    /photo?u=…&l=…          photo du catalogue ou de la sélection, depuis le cache local (cache_photos.py)
   POST   /api/alertes/essai      envoie un message d'essai sur ces canaux
 """
 from __future__ import annotations
@@ -29,10 +31,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, alertes as alertes_mod, index as index_mod, lien, logos as logos_mod, normalise, qualite, surveillance, synchro, tests_auto
+from . import acces, alertes as alertes_mod, boutiques as boutiques_mod, index as index_mod, lien, logos as logos_mod, normalise, qualite, surveillance, synchro, tests_auto
 from .reglage import reglage
 from .donnees import Depot, dans
 from .index import Index
+from .sources.occasion import Occasion
 
 VERSION = reglage("VERSION_APP", "dev")
 RACINE = Path(__file__).resolve().parent.parent
@@ -70,6 +73,10 @@ class Gestionnaire(BaseHTTPRequestHandler):
     gardien: acces.Gardien | None
     masquer: set[str]
     admins: set[str] = set()
+    donnees: Path = Path("/donnees")
+    occasion: Occasion | None = None
+    _photos_connues: tuple = (None, frozenset())
+    _construction = threading.Lock()
 
     # ---------- réponses ----------
     def _entetes_securite(self, nonce: str | None = None):
@@ -154,6 +161,39 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(corps)
 
+    def _photo_connue(self, url: str) -> bool:
+        """Adresse d'une photo du catalogue ou de la sélection : seules celles-là sont servies."""
+        brutes = self.index.photos_brutes
+        if Gestionnaire._photos_connues[0] is not brutes:   # référence gardée : jamais confondue avec une liste plus récente
+            Gestionnaire._photos_connues = (brutes, frozenset(brutes[0]) | frozenset(brutes[1]))
+        return url in Gestionnaire._photos_connues[1] or any(x.get("img") == url for x in self.depot.selection())
+
+    def _photo(self, requete: str) -> None:
+        q = parse_qs(requete)
+        u = (q.get("u") or [""])[0]
+        try:
+            largeur = int((q.get("l") or ["400"])[0])
+        except ValueError:
+            largeur = 400
+        if not self.index.photos_brutes[0]:   # index jamais construit depuis le démarrage : une fois, sous verrou
+            with Gestionnaire._construction:
+                if not self.index.photos_brutes[0]:
+                    self.index.sets([s["id"] for s in synchro.actives()])
+        if not u.startswith("https://") or not self._photo_connue(u):
+            return self._erreur(404, "photo inconnue")
+        r = self.index.photos.cache.servir(u, largeur)
+        if not r:
+            return self._erreur(404, "photo indisponible")
+        corps, type_ = r
+        self.send_response(200)
+        self.send_header("Content-Type", type_)
+        self.send_header("Content-Length", str(len(corps)))
+        self.send_header("Content-Security-Policy", "default-src 'none'; sandbox")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "private, max-age=604800")
+        self.end_headers()
+        self.wfile.write(corps)
+
     def _catalogue(self) -> dict:
         ids = [s["id"] for s in synchro.actives()]
         return {"sets": self.index.sets(ids), "themes": normalise.themes_disponibles(),
@@ -179,6 +219,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             return
         if url.path == "/":
             return self._page(compte)
+        if url.path == "/photo":
+            return self._photo(url.query)
         if url.path == "/api/selection":
             ecartees = self.index.photos.ecartees()  # photo écartée : la page montre celle du catalogue
             return self._json(200, [({**s, "img_ecartee": True} if s.get("img") in ecartees else s)
@@ -194,6 +236,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                     "rotation": synchro.etat_rotation(self.index),
                                     "selection": synchro.etat_selection(),
                                     "photos": self.index.photos.resume(),
+                                    "occasion": self.occasion.etat() if self.occasion else {},
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
             cle = (parse_qs(url.query).get("cle") or [""])[0]
@@ -214,9 +257,12 @@ class Gestionnaire(BaseHTTPRequestHandler):
             s = next((x for x in self._catalogue()["sets"] if x["id"] == sid), None)
             if not s:
                 return self._erreur(404, "set introuvable")
+            occ = self.occasion.pour(s.get("numero")) if self.occasion and s.get("marque") == "LEGO officiel" else {}
             return self._json(200, {"images": s.get("images") or ([s["img"]] if s.get("img") else []),
-                                    "liens_tests": s.get("liens_tests", []),
+                                    "liens_tests": s.get("liens_tests", []), "occasion": occ,
                                     "historique": {o["cle"]: self.index.historique.serie(o["cle"]) for o in s["offres"]}})
+        if url.path == "/api/boutiques":
+            return self._json(200, boutiques_mod.toutes(Gestionnaire.donnees))
         if url.path == "/api/alertes":
             canaux = alertes_mod.destinataires().get(compte, [])
             return self._json(200, {"canaux": [{"canal": c, "adresse": _masquer(a)} for c, a in canaux],
@@ -337,9 +383,18 @@ def photos_a_verifier() -> list[str]:
     return list(dict.fromkeys(principales + choisies + galeries))
 
 
+def numeros_lego() -> list[str]:
+    """Numéros des sets LEGO officiel : ceux de la sélection d'abord, puis le catalogue."""
+    sets = Gestionnaire.index.sets([s["id"] for s in synchro.actives()])
+    lego = {s["id"]: s["numero"] for s in sets if s.get("marque") == "LEGO officiel" and s.get("numero")}
+    choisis = synchro.numeros_selection(Gestionnaire.index, [x.get("url") for x in Gestionnaire.depot.selection()])
+    return list(dict.fromkeys([n for n in lego.values() if n in choisis] + list(lego.values())))
+
+
 def main():
     logging.basicConfig(level=reglage("JOURNAL", "INFO"), format="%(asctime)s %(name)s %(message)s")
     donnees = Path(reglage("CHEMIN_DONNEES", "/donnees"))
+    Gestionnaire.donnees = donnees
     Gestionnaire.depot = Depot(donnees)
     Gestionnaire.gardien = acces.depuis_env()
     manque = alertes_mod.reglages_manquants()
@@ -366,6 +421,11 @@ def main():
         synchro.demarrer_rotation(Gestionnaire.index, lambda: [s.get("url") for s in Gestionnaire.depot.selection()])
     if heures > 0:   # relève quotidienne des liens de tests indépendants
         tests_auto.demarrer(Gestionnaire.index.tests)
+    if heures > 0:   # relevé hebdomadaire des boutiques (boutiques.py)
+        boutiques_mod.demarrer(donnees)
+    Gestionnaire.occasion = Occasion(donnees)
+    if heures > 0:   # occasion des sets LEGO officiel : boutiques d'occasion, BrickLink avec ses clés (sources/occasion.py)
+        Gestionnaire.occasion.demarrer(numeros_lego)
     def arret(*_):   # arrêt du conteneur : l'historique des prix en attente d'écriture est écrit
         Gestionnaire.index.historique.vider()
         raise SystemExit(0)

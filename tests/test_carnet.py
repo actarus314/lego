@@ -7,6 +7,7 @@ import time
 import unittest
 import urllib.error
 import urllib.request
+from unittest import mock
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
@@ -592,6 +593,7 @@ class Serveur(unittest.TestCase):
         from app import synchro
         from app.index import Index
         G.depot = Depot(Path(cls.tmp.name))
+        G.donnees = Path(cls.tmp.name)
         G.index = Index(Path(cls.tmp.name))
         G.journal = synchro.Journal(Path(cls.tmp.name))
         from app.logos import Logos
@@ -621,12 +623,38 @@ class Serveur(unittest.TestCase):
                                    data=json.dumps(corps).encode() if corps is not None else None)
         try:
             with urllib.request.urlopen(r) as rep:
-                return rep.status, rep.read().decode(), dict(rep.headers)
+                return rep.status, rep.read().decode("utf-8", "replace"), dict(rep.headers)
         except urllib.error.HTTPError as e:
             return e.code, e.read().decode(), dict(e.headers)
 
     def test_sante_sans_compte(self):
         self.assertEqual(self.req("GET", "/api/sante")[0], 200)
+
+    def test_boutiques_sans_releve(self):
+        code, corps, _ = self.req("GET", "/api/boutiques", "alice")
+        d = json.loads(corps)
+        self.assertEqual(code, 200)
+        kbs = next(b for b in d["boutiques"] if b["id"] == "kbs")
+        self.assertEqual(kbs["champs"]["port"]["valeur"], 4.95)          # data/sources.json, faute de relevé
+        self.assertNotIn(None, [c["valeur"] for b in d["boutiques"] for c in b["champs"].values()])
+
+    def test_photo_du_cache(self):
+        from app import serveur
+        from urllib.parse import quote
+        G = serveur.Gestionnaire
+        G.index.sets([s["id"] for s in __import__("app.synchro", fromlist=["x"]).actives()])
+        connue = next(iter(G.index.photos_brutes[0]))
+        jpg = b"\xff\xd8\xff\xe0" + b"j" * 50
+        rep = lien.Reponse(connue, 200, "image/jpeg", jpg, None, {})
+        self.assertEqual(self.req("GET", "/photo?u=" + quote(connue, safe=""))[0], 401)   # derrière l'authentification
+        with mock.patch.object(lien, "recuperer", return_value=rep) as m:
+            code, _, h = self.req("GET", "/photo?u=" + quote(connue, safe="") + "&l=240", "alice")
+            self.assertEqual((code, h["Content-Type"]), (200, "image/jpeg"))
+            self.assertIn("sandbox", h["Content-Security-Policy"])
+            # adresse hors du catalogue : jamais téléchargée (pas de relais ouvert)
+            code, _, _ = self.req("GET", "/photo?u=" + quote("https://exemple.fr/x.jpg", safe=""), "alice")
+            self.assertEqual(code, 404)
+        self.assertEqual(m.call_count, 1)
 
     def test_catalogue_et_synchro(self):
         code, corps, _ = self.req("GET", "/api/catalogue", "alice")

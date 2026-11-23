@@ -136,8 +136,10 @@ class Actualiser(unittest.TestCase):
     def setUp(self):
         self.p = photos.Photos(Path(tempfile.mkdtemp()))
 
-    def passe(self, resultats: dict, urls, **k):
-        with mock.patch.object(photos, "essayer", side_effect=lambda u: resultats[u]) as m:
+    def passe(self, resultats: dict, urls, cacher: bool = False, **k):
+        """Passage avec `essayer` simulé ; `cacher` : le cache local réclame les vignettes manquantes."""
+        with mock.patch.object(photos, "essayer", side_effect=lambda u, cache=None: resultats[u]) as m, \
+                mock.patch.object(self.p, "a_cacher", side_effect=lambda u, e: cacher and (e or {}).get("etat") != "morte"):
             r = self.p.actualiser(urls, pause=0, **k)
         return r, m
 
@@ -178,7 +180,10 @@ class Actualiser(unittest.TestCase):
     def test_resume(self):
         urls = ["https://a/1.jpg", "https://b/2.jpg", "https://c/3.jpg"]
         self.passe(dict(zip(urls, [("ok", ""), ("interdite", "corp"), ("refus", "403")])), urls)
-        self.assertEqual(self.p.resume(), {"total": 3, "trouvees": 1, "ecartees": 1, "non_verifiables": 1})
+        r = self.p.resume()
+        self.assertEqual({k: r[k] for k in ("total", "trouvees", "ecartees", "non_verifiables")},
+                         {"total": 3, "trouvees": 1, "ecartees": 1, "non_verifiables": 1})
+        self.assertEqual(r["cache"]["vignettes"], 0)
 
 
 class Appliquer(unittest.TestCase):

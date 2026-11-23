@@ -13,6 +13,10 @@ gardée et comptée « non vérifiable ». Une photo trouvée est revérifiée a
 écartée ou non vérifiable après 7 jours. Un site qui refuse ou échoue trois fois de suite, ou qui
 répond 429, est laissé jusqu'au passage suivant ; un passage dure 20 minutes au plus. Une adresse
 absente du catalogue depuis 30 jours est oubliée.
+
+Le même passage remplit le cache local des photos (`cache_photos.py`) : une photo non écartée dont la
+vignette manque est essayée en téléchargeant sa vignette entière, qui vaut vérification ; une photo
+oubliée perd ses fichiers du cache, et le plafond du cache s'applique en fin de passage.
 """
 from __future__ import annotations
 
@@ -23,6 +27,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from . import lien
+from .cache_photos import CacheLocal, CachePhotos, PhotoIllisible
 from .donnees import _ecrire, _lire
 from .logos import _format
 
@@ -33,7 +38,7 @@ CONFIRMATION_H = 20      # écart minimal entre deux constats d'absence, ou entr
 PASSAGERS_MAX = 3        # jours d'échec passager avant d'écarter la photo
 OUBLI_J = 30             # adresse absente du catalogue depuis ce délai : oubliée
 PAUSE_S = 0.5            # pause entre deux essais sur un même site
-LOT_MAX = 400            # essais par passage (un passage par heure)
+LOT_MAX = 1200           # essais par passage (un passage par heure) : premier remplissage du cache en 6 h environ
 DUREE_MAX_S = 20 * 60    # durée maximale d'un passage
 ECHECS_SITE_MAX = 3      # refus ou échecs de suite sur un site avant de le laisser jusqu'au passage suivant
 ABSENTE = (404, 410)
@@ -50,16 +55,29 @@ def _horodatage() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%S")
 
 
-def essayer(url: str) -> tuple[str, str]:
+def essayer(url: str, cache: CachePhotos | None = None) -> tuple[str, str]:
     """Rend (résultat, motif). Résultats : « ok » ; « interdite » (écartée dès ce constat) ;
     « absente » (à confirmer) ; « refus » (non vérifiable) ; « passager » (délai, erreur du site) ;
-    « limite » (429 : site laissé jusqu'au passage suivant, photo inchangée)."""
+    « limite » (429 : site laissé jusqu'au passage suivant, photo inchangée). Avec `cache`, la
+    vignette est téléchargée et gardée (essai complet) ; sans, les 4 premiers Ko seulement."""
     if not url.startswith("https://"):
         return "interdite", "adresse non https, refusée par la page"
     try:
-        r = lien.recuperer(url, accept="image/avif,image/webp,image/*,*/*;q=0.5",
-                           entetes={"Range": "bytes=0-4095", "Accept-Encoding": "identity"},
-                           statuts=(200, 206), max_octets=4096)
+        if cache is not None:
+            entetes = cache.telecharger(url, "v")[1]
+            r = lien.Reponse(url, 200, "image/*", b"", entetes=entetes)
+        else:
+            r = lien.recuperer(url, accept="image/avif,image/webp,image/*,*/*;q=0.5",
+                               entetes={"Range": "bytes=0-4095", "Accept-Encoding": "identity"},
+                               statuts=(200, 206), max_octets=4096)
+    except (PhotoIllisible, CacheLocal) as e:
+        if isinstance(e, PhotoIllisible) and e.page:
+            return "absente", e.public
+        # photo que le cache ne garde pas (trop lourde, format non gardé) ou écriture impossible : défaut
+        # du cache, pas de la photo, vérifiée alors comme sans cache ; le cache attend NON_GARDABLE_J jours
+        cache.non_gardables[url] = time.time()
+        log.info("photo non gardée en cache (%s) : %s", e.public, url)
+        return essayer(url)
     except lien.LienRefuse as e:
         statut = getattr(e, "statut", None)
         if statut in ABSENTE:
@@ -77,7 +95,7 @@ def essayer(url: str) -> tuple[str, str]:
     if corp in ("same-origin", "same-site"):
         return "interdite", f"affichage interdit hors du site ({corp})"
     type_ = (r.type or "").split(";")[0].strip().lower()
-    if type_.startswith(PAGES) and not _format(r.corps):
+    if cache is None and type_.startswith(PAGES) and not _format(r.corps):
         return "absente", f"page à la place de l'image ({type_})"
     return "ok", ""
 
@@ -85,6 +103,7 @@ def essayer(url: str) -> tuple[str, str]:
 class Photos:
     def __init__(self, dossier: Path):
         self.fichier = Path(dossier) / "photos.json"
+        self.cache = CachePhotos(Path(dossier))
 
     def etat(self) -> dict:
         return _lire(self.fichier, {})
@@ -101,12 +120,23 @@ class Photos:
         for e in self.etat().values():
             compte[e.get("etat")] = compte.get(e.get("etat"), 0) + 1
         return {"total": sum(compte.values()), "trouvees": compte.get("ok", 0),
-                "ecartees": compte.get("morte", 0), "non_verifiables": compte.get("refus", 0)}
+                "ecartees": compte.get("morte", 0), "non_verifiables": compte.get("refus", 0),
+                "cache": self.cache.resume()}
+
+    def a_cacher(self, url: str, e: dict | None) -> bool:
+        """Photo non écartée dont la vignette manque au cache (cache non plein)."""
+        return (not self.cache.plein and (e or {}).get("etat") != "morte" and self.cache.gardable(url)
+                and not self.cache.present(url))
+
+    @staticmethod
+    def _passager_recent(e: dict | None, maintenant: float) -> bool:
+        e = e or {}
+        return bool(e.get("passager_le")) and maintenant - _instant(e["passager_le"]) < CONFIRMATION_H * 3600
 
     @staticmethod
     def a_essayer(e: dict | None, maintenant: float) -> bool:
         e = e or {}
-        if e.get("passager_le") and maintenant - _instant(e["passager_le"]) < CONFIRMATION_H * 3600:
+        if Photos._passager_recent(e, maintenant):
             return False   # échec passager récent : nouvel essai le lendemain
         if not e.get("essai"):
             return True
@@ -152,7 +182,10 @@ class Photos:
             for u in urls:   # jour du dernier passage où l'adresse est au catalogue
                 if u in etat:
                     etat[u]["vu"] = jour
-            a_faire = [u for u in urls if self.a_essayer(etat.get(u), debut)][:lot_max]
+            # photo à essayer selon son état, ou photo trouvée dont la vignette manque au cache
+            a_faire = [u for u in urls if self.a_essayer(etat.get(u), debut)
+                       or ((etat.get(u) or {}).get("etat") == "ok" and self.a_cacher(u, etat.get(u))
+                           and not self._passager_recent(etat.get(u), debut))][:lot_max]
             dernier_par_site: dict[str, float] = {}
             echecs_site: dict[str, int] = {}
             essayees = ecartees = 0
@@ -165,7 +198,7 @@ class Photos:
                 attente = dernier_par_site.get(site, 0) + pause - time.time()
                 if attente > 0:
                     time.sleep(attente)
-                resultat, motif = essayer(url)
+                resultat, motif = essayer(url, self.cache if self.a_cacher(url, etat.get(url)) else None)
                 dernier_par_site[site] = time.time()
                 if resultat == "limite":
                     echecs_site[site] = ECHECS_SITE_MAX
@@ -187,7 +220,10 @@ class Photos:
                 del etat[u]   # absente du catalogue depuis OUBLI_J jours
             if etat != lu:   # sans changement, pas d'écriture : l'index n'est pas reconstruit pour rien
                 _ecrire(self.fichier, etat)
-            return {"essayees": essayees, "ecartees": ecartees}
+        # copie gardée seulement pour une photo non écartée (une photo écartée parce que son site en interdit
+        # l'affichage ailleurs n'est pas servie non plus par /photo)
+        cache = self.cache.entretenir({u for u in set(etat) | set(urls) if (etat.get(u) or {}).get("etat") != "morte"})
+        return {"essayees": essayees, "ecartees": ecartees, **cache}
 
     def demarrer(self, adresses) -> None:
         """Passage toutes les heures sur `adresses()` (liste ordonnée des photos à vérifier)."""
