@@ -1,6 +1,6 @@
 # Mécanique ou LLM : qui fait quoi
 
-État de la v3.20.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
+État de la v3.21.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
 
 **Le service n'appelle aucun LLM** (aucune clé, aucun appel vers un service d'intelligence artificielle). Tout ce qu'il calcule, il le calcule par script : sur les mêmes données lues, le même calcul. Les LLM sont intervenus en amont, hors du service, pour produire une partie des données qu'il applique. Ces données sont figées : elles ne changent qu'à une nouvelle passe, faite à la demande dans une conversation.
 
@@ -23,7 +23,7 @@ Dates, modèles et contrôles des passes LLM : relevés du projet (CHANGELOG, no
 | Thèmes et univers | étiquettes des boutiques, mots-clés du nom et correspondance des thèmes Rebrickable (`data/themes.json`) ; un set sans sujet reconnu reçoit un thème estimé, marqué comme tel : celui de son univers, sinon le plus fréquent de sa série, sinon de sa marque |
 | Complétude du catalogue | comptée par champ (thème, univers, type, dimensions, avis, port, délai ; mesuré, estimé, absent) à chaque synchronisation ; une baisse nette est signalée à l'administrateur |
 | Type de briques (Technic ou classique) | de la preuve la plus forte à la plus faible : choix de l'administrateur, corrections, étalon photo, règle par série (calculée sur les types connus), signaux des boutiques |
-| Dimensions, pièces, âge | lus dans les descriptions et les pages produits des boutiques, et dans la description de LEGO officiel reprise par les fiches BricksValue, par des règles écrites (`app/normalise.py` : trois cotes, ou cotes écrites une à une, en centimètres, millimètres ou pouces, en anglais, allemand et français) ; chaque cote garde sa source |
+| Dimensions, pièces, âge | lus dans les descriptions et les pages produits des boutiques, et dans la description de LEGO officiel reprise par les fiches BricksValue, par des règles écrites (`app/cotes.py` : trois cotes, ou cotes une à une rattachées à leur axe, la cote d'une pièce collée à son axe ou à son verbe écartée, lecture de la v3.20.0 gardée en filet dans `app/cotes_v320.py` ; centimètres, millimètres ou pouces ; anglais, allemand et français) ; chaque cote garde sa source |
 | Dimension estimée d'un set sans cote publiée | plus grande cote estimée par une règle étalonnée à chaque reconstruction sur les sets mesurés (nombre de pièces, type de briques, thème), marquée « estimée » avec sa méthode, servie à part des cotes mesurées |
 | Noms allemands | traduits mot à mot par `data/glossaire.json` |
 | Disponibilité | lue chez la boutique à chaque lecture |
@@ -66,6 +66,7 @@ Fichiers de `data/` sans part LLM : `meta.json` (date du relevé d'origine) et `
 | Type de briques imposé depuis la fiche | Romain, compte de `ADMINS` (`corrections_locales.json` du dossier de données) |
 | Sélection et achats ; réglages des alertes | Romain et Julie, page Sélection ; Romain, `.env` |
 | Règles du tri : liste des marques, mots qui excluent un lot ou une pièce détachée, étiquettes des boutiques | code (`app/normalise.py`), écrit par Claude, mesuré sur les étiquettes des boutiques |
+| Mots de la lecture des dimensions : noms et mots d'axe, mots de liaison, verbes de mesure, pièces et objets joints, mots du modèle | code (`app/cotes.py` ; `app/cotes_v320.py`, figé), écrit par Claude, mesuré sur les descriptions des boutiques et de LEGO officiel du 23/11/2026 (étalon de `tests/test_carnet.py`, classe `Cotes`) |
 | Paliers de prix et de taille (40 et 60 cm), liste des pays européens | page (`web/index.html`) |
 
 ## Développement

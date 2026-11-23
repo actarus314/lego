@@ -1039,6 +1039,132 @@ class DimensionsEstimees(unittest.TestCase):
         self.assertIsNone(_set("x", [o()], {})["dims_source"])
 
 
+class Cotes(unittest.TestCase):
+    """Lecture des cotes une à une (app/cotes.py) : formes relevées par les relectures du 23/11/2026 (v3.20.0 perdait ou
+    lisait mal une partie d'entre elles) et pièces ou objets joints, dont la cote n'est pas celle du modèle."""
+    CAS = {
+        # formes justes perdues ou fausses en v3.20.0 (seconde contre-vérification, relecture de la soumission)
+        "Length: 45 cm Width: 20 cm": [45, 20], "Height: 40 cm Width: 20 cm": [40, 20],
+        "Length: 45 cm Height: 20 cm Width: 10 cm": [45, 20, 10], "Length 45 cm Width 20 cm Height 30 cm": [45, 30, 20],
+        "Brand: Mould King Length: 60 cm Width: 30 cm Height: 40 cm": [60, 40, 30],
+        "Length of 45 cm and width of 20 cm": [45, 20], "Length of 45 cm and width of 20 cm and height of 30 cm": [45, 30, 20],
+        "Brand: Mould King Height: 40 cm": [40], "Material: ABS plastic Height: 40 cm": [40], "Color: red Height: 40 cm": [40],
+        "Dimensions Height: 40 cm": [40], "Size Height: 40 cm": [40], "Abmessungen Länge: 60 cm": [60],
+        "Pieces: 1500 pcs Height: 40 cm": [40], "Pieces: 1500 Height: 40 cm": [40],
+        "mit einer Höhe von 30 cm": [30], "das Modell hat eine Länge von 45 cm": [45], "mit einer Spannweite von ca. 70 cm": [70],
+        "Eine Höhe von 30 cm": [30], "Cette hauteur de 50 cm": [50], "une hauteur de 50 cm": [50],
+        "a final height of 40 cm": [40], "an approximate height of 40 cm": [40], "Assembled length: 60 cm": [60],
+        "Product length: 60 cm": [60], "The model's height of 40 cm": [40], "Large wingspan of 70 cm": [70],
+        "Huge height of 40 cm": [40], "Set height 40 cm": [40],
+        # gains de v3.20.0 à garder
+        "a finished width of 70 cm": [70], "with a wingspan of around 70 cm": [70],
+        "The fully extended crane arm reaches a height of approximately 160 cm": [160],
+        "Model height: 52.2cm / 20.6in": [52.2], "With a finished length of 29.2 cm, this set is compact": [29.2],
+        "Mesure plus de 21 cm de haut, 84 cm de long et 60 cm de large.": [84, 60, 21],
+        "mesure plus de 13 cm de haut, 17 cm de large et 17 cm de profondeur": [17, 17, 13],
+        "Measuring a staggering 91.2cm (nearly 1 meter) in length": [91.2], "Standing at over 40cm tall": [40],
+        "The completion size of Tie Figther is 28.4 cm height, 79.2 cm length and 48.5 cm width": [79.2, 48.5, 28.4],
+        "Impressive Dimensions : 25cm High, 62cm Long, 25.5cm Wide": [62, 25.5, 25],
+        "It has 3181 bricks and stands 56.9 cm tall, about 57 cm high": [57],
+        "Ce set de plus de 38 cm de haut inclut la créature": [38],
+        "Life-size katana scale 105.9 cm (41.7 in) long": [105.9],
+        # pièces et objets joints : pas la cote du modèle
+        "Wheel width 6 cm": None, "Barrel length 12 cm": None, "Cable length: 150 cm": None,
+        "Power Functions battery box, cable length 50 cm": None, "Stand height 10 cm": None, "with a rope of length 40 cm": None,
+        "Each wheel has a width of 6 cm": None, "The stand has a height of 10 cm": None, "The cable has a length of 50 cm": None,
+        "The barrel has a length of 40 cm": None, "Includes a cable with a length of 50 cm": None,
+        "Comes with a stand with a height of 10 cm": None, "Spurbreite 12 cm; Wavelength 20 cm": None, "Barrel length: 30 cm": None,
+        "It boasts an impressive lift height of nearly 40cm": None, "a 3 inches wide stand and 40 cm tall": [40],
+        "Includes a 12 x 12 x 1 inches baseplate": None,
+        "The instruction manual measures 30 x 21 cm. The model stands 50 cm tall.": [50],
+        "La figurine mesure 5 cm": None, "stands on a 20 cm base": None, "all within a 30 cm radius": None,
+        "fired 60 cm shells": None, "measures 40 cm in diameter": None,
+        # relecture de la v3.21.0 : cotes du modèle à ne pas perdre (lues en v3.20.0)
+        "Once built, the model will stand 40 cm tall.": [40], "It will stand 40 cm tall": [40], "Models stand 40 cm high": [40],
+        "These towers stand 60 cm high": [60], "The pillars stand 60 cm tall, spanning 90 cm wide": [90, 60],
+        "The model comes with wheels and is 40 cm tall": [40], "The car with wheels is 40 cm long": [40],
+        "The car, including the wheels, is 40 cm long": [40], "Truck, tyres included, 40 cm long": [40],
+        "The tank has a 12 cm cannon and is 40 cm long": [40], "The tank has a cannon, 40 cm long": [40],
+        "Crane with a hook and rope system, 100 cm tall": [100], "Includes a baseplate and stands 40 cm tall": [40],
+        "Build a model with working wheels that measures over 43 cm long": [43], "Das Modell inklusive Sockel ist 40 cm hoch": [40],
+        "With stand 40 cm tall": [40], "Support legs extended, 40 cm wide": [40], "Includes a display stand. 50 cm tall.": [50],
+        "Tank with cannon. 40 cm long.": [40], "The model stands tall at 40 cm": [40], "Standing tall at 50cm once constructed": [50],
+        "all 64.5 cm of it": [64.5], "128 cm Height 134 cm Boom Length: 36.4 cm Base Width": [128],
+        "Track length 120 cm, train length 40 cm": [40], "Cord length 100 cm": None, "At a towering 63cm. Over 60cm Tall": [63],
+        "mesure, présentoir inclus, plus de 24 cm de haut, 51 cm de long et 76 cm de large": [76, 51, 24],
+        # contre-vérification de la v3.21.0 : formes lues juste en v3.20.0, à garder
+        "Height: 40 cm Diameter: 25 cm": [40], "Hauteur : 43 cm Diamètre : 25 cm": [43], "Höhe: 43 cm Durchmesser: 25 cm": [43],
+        "Height: 60 cm Diameter 45 cm": [60],
+        "The truck with wheels has a length of 45 cm": [45], "The vehicle on tracks has a length of 45 cm": [45],
+        "The model with a stand stands 40 cm": [40], "The model on a stand stands 40 cm": [40], "The set with wheels has a height of 40 cm": [40],
+        "The model with wheels measures 45 x 22 x 13 cm": [45, 22, 13], "Truck on tracks 45 x 22 x 13 cm": [45, 22, 13],
+        "The Ferris wheel stands 63 cm": [63], "This Ferris wheel measures 60 cm": [60], "The Ferris wheel has a height of 63 cm": [63],
+        "The Iron Man figure stands 45 cm": [45], "This figure measures 45 cm": [45], "Die Figur misst 45 cm": [45],
+        "Tall at 50cm, this model is a landmark": [50], "Impressively tall at 50 cm": [50], "A tall 50cm model": [50], "Overall 40 cm": [40],
+        "43 cm tall; width: 27 cm": [43, 27], "43 cm tall / width: 27 cm": [43, 27], "43 cm tall. width 27 cm": [43, 27],
+        "61 cm long; height: 43 cm; depth: 18 cm": [61, 43, 18], "Approximately 43 cm tall; width 27 cm; depth 18 cm": [43, 27, 18],
+        "61 cm lang / Höhe: 43 cm": [61, 43],
+        "Dimensions: 45 x 22 x 13 cm Socle compris": [45, 22, 13], "Maße: 45 x 22 x 13 cm Sockel inklusive": [45, 22, 13],
+        "a 40 cm tall stand-alone model": [40],
+        # pièces : pas la cote du modèle (lues à tort par la v3.21.0 avant correction)
+        "Antenna height 20 cm": None, "Motor length 12 cm": None, "Battery box length 15 cm": None, "Arm length 30 cm": None,
+        "Mast height 60 cm": None, "Bucket width 12 cm": None, "Hook height 20 cm": None, "Seat height 20 cm": None,
+        "The stand is 10 cm": None, "The stand is about 10 cm": None, "Its stand is 10 cm": None,
+        "Product height 40 cm": [40], "Total set length: 45 cm": [45],
+        # relecture de la construction B : à garder (lues en v3.20.0)
+        "a build that stands 44 cm tall": [44], "A model that stands 44 cm tall": [44], "A kit that stands 40 cm": [40],
+        "The tower that stands at 40 cm": [40], "This stands 40 cm tall": [40], "Each stands 40 cm tall": [40],
+        "With 1,636 pieces, it's a relaxing build that stands about 44.6 cm tall.": [44.6],
+        "The motorcycle with wheels has a length of 45 cm": [45], "The helicopter on a stand has a height of 40 cm": [40],
+        "The dinosaur on a stand measures 40 cm": [40], "The bonsai with its stand measures 40 cm": [40], "The T-Rex on a stand stands 40 cm": [40],
+        "The bulldozer on tracks has a length of 45 cm": [45], "The bus with wheels measures 40 cm": [40],
+        "The motorcycle with wheels measures 45 x 22 x 13 cm": [45, 22, 13], "Bulldozer on tracks 45 x 22 x 13 cm": [45, 22, 13],
+        "45 cm long / Width 45 cm": [45, 45], "45 cm long / Height 45.5 cm": [45.5, 45], "61 cm lang / Höhe 61 cm": [61, 61],
+        "30 cm tall; width 30 cm": [30, 30], "Product: Crane 65cm tall / Depth 66 cm / 60 cm lang": [66, 65, 60],
+        "This set 84 cm in length / Höhe of 85 cm": [85, 84],
+        # relecture de la construction B : pièces, non lues (non lues en v3.20.0)
+        "50 cm cable length": None, "6 cm wheel width": None, "45 cm stand height": None, "20 cm antenna length": None,
+        "Antenna height: 20 cm": None, "Motor length: 12 cm": None, "Mast height: 60 cm": None,
+        "Display stand is 45 cm": None, "The included stand is 45 cm": None, "Stand is 45 cm": None, "Wooden stand: 45 cm": None,
+        "Castle with four towers 15 cm": None, "The bridge span is 30 cm": None, "80cm - Height of the Crane Arm": None,
+    }
+
+    def test_formes(self):
+        from app import normalise as n
+        for texte, attendu in self.CAS.items():
+            self.assertEqual(n.dimensions(texte), [float(x) for x in attendu] if attendu else None, texte)
+
+    def test_filet_v320_inchange(self):
+        """La lecture de la v3.20.0 est la référence du filet de non-régression : un changement doit être voulu."""
+        import hashlib
+        empreinte = hashlib.sha256((RACINE / "app" / "cotes_v320.py").read_bytes()).hexdigest()
+        self.assertEqual(empreinte, "f5d4c2cb0d66ff73d3841cd853f2ee0a1c856d5fcfd4a36f08566fdf46cd5cd5")
+
+    def test_filet_aucune_cote_v320_perdue_sans_regle(self):
+        """Sur des phrases formées de sujets et de formes de cote, chaque cote de la v3.20.0 se retrouve dans la
+        lecture, autant de fois que la v3.20.0 la lit, dans la limite de ses occurrences dans le texte (aucun sujet
+        n'est ici une pièce collée à sa cote)."""
+        import itertools
+        import re
+        from collections import Counter
+        from app import cotes, cotes_v320
+        sujets = ["The model", "This set", "The truck with wheels", "The model on a stand", "The Ferris wheel", "The crane",
+                  "It", "The tank with its cannon", "The figure", "Das Modell", "Le modèle", "Brand: Mould King",
+                  "Key Features: 1500 Pieces", "Antenna", "Truck, tyres included,", "Built size approx.",
+                  "A build that", "The motorcycle with wheels", "The bonsai with its stand", "With stand,", "Bulldozer on tracks"]
+        formes = ["is {v} cm long", "is {v} cm tall", "measures {v} cm", "stands {v} cm tall", "has a length of {v} cm",
+                  "length: {v} cm", "Height {v} cm", "{v} cm wide", "reaches {v} cm", "with a height of {v} cm",
+                  "{v} x 20 x 13 cm", "Length: {v} cm Width: 20 cm", "{v} cm tall; width: 27 cm", "ist {v} cm hoch",
+                  "mesure {v} cm de haut", "Länge: {v} cm", "tall at {v} cm", "Overall {v} cm", "stands {v} cm tall",
+                  "{v} cm long / Height 45.5 cm", "{v} cm tall; width {v} cm"]
+        for s, f in itertools.product(sujets, formes):
+            t = f"{s} {f.format(v=45)}"
+            lu = Counter(cotes.dimensions(t) or [])
+            dans_le_texte = Counter(float(x) for x in re.findall(r"(\d+(?:\.\d+)?) cm", t))
+            for x, nombre in Counter(cotes_v320.dimensions(t) or []).items():
+                self.assertGreaterEqual(lu[x], min(nombre, max(dans_le_texte[x], 1)), (t, x, lu))
+
+
 class Corrections(unittest.TestCase):
     def test_regrouper_separer_imposer(self):
         from app import index as ix
