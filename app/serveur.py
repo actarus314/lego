@@ -246,7 +246,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                     "selection": synchro.etat_selection(),
                                     "photos": self.index.photos.resume(),
                                     "occasion": self.occasion.etat() if self.occasion else {},
-                                    "sites_en_pause": {h: int(r) + 1 for h in list(lien._pause) if (r := lien.en_pause(h)) > 0},
+                                    "sites_en_pause": lien.pauses(),
                                     "completude": (d.get("dernier") or {}).get("completude") or self._completude(),
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
@@ -413,6 +413,7 @@ def main():
         raise SystemExit("Réglages obligatoires absents du .env : " + " ; ".join(manque))
     Gestionnaire.masquer = {n.strip() for n in reglage("ACHATS_MASQUES_POUR", "").split(",") if n.strip()}
     Gestionnaire.admins = {n.strip() for n in reglage("ADMINS", "").split(",") if n.strip()}
+    lien.rattacher(boutiques_mod.hotes_shopify())   # file et pause communes aux boutiques Shopify (lien.py)
     Gestionnaire.index = Index(donnees)
     Gestionnaire.journal = synchro.Journal(donnees)
     Gestionnaire.logos = logos_mod.Logos(donnees, synchro.actives)

@@ -9,7 +9,8 @@ suivies une à une, chacune revérifiée.
 
 `recuperer` tient aussi le débit par site commun à tout le service : une seconde au moins entre deux
 départs de requête vers un même site, quel que soit le module, et une pause de tout le service sur un
-site qui répond 429 (voir `INTERVALLE_SITE_S` et la suite).
+site qui répond 429 (voir `INTERVALLE_SITE_S` et la suite) ; les boutiques Shopify et leurs photos forment
+une seule famille, avec une file et une pause communes.
 """
 from __future__ import annotations
 
@@ -32,7 +33,7 @@ REDIRECTIONS_MAX = 4
 PORTS = (80, 443)  # ports web standard : une boutique n'en emploie pas d'autre
 # photo affichable sur un autre site ; version de la page (requête conditionnelle) ; serveur et protection
 # anti-robot, pour dire la cause exacte d'un refus
-ENTETES_LUS = ("Cross-Origin-Resource-Policy", "ETag", "Server", "cf-mitigated")
+ENTETES_LUS = ("Cross-Origin-Resource-Policy", "ETag", "Server", "cf-mitigated", "Powered-By")
 AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 
 # Débit par site, commun à tout le service (synchronisation, sélection, photos, logos, boutiques, occasion,
@@ -44,13 +45,24 @@ AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 # aussitôt, sans réseau : LienRefuse de statut 429 et d'attribut `pause` vrai (la pause restante est dans
 # `attente`), pour que l'appelant reporte l'essai sans compter un échec du site.
 INTERVALLE_SITE_S = 1.0
-INTERVALLES = {"cdn.shopify.com": 0.2, "cdn.rebrickable.com": 0.3, "images.brickset.com": 0.5,
+INTERVALLES = {"cdn.rebrickable.com": 0.3, "images.brickset.com": 0.5,
                "cdn.bricksvalue.com": 0.3}   # serveurs de photos des boutiques, pas les boutiques
+# Famille Shopify : toutes les boutiques hébergées par Shopify et son serveur de photos passent par une même
+# protection contre les robots, qui juge l'adresse IP du service dans son ensemble (23/11/2026 : depuis le NUC,
+# 429 sur toutes les boutiques Shopify à la fois, 200 depuis une autre adresse avec le même client). La famille
+# partage donc une seule file (INTERVALLE_FAMILLE_S entre deux requêtes, toutes boutiques et photos confondues)
+# et une seule pause : un 429 d'un membre arrête toute la famille. Membres : cdn.shopify.com, *.myshopify.com,
+# les hôtes déclarés par `rattacher` (sources Shopify) et tout hôte qui répond « Powered-By: Shopify ».
+INTERVALLE_FAMILLE_S = 1.0
+SHOPIFY = "shopify"
+_famille: dict[str, str] = {"cdn.shopify.com": SHOPIFY}
 PAUSE_429_S = 600
 PAUSE_429_MIN_S = 60
 PAUSE_429_MAX_S = 3600
-_prochaine: dict[str, float] = {}   # site : instant du prochain départ permis
-_pause: dict[str, float] = {}       # site : fin de la pause après un 429
+_prochaine: dict[str, float] = {}   # site ou famille : instant du prochain départ permis
+_pause: dict[str, float] = {}       # site ou famille : fin de la pause après un 429
+_suite_429: dict[str, int] = {}     # site ou famille : 429 reçus de suite (la pause double à chacun)
+_dernier_429: dict[str, float] = {}  # site ou famille : instant du dernier 429 reçu
 _verrou_sites = threading.Lock()
 
 
@@ -70,9 +82,35 @@ def _attente_s(valeur) -> float:
     return min(max(v, PAUSE_429_MIN_S), PAUSE_429_MAX_S)
 
 
+def rattacher(hotes, famille: str = SHOPIFY) -> None:
+    """Range des hôtes dans une famille (file et pause communes)."""
+    with _verrou_sites:
+        for h in hotes:
+            if h:
+                _famille[site(h)] = famille
+
+
+def cle(hote: str) -> str:
+    """Clé de débit et de pause : la famille de l'hôte, sinon son site."""
+    s = site(hote)
+    if s.endswith(".myshopify.com"):
+        return SHOPIFY
+    return _famille.get(s, s)
+
+
+def _intervalle(c: str) -> float:
+    return INTERVALLE_FAMILLE_S if c == SHOPIFY else INTERVALLES.get(c, INTERVALLE_SITE_S)
+
+
 def en_pause(hote: str, maintenant: float | None = None) -> float:
-    """Secondes de pause restantes pour ce site après un 429 (0 : pas en pause)."""
-    return max(_pause.get(site(hote), 0.0) - (maintenant or time.time()), 0.0)
+    """Secondes de pause restantes pour ce site (ou sa famille) après un 429 (0 : pas en pause)."""
+    return max(_pause.get(cle(hote), 0.0) - (maintenant or time.time()), 0.0)
+
+
+def pauses() -> dict[str, int]:
+    """Sites et familles en pause : secondes restantes."""
+    maintenant = time.time()
+    return {c: int(fin - maintenant) + 1 for c, fin in list(_pause.items()) if fin > maintenant}
 
 
 def _refus_pause(reste: float) -> "LienRefuse":
@@ -82,26 +120,49 @@ def _refus_pause(reste: float) -> "LienRefuse":
 
 
 def _reserver(hote: str) -> None:
-    """Attend le tour de ce site, puis vérifie encore la pause (un 429 reçu par une autre requête pendant
-    l'attente arrête aussi celle-ci). Site en pause : LienRefuse sans attendre."""
-    cle = site(hote)
+    """Attend le tour de ce site (ou de sa famille), puis vérifie encore la pause (un 429 reçu par une autre
+    requête pendant l'attente arrête aussi celle-ci). En pause : LienRefuse sans attendre."""
+    c = cle(hote)
     with _verrou_sites:
         maintenant = time.time()
-        reste = _pause.get(cle, 0.0) - maintenant
+        reste = _pause.get(c, 0.0) - maintenant
         if reste > 0:
             raise _refus_pause(reste)
-        depart = max(maintenant, _prochaine.get(cle, 0.0))
-        _prochaine[cle] = depart + INTERVALLES.get(cle, INTERVALLE_SITE_S)
+        depart = max(maintenant, _prochaine.get(c, 0.0))
+        _prochaine[c] = depart + _intervalle(c)
     if depart > maintenant:
         time.sleep(depart - maintenant)
-        reste = en_pause(cle)
+        reste = en_pause(hote)
         if reste > 0:
             raise _refus_pause(reste)
 
 
 def _noter_429(hote: str, attente) -> None:
+    """Pause après un 429 : Retry-After borné, doublé à chaque nouvel épisode de 429 reçus de suite (avec
+    Retry-After: 60, 1, 2, 4… minutes ; une heure au plus), pour ne pas revenir chaque minute vers une
+    adresse refusée. Les 429 des requêtes déjà parties, reçus pendant la pause, ne la doublent pas."""
+    c = cle(hote)
     with _verrou_sites:
-        _pause[site(hote)] = time.time() + _attente_s(attente)
+        maintenant = time.time()
+        _dernier_429[c] = maintenant
+        if _pause.get(c, 0.0) > maintenant:   # même épisode : la pause en cours tient
+            return
+        n = _suite_429.get(c, 0) + 1
+        _suite_429[c] = n
+        _pause[c] = maintenant + min(_attente_s(attente) * 2 ** min(n - 1, 12), PAUSE_429_MAX_S)
+
+
+def _noter_reponse(hote: str, r: "Reponse", depart: float) -> None:
+    """Réponse autre qu'un 429 : un hôte Shopify rejoint sa famille ; la suite de 429 repart de zéro sur une
+    réponse acceptée (2xx, 304) d'une boutique, partie après le dernier 429 : une photo servie par le CDN
+    pendant que les boutiques refusent, une redirection ou une erreur ne la remettent pas à zéro."""
+    if (r.entetes or {}).get("powered-by", "").strip().lower() == "shopify" and cle(hote) != SHOPIFY:
+        rattacher([hote])
+    c = cle(hote)
+    if c in _suite_429 and (200 <= r.statut < 300 or r.statut == 304) and site(hote) != "cdn.shopify.com":
+        with _verrou_sites:   # revu sous verrou : un 429 noté entre-temps par un autre fil garde la suite
+            if depart > _dernier_429.get(c, 0.0):
+                _suite_429.pop(c, None)
 
 
 class LienRefuse(ValueError):
@@ -213,9 +274,12 @@ def recuperer(url: str, accept: str = "text/html,application/json;q=0.9,*/*;q=0.
         hote = p.hostname or ""
         if p.scheme in ("http", "https") and hote:   # adresse refusée d'avance : sans attendre son tour
             _reserver(hote)
+        depart = time.time()
         r = _get(url, accept, entetes, max_octets)
         if r.statut == 429:
             _noter_429(hote, r.attente)
+        else:
+            _noter_reponse(hote, r, depart)
         if 300 <= r.statut < 400 and r.url != url:   # redirection ; un 3xx sans Location est refusé plus bas
             url = r.url
             continue

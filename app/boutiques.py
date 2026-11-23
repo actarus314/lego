@@ -148,6 +148,17 @@ def configuration() -> list[dict]:
     return out
 
 
+def hotes_shopify() -> list[str]:
+    """Hôtes des boutiques Shopify connues (sources de type shopify, boutiques dont on lit meta.json, De
+    BrickPlaats), rangés dans la famille Shopify de lien.py dès le démarrage, avant toute réponse."""
+    hotes = [s["hote"] for s in _sources().values() if s.get("type") == "shopify" and s.get("hote")]
+    for b in configuration():
+        if "meta" in (b.get("lire") or []):
+            hotes.append(b.get("hote") or urlsplit(b.get("url") or "").hostname or "")
+    from .sources.occasion_boutiques import BRICKPLAATS
+    return sorted({h for h in hotes + [urlsplit(BRICKPLAATS).hostname or ""] if h})
+
+
 def _sources() -> dict[str, dict]:
     return {s["id"]: s for s in json.loads((RACINE / "data" / "sources.json").read_text("utf-8"))["sources"]}
 

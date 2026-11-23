@@ -3,7 +3,7 @@
 Le pays de livraison est déclaré par le cookie `localization` (les boutiques à plusieurs
 marchés rendent alors leurs prix dans la devise de ce pays). Une page de 250 produits par
 requête, une pause entre deux pages, et en cas de refus 429 l'attente de la pause commune du service sur
-ce site (`lien.py`) quand elle dure deux minutes au plus, sinon la source est laissée au passage suivant.
+ce site (`lien.py`) quand elle dure une minute au plus, sinon la source est laissée au passage suivant.
 """
 from __future__ import annotations
 
@@ -111,10 +111,10 @@ def _page(url: str, entetes: dict, garde: tuple[str, bytes] | None) -> lien.Repo
                                   statuts=(200, 304) if garde else (200,))
         except lien.LienRefuse as e:
             if getattr(e, "statut", None) == 429 and essai < 2:
-                # pause commune du service sur ce site (lien.py) : attendre sa fin si elle est courte,
+                # pause commune du service sur ce site (lien.py) : attendre sa fin si elle est courte (une minute au plus),
                 # sinon laisser la source au passage suivant plutôt que d'attendre pour rien
                 reste = lien.en_pause(urlsplit(url).hostname or "")
-                if reste > 120:
+                if reste > 60:
                     raise
                 time.sleep(reste or 30)
                 continue
