@@ -153,9 +153,9 @@ td.ph{width:152px}
 .stat{display:flex;gap:18px;flex-wrap:wrap}
 .stat div{display:grid}
 .stat b{font-family:var(--display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
-.note-cell{max-width:300px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
-.row-actions{display:flex;gap:4px;justify-content:flex-end}
-.row-actions .btn{min-width:84px}
+.note-cell{white-space:pre-wrap;overflow-wrap:anywhere}
+.pastilles{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+td.num .pastilles{justify-content:flex-end}
 select.status{height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:12.5px var(--body);padding:0 6px}
 /* Recherche : filtres fixes à gauche, résultats à droite */
 .rech{display:grid;grid-template-columns:292px minmax(0,1fr);gap:20px;align-items:start}
@@ -178,9 +178,6 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .puces .chip{height:28px;padding:0 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
 .puces .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint);min-width:3ch;text-align:right}
 .puces .chip[aria-pressed="true"] .n,.puces .chip[aria-checked="true"] .n{color:inherit}
-.marques-g{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.marques-g .chip{justify-content:flex-start;padding:0 8px;min-width:0}
-.marques-g .chip span.t{overflow:hidden;text-overflow:ellipsis}
 .curseur{width:100%;accent-color:var(--accent);margin:0}
 /* prix : piste en dégradé, du moins cher (vert) au plus cher (orange) ; curseur au bleu du site */
 .curseur.degrade{-webkit-appearance:none;appearance:none;height:22px;background:transparent}
@@ -214,11 +211,11 @@ select.status{height:28px;border:1px solid var(--line);border-radius:8px;backgro
 .boutiques-l a:hover{color:var(--accent);text-decoration-color:currentColor}
 nav .m-ico{display:none;vertical-align:-3px}
 .ico-type{width:16px;height:16px;flex:none;color:currentColor}
-#t-idees{table-layout:fixed}
+#t-idees,#t-sel{table-layout:fixed}
 .fhaut{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .fhaut select{flex:1 1 auto;height:30px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:0 6px;font:13px var(--body);min-width:0}
 .voir{display:none}
-.alerte-l{color:var(--warn)}
+.alerte-l{color:var(--warn);white-space:normal}
 .res-tete{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:30px}
 .res-tete p{margin:0;color:var(--muted)}
 .res-tete .n-big{font:600 20px var(--display);color:var(--fg);margin-right:4px;font-variant-numeric:tabular-nums}
@@ -237,13 +234,18 @@ nav .m-ico{display:none;vertical-align:-3px}
   .filtres .q{display:none}
 }
 /* Fiche : offres */
-.offres{width:100%;border-collapse:collapse;font-size:13px}
-.offres td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:top}
-.offres td.num{white-space:nowrap}
-.offres tr:first-child td{border-top:0}
-.offres s{color:var(--faint)}
-.offres .bas{color:var(--muted)} .offres .bas.douteux{color:var(--warn)}
-svg.courbe{display:block;margin:4px 0 0 auto;color:var(--accent);overflow:visible}
+/* une offre : bloc de prix commun à gauche, courbe et date du relevé à droite */
+.offres{display:grid;font-size:13px}
+.offre{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.offre:first-child{border-top:0}
+.offre .big{font-size:15px}
+.offre .pastilles{margin-top:3px}
+.o-suivi{display:grid;justify-items:end;gap:2px;text-align:right}
+.offres s{color:var(--muted)}
+.sel-f{display:grid;gap:6px;padding:10px 12px;background:var(--sunk);border-radius:10px}
+.sel-l{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.note-f{white-space:pre-wrap;overflow-wrap:anywhere}
+svg.courbe{display:block;color:var(--accent);overflow:visible}
 /* Relevé des prix */
 .icon-btn{position:relative}
 .icon-btn .dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--warn);border:1.5px solid var(--card)}
@@ -309,7 +311,9 @@ details.autres[open] > summary svg{transform:rotate(180deg)}
 .fiche-body .offres-t{display:grid;gap:4px}
 .fiche-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .fiche h2{font-family:var(--display);font-size:20px;font-weight:600;margin:0;text-wrap:balance}
-.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.facts{display:flex;flex-wrap:wrap;gap:10px}
+.facts .fact{flex:1 1 auto}
+.facts:not(:has(.fact)){display:none}
 .fact{background:var(--sunk);border-radius:10px;padding:8px 10px;display:grid;gap:2px}
 .fact .pill{justify-self:start}
 .fact b{font-family:var(--display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -338,7 +342,6 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   td{border:0;padding:0;text-align:left!important;min-width:0}
   .pill{white-space:normal;height:auto;min-height:22px}
   td.ph{grid-row:span 3;width:auto}
-  #t-idees td.ph{grid-row:span 4}
   td[data-k]::before{content:attr(data-k);display:block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
   td.full{grid-column:1/-1} .has-ph td.full{grid-column:2/-1}
   td.wide{grid-column:1/-1}
@@ -347,7 +350,6 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   .m-off{display:none!important}
   .m-only{display:inline}
   td.num.ok-wrap{white-space:normal}
-  .row-actions{justify-content:flex-start}
   .search{width:100%}
   .fiche{grid-template-columns:1fr}
   .fiche-img{border-right:0;border-bottom:1px solid var(--line);border-radius:16px 16px 0 0;min-height:320px}
@@ -358,17 +360,38 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   dialog{overflow:auto}
 }
 @media (max-width:480px){nav .m-ico{display:inline}nav .t-long{display:none}
-  #t-idees tr{display:grid;grid-template-columns:100px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph pc tl tl" "ph prix prix prix" "ph act act act";gap:2px 12px;padding:10px 12px}
-  #t-idees td[data-k]::before{display:none}
-  #t-idees td.ph{grid-area:ph;grid-row:1/5}
-  #t-idees td[data-k="Set"]{grid-area:set}
-  #t-idees td[data-k="Pièces"]{grid-area:pc;align-self:start}
-  #t-idees td[data-k="Taille"]{grid-area:tl;align-self:start}
-  #t-idees td[data-k="Prix"]{grid-area:prix;align-self:start}
-  #t-idees td.wide:last-child{grid-area:act}
-  #t-idees .thumb{width:96px;height:72px}
-  .brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
+  .brand span,.ver{display:none}.bar{gap:8px}.tools{gap:4px}.icon-btn{width:30px;height:30px}nav a{padding:8px 4px;font-size:13px}.form-row{grid-template-columns:1fr}}
 @media (max-width:380px){nav a{padding:8px 3px;font-size:12.5px}.bar{gap:6px}.brand svg{width:22px;height:22px}}
+/* Recherche et Sélection : en lignes tant que la colonne Set garde sa place (carte de plus de 960 px), en fiches
+   en dessous, selon la largeur de la carte (filtres latéraux ou non) et non celle de l'écran */
+.cq{container-type:inline-size}
+@container (max-width:960px){
+  :is(#t-idees,#t-sel) thead,:is(#t-idees,#t-sel) colgroup{display:none}
+  :is(#t-idees,#t-sel),:is(#t-idees,#t-sel) tbody{display:block;width:100%}
+  :is(#t-idees,#t-sel) tr{display:grid;grid-template-columns:128px max-content max-content minmax(96px,1fr) auto;grid-template-areas:"ph set set set prix" "ph tl pc av act";gap:4px 16px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+  :is(#t-idees,#t-sel) tr:last-child{border-bottom:0}
+  :is(#t-idees,#t-sel) td{display:block;border:0;padding:0;min-width:0;width:auto;text-align:left!important}
+  :is(#t-idees,#t-sel) td[data-k]::before{display:none}
+  :is(#t-idees,#t-sel) td.ph{grid-area:ph;grid-row:1/3}
+  :is(#t-idees,#t-sel) td[data-k="Set"]{grid-area:set}
+  :is(#t-idees,#t-sel) td[data-k="Taille"]{grid-area:tl}
+  :is(#t-idees,#t-sel) td[data-k="Pièces"]{grid-area:pc}
+  :is(#t-idees,#t-sel) td.m-off[data-k="Taille"] + td[data-k="Pièces"]{grid-area:tl}
+  :is(#t-idees,#t-sel) td[data-k="Prix"]{grid-area:prix;text-align:right!important;white-space:normal}
+  :is(#t-idees,#t-sel) td[data-k="Prix"] .nw{white-space:normal}   /* la colonne Prix se replie plutôt que d'élargir la carte */
+  :is(#t-idees,#t-sel) td[data-k="Avis"]{grid-area:av}
+  :is(#t-idees,#t-sel) td:last-child:not(.empty){grid-area:act;justify-self:end;align-self:end}
+  :is(#t-idees,#t-sel) td.empty{grid-column:1/-1}
+  :is(#t-idees,#t-sel) .m-off{display:none}
+  :is(#t-idees,#t-sel) .m-only{display:inline}
+}
+@container (max-width:700px){
+  :is(#t-idees,#t-sel) tr{grid-template-columns:100px auto auto minmax(0,1fr);grid-template-areas:"ph set set set" "ph tl pc pc" "ph prix prix prix" "ph av av act";gap:2px 12px;padding:10px 12px}
+  :is(#t-idees,#t-sel) td.ph{grid-row:1/5}
+  :is(#t-idees,#t-sel) td[data-k="Prix"]{text-align:left!important}
+  :is(#t-idees,#t-sel) td[data-k="Prix"] .pastilles{justify-content:flex-start}
+  :is(#t-idees,#t-sel) .thumb{width:96px;height:72px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -400,18 +423,18 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
   <div class="rech">
     <aside class="filtres" id="filtres" aria-label="Filtres">
       <input class="q" id="q" type="search" placeholder="Set, numéro, marque, thème…" aria-label="Rechercher un set">
-      <div class="fhaut"><select id="tri" aria-label="Trier par"><option value="prix|asc">Prix croissant</option><option value="prix|desc">Prix décroissant</option><option value="pieces|desc">Pièces, du plus grand</option><option value="taille|desc">Taille, du plus grand</option><option value="nom|asc">Nom</option></select><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
+      <div class="fhaut"><select id="tri" aria-label="Trier par"><option value="prix|asc">Prix croissant</option><option value="prix|desc">Prix décroissant</option><option value="pieces|desc">Pièces, du plus grand</option><option value="taille|desc">Taille, du plus grand</option><option value="avis|desc">Avis, du meilleur</option><option value="nom|asc">Nom</option></select><button class="btn small ghost" id="f-raz">Réinitialiser</button></div>
       <div class="fbloc fg-dispo"><span class="lbl" id="l-dispo">Disponibilité</span><div class="puces coches" id="f-dispo" role="group" aria-labelledby="l-dispo"></div></div>
       <div class="fbloc fg-theme"><span class="lbl">Thème</span><div class="puces" id="f-themes"></div></div>
       <div class="fbloc fg-type"><span class="lbl">Briques</span><div class="puces" id="f-types"></div></div>
       <div class="fbloc fg-prix"><label class="lbl" for="f-prix">Prix maximum<output id="o-prix"></output></label><input class="curseur degrade" id="f-prix" type="range" min="0" step="1"></div>
       <div class="fbloc fg-taille"><span class="lbl">Taille</span><div class="puces" id="f-taille"></div><span class="sub" id="n-sansdim"></span></div>
-      <div class="fbloc fg-marque"><span class="lbl">Marque</span><div class="puces marques-g" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
+      <div class="fbloc fg-marque"><span class="lbl">Marque</span><div class="puces" id="f-fabs"></div><div class="puces" id="f-marques"></div><button class="btn small ghost more" id="f-plusm" aria-expanded="false">Toutes les marques</button></div>
       <button class="btn primary voir" id="f-voir"></button>
     </aside>
     <div class="view">
       <div class="res-tete"><p id="n-res"></p><a class="sub" id="releve-date" href="#synchro"></a></div>
-      <div class="card"><table id="t-idees" class="has-ph"></table></div>
+      <div class="card cq"><table id="t-idees" class="has-ph"></table></div>
     </div>
   </div>
 </section>
@@ -432,7 +455,7 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
     <textarea id="io-text"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" id="io-cancel">Annuler</button><button class="btn primary" id="io-go">Importer</button></div>
   </div>
-  <div class="card"><table id="t-sel" class="has-ph"></table></div>
+  <div class="card cq"><table id="t-sel" class="has-ph"></table></div>
   <h2 class="h2">Ajouter un produit</h2>
   <form class="card form" id="add" autocomplete="off">
     <div class="form-row">
@@ -503,13 +526,15 @@ footer{color:var(--muted);font-size:12px;padding-block:8px 24px}
 let CAT = /*CATALOGUE*/{"sets":[],"themes":[],"sources":[]}/*FIN-CATALOGUE*/;
 const MODE = /*MODE*/{"serveur":false,"version":"dev"}/*FIN-MODE*/;
 let IDEES = [];
-const AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-warn"};
+// Une couleur, un sens (conventions du 23/11/2026) : vert bon pour acheter, orange à vérifier, gris neutre, rouge fait renoncer
+const AVIS_CLS = {"Favorable":"p-ok","Mitigé":"p-warn","Déconseillé":"p-bad"};
+const AVIS_RANG = {"Favorable":3000,"Mitigé":2000,"Déconseillé":0};   // tri : favorable, mitigé, tests sans verdict, déconseillé
 const DISPO = {vente:["En vente","p-ok"], precommande:["Précommande","p-warn"], epuise:["Épuisé","p-neutral"]};
 const plat = t => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const longueur = r => r.dims && r.dims.length ? r.dims[0] : null;
 const total = o => o.prix + (o.port || 0);
 // Classement seulement : un port non relevé compte 7 € (le plus élevé des ports relevés), pour qu'une offre
-// au port inconnu ne passe pas devant une offre au port connu ; l'écran affiche « port non relevé ».
+// au port inconnu ne passe pas devant une offre au port connu ; l'écran affiche « hors port ».
 const rang = o => o.prix + (o.port == null ? 7 : o.port);
 const themeNom = id => (CAT.themes.find(t => t.id === id) || {}).nom || id;
 const ideeParId = id => IDEES.find(x => x.id === id);
@@ -517,7 +542,7 @@ function preparer(){
   IDEES = CAT.sets;
   for (const r of IDEES){
     r._txt = plat([r.nom, r.nom_origine || "", r.marque, r.numero, r.type === "technic" ? "technic" : r.type === "classique" ? "classique" : "", ...r.themes.map(themeNom), ...r.offres.map(o => o.boutique)].join(" "));
-    r._th = r.themes.length ? r.themes : ["autres"];
+    r._th = r.themes;   // un set sans thème ne répond à aucun filtre de thème ; la recherche le trouve
     r._ty = r.type || "inconnu";
     r._lg = longueur(r);
     r._meilleure = r.offres[0];
@@ -582,6 +607,8 @@ const hostOf = u => { try { return new URL(u).hostname.replace(/^www\.|^fr\./, "
 const shopFor = u => { const h = hostOf(u); return h ? BOUTIQUES.find(b => h === b.host || h.endsWith("." + b.host)) : null; };
 const norm = u => { try { const x = new URL(u); return (x.hostname.replace(/^www\./,"") + x.pathname.replace(/\/+$/,"")).toLowerCase(); } catch { return (u || "").trim().toLowerCase(); } };
 const ideeFor = u => IDEES.find(r => r.offres.some(o => norm(o.url) === norm(u)));
+// produit de la sélection pour ce set : celui de la ligne cliquée quand il est donné, sinon le premier
+const selDe = (r, id) => (id && souhaits.find(s => s.id === id)) || souhaits.find(s => r.offres.some(x => norm(x.url) === norm(s.url)));
 const thumbUrl = (u, w) => u && u.includes("cdn.shopify.com") ? u + (u.includes("?") ? "&" : "?") + "width=" + w : u;
 const BRICK = '<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="4" width="24" height="20" rx="4" fill="var(--faint)"/><g fill="var(--card)"><circle cx="8" cy="10" r="2.6"/><circle cx="18" cy="10" r="2.6"/><circle cx="8" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/></g></svg>';
 const thumb = (src, alt, secours) => { src = src || secours; if (secours === src) secours = "";
@@ -655,7 +682,9 @@ const PRIX = [30,50,75,100,150,200,250,300,400,500,750,1000,1500,2000,Infinity];
 // Taille par la longueur du set monté ; bornes posées le 21/11/2026 près des tiers du catalogue (40.9 et 59 cm)
 const TAILLES = [["petit","Petit","moins de 40 cm",0,40],["moyen","Moyen","40 à 59 cm",40,60],["grand","Grand","60 cm et plus",60,Infinity]];
 const tailleDe = lg => lg == null ? null : (TAILLES.find(t => lg >= t[3] && lg < t[4]) || [])[0];
-const fI = {q:"", themes:new Set(), types:new Set(), marques:new Set(), dispo:new Set(DISPO_DEFAUT), prix:PRIX.length - 1, tailles:new Set()};
+const fI = {q:"", themes:new Set(), types:new Set(), fabs:new Set(), marques:new Set(), dispo:new Set(DISPO_DEFAUT), prix:PRIX.length - 1, tailles:new Set()};
+const FABS = [["lego","LEGO officiel"],["alternatives","Marques alternatives"]];
+const fabDe = r => r.marque === "LEGO officiel" ? "lego" : "alternatives";
 const sI = {key:"prix", dir:"asc", def:"prix", defDir:"asc"};
 const TYPES = [["classique","Classique",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="6" width="14" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/><rect x="9.5" y="3.5" width="3" height="2.5" rx=".6" fill="currentColor"/></svg>'],
   ["technic","Technic",'<svg class="ico-type" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="5" width="14" height="6" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="12" cy="8" r="1.3" fill="currentColor"/></svg>']];
@@ -684,7 +713,28 @@ const Q_SENS = {comme_lego:["f","+","Égal au LEGO officiel ou mieux"],proche:["
 const Q_RANG = {test:"test",forum:"forum",acheteur:"avis d'acheteur",article:"article",marque:"page commerciale",lie:"source liée à la marque"};
 const qOuverts = new Set();
 const prixLbl = i => PRIX[i] === Infinity ? "tous" : `${PRIX[i]} €`;
-const portLbl = o => o.port == null ? "port non relevé" : o.port ? `+ ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
+/* Bloc de prix commun (liste, Sélection, fiche, chaque offre) : prix port compris, puis « prix + port »,
+   puis « boutique · délai », puis les pastilles d'achat et d'état. Une valeur absente ne s'affiche pas. */
+const connu = v => v && !/^non relev/i.test(v) ? v : "";
+// port inconnu (revendeurs du LEGO officiel sans règle de livraison) : le montant affiché est dit hors port
+const portLigne = o => o.port == null ? "hors port" : o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : "port offert";
+function blocPrix(o, x = {}){
+  // x.boutique : ligne « boutique · délai » ; x.nb : nombre de boutiques ; x.dispo : pastille si pas en vente ;
+  // x.retrait : pastille « Bientôt retiré » ; x.lien : nom de la boutique en lien, x.pays : pays (offres de la fiche) ; x.apres : lignes ajoutées
+  const p = o.port == null ? o.prix : total(o);
+  const nom = x.lien ? `<a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">${esc(o.boutique)}</a>` : esc(o.boutique);
+  const ligne3 = x.boutique === false ? "" : [nom, x.pays && o.pays && o.pays !== "France" ? esc(o.pays) : "", connu(o.delai) ? esc(o.delai) : "", x.nb > 1 ? `${x.nb} boutiques` : ""].filter(Boolean).map(t => `<span class="nw">${t}</span>`).join(" · ");
+  const pastilles = [remisePill(o), x.dispo !== false && o.dispo !== "vente" ? `<span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span>` : "", x.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""].filter(Boolean).join(" ");
+  // prix barré (x.lien : offres de la fiche) sur la ligne du prix seul, auquel la remise se rapporte
+  const barre = x.lien && remise(o).annonce ? `<s>${eur(o.barre)}</s> ` : "";
+  return `<span class="big">${eur(p)}</span>${portLigne(o) ? `<div class="sub"><span class="nw">${barre}${barre && !o.port ? eur(o.prix) + " · " : ""}${portLigne(o)}</span></div>` : ""}${ligne3 ? `<div class="sub">${ligne3}</div>` : ""}${x.apres || ""}${pastilles ? `<div class="pastilles">${pastilles}</div>` : ""}`;
+}
+const tailleMot = lg => (TAILLES.find(t => t[0] === tailleDe(lg)) || [])[1] || "";
+const cellTaille = lg => lg ? `<span class="big">${lg}</span> cm<div class="sub">${tailleMot(lg)}</div>` : "";
+// Avis : verdict des testeurs s'il existe, sinon le nombre de tests rattachés ; rien s'il n'y en a aucun
+const avisVal = r => r.avis ? AVIS_RANG[r.avis] + nbTests(r) / 1000 : nbTests(r) ? 1000 + nbTests(r) : null;
+const cellAvis = r => r.avis ? `<span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>${nbTests(r) > 1 ? `<div class="sub">${nbTests(r)} tests</div>` : ""}`
+  : nbTests(r) ? `<span class="sub">${pluriel(nbTests(r), "test")}</span>` : "";
 
 function themesDe(tok){
   // Mots-clés des thèmes : « bateau » trouve aussi « Schiff ».
@@ -717,6 +767,7 @@ function filtrer(sauf, toks = jetons()){
     (sauf === "dispo" || fI.dispo.has(r.dispo)) &&
     (sauf === "themes" || !fI.themes.size || r._th.some(t => fI.themes.has(t))) &&
     (sauf === "types" || !fI.types.size || fI.types.has(r._ty)) &&
+    (sauf === "fabs" || !fI.fabs.size || fI.fabs.has(fabDe(r))) &&
     (sauf === "marques" || !fI.marques.size || fI.marques.has(r.marque)) &&
     (pMax === Infinity || total(r._meilleure) <= pMax) &&
     (sauf === "taille" || !fI.tailles.size || fI.tailles.has(tailleDe(r._lg))) &&
@@ -734,12 +785,13 @@ function puces(el, sel, items, compte, cases = false){
 const colsI = [
   {key:"img",label:"",cls:"ph-h"},
   {key:"nom",label:"Set",val:r => r.nom},
-  {key:"pieces",label:"Pièces",val:r => r.pieces,cls:"num",first:"desc"},
   {key:"taille",label:"Taille",val:r => r._lg,cls:"num",first:"desc"},
+  {key:"pieces",label:"Pièces",val:r => r.pieces,cls:"num",first:"desc"},
   {key:"prix",label:"Prix, port compris",val:r => rang(r._meilleure),cls:"num"},
+  {key:"avis",label:"Avis",val:avisVal,first:"desc"},
   {key:"act",label:"",cls:"num"},
 ];
-const LARGEURS = ["152px", "auto", "84px", "84px", "230px", "112px"];
+const LARGEURS = ["152px", "auto", "80px", "84px", "230px", "112px", "108px"];
 let MARQUES_ORD = [];
 function renderIdees(){
   if (fI.types.has("inconnu") && !(MODE.admin && IDEES.some(r => r._ty === "inconnu"))) fI.types.delete("inconnu");  // plus rien à classer
@@ -748,17 +800,21 @@ function renderIdees(){
   const cDispo = compter(filtrer("dispo", toks), r => r.dispo), cTh = compter(filtrer("themes", toks), r => r._th);
   const cTy = compter(filtrer("types", toks), r => r._ty), cMq = compter(filtrer("marques", toks), r => r.marque);
   puces($("#f-dispo"), fI.dispo, [["vente","En vente"],["precommande","Précommande"],["epuise","Épuisé"]].map(([v, l]) => [v, l, '<span class="case" aria-hidden="true"></span>']), v => cDispo[v] || 0, true);
-  puces($("#f-themes"), fI.themes, [...CAT.themes.map(t => [t.id, t.nom]), ["autres","Autres"]], v => cTh[v] || 0);
+  puces($("#f-themes"), fI.themes, CAT.themes.map(t => [t.id, t.nom]), v => cTh[v] || 0);
+  const cFa = compter(filtrer("fabs", toks), fabDe);
+  puces($("#f-fabs"), fI.fabs, FABS, v => cFa[v] || 0);
   // sets sans type : visibles et filtrables par les seuls administrateurs, pour les classer depuis la fiche
   puces($("#f-types"), fI.types, [...TYPES, ...(MODE.admin && (cTy.inconnu || fI.types.has("inconnu")) ? [["inconnu","À classer"]] : [])], v => cTy[v] || 0);
   if (MARQUES_ORD.length !== new Set(IDEES.map(r => r.marque)).size){
     const n = compter(IDEES, r => r.marque);
     MARQUES_ORD = Object.keys(n).sort((a, b) => n[b] - n[a]);
   }
-  const vues = toutesMarques ? MARQUES_ORD : MARQUES_ORD.filter((m, i) => i < 8 || fI.marques.has(m));
-  puces($("#f-marques"), fI.marques, vues.map(m => [m, m === "LEGO officiel" ? "LEGO" : m, logo(m)]), v => cMq[v] || 0);
-  $("#f-plusm").hidden = MARQUES_ORD.length <= 8;
-  $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${MARQUES_ORD.length})`;
+  // le LEGO officiel a sa puce en tête (LEGO officiel ou marques alternatives) : la liste ne garde que les marques alternatives
+  const alternatives = MARQUES_ORD.filter(m => m !== "LEGO officiel");
+  const vues = toutesMarques ? alternatives : alternatives.filter((m, i) => i < 8 || fI.marques.has(m));
+  puces($("#f-marques"), fI.marques, vues.map(m => [m, m, logo(m)]), v => cMq[v] || 0);
+  $("#f-plusm").hidden = alternatives.length <= 8;
+  $("#f-plusm").textContent = toutesMarques ? "Moins de marques" : `Toutes les marques (${alternatives.length})`;
   $("#f-plusm").setAttribute("aria-expanded", toutesMarques);
   $("#o-prix").textContent = prixLbl(fI.prix); $("#f-prix").setAttribute("aria-valuetext", prixLbl(fI.prix));
   const avecTaille = fI.tailles.size > 0;
@@ -766,7 +822,7 @@ function renderIdees(){
   puces($("#f-taille"), fI.tailles, TAILLES.map(([v, l, d]) => [v, `${l} · ${d}`]), v => cTa[v] || 0);
   const sansDim = filtrer("taille", toks).filter(r => r._lg == null).length;
   $("#n-sansdim").textContent = avecTaille && sansDim ? `${sansDim} set${sansDim > 1 ? "s" : ""} sans dimension connue masqué${sansDim > 1 ? "s" : ""}` : "";
-  const nf = fI.themes.size + fI.types.size + fI.marques.size + (fI.dispo.size !== DISPO_DEFAUT.length || DISPO_DEFAUT.some(d => !fI.dispo.has(d))) + (fI.prix !== PRIX.length - 1) + fI.tailles.size;
+  const nf = fI.themes.size + fI.types.size + fI.fabs.size + fI.marques.size + (fI.dispo.size !== DISPO_DEFAUT.length || DISPO_DEFAUT.some(d => !fI.dispo.has(d))) + (fI.prix !== PRIX.length - 1) + fI.tailles.size;
   $("#f-ouvrir").textContent = nf ? `Filtres (${nf})` : "Filtres";
   const nbTxt = `${rows.length} set${rows.length > 1 ? "s" : ""}`;
   $("#f-voir").textContent = "Voir " + nbTxt;
@@ -782,15 +838,16 @@ function renderIdees(){
     else if (masques.length) vide = `Aucun set ne correspond parmi les disponibilités cochées ; ${masques.length} set${masques.length > 1 ? "s" : ""} avec une autre disponibilité. <button class="btn small" id="voir-dispo">Cocher les trois</button>`;
   }
   sortable("t-idees", colsI, rows, sI, r => {
-    const o = r._meilleure, inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url))), nbB = new Set(r.offres.map(x => x.boutique)).size;
+    const o = r._meilleure, inSel = !!selDe(r), nbB = new Set(r.offres.map(x => x.boutique)).size;
     return `<tr class="clic" data-fiche="${r.id}">
       <td class="ph">${thumb(r.img, r.nom)}</td>
       <td class="full" data-k="Set"><button type="button" class="name nb">${esc(r.nom)}</button>
-        <div class="sub ligne-marque">${logo(r.marque)}<span>${esc(r.marque)}${r.numero ? " " + esc(r.numero) : ""}</span>${r.type ? typeIco(r.type) : ""}${r.avis ? `<span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</div>
-        <div class="sub">${[...r.themes.map(themeNom), nbTests(r) ? `${nbTests(r)} test${nbTests(r) > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}</div></td>
-      <td class="num" data-k="Pièces"><span class="big">${r.pieces ?? "—"}</span><span class="m-only sub"> pièces</span></td>
-      <td class="num" data-k="Taille">${r._lg ? `<span class="big">${r._lg}</span> cm` : '<span class="m-off">—</span>'}</td>
-      <td class="num ok-wrap" data-k="Prix"><span class="big">${eur(total(o))}</span><div class="sub">${[o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé", o.delai ? esc(o.delai) : "délai non relevé"].map(x => `<span class="nw">${x}</span>`).join(" · ")}</div><div class="sub">${[esc(o.boutique), nbB > 1 ? `${nbB} boutiques` : ""].filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(" · ")}</div>${remisePill(o)}${r.dispo !== "vente" ? `<span class="pill ${DISPO[r.dispo][1]}">${DISPO[r.dispo][0]}</span>` : ""}${r.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}</td>
+        <div class="sub ligne-marque">${logo(r.marque)}<span>${esc(r.marque)}${r.numero ? " " + esc(r.numero) : ""}</span>${r.type ? typeIco(r.type) : ""}</div>
+        ${r.themes.length ? `<div class="sub">${r.themes.map(themeNom).map(esc).join(" · ")}</div>` : ""}</td>
+      <td class="num${r._lg ? "" : " m-off"}" data-k="Taille">${cellTaille(r._lg)}</td>
+      <td class="num${r.pieces ? "" : " m-off"}" data-k="Pièces">${r.pieces ? `<span class="big">${r.pieces}</span><span class="m-only sub"> pièces</span>` : ""}</td>
+      <td class="num ok-wrap" data-k="Prix">${blocPrix(o, {nb:nbB, retrait:!!r.retrait})}</td>
+      <td class="${cellAvis(r) ? "" : "m-off"}" data-k="Avis">${cellAvis(r)}</td>
       <td class="num wide"><button class="btn small add" data-add="${r.id}" ${inSel ? "disabled" : ""} aria-label="${inSel ? "Déjà dans la sélection" : "Ajouter " + esc(r.nom) + " à la sélection"}">${inSel ? "Ajouté" : "Ajouter"}</button></td>
     </tr>`;
   }, vide);
@@ -805,7 +862,7 @@ $("#t-idees").addEventListener("click", e => {
 });
 function addFromIdee(id){
   const r = ideeParId(id), o = r._meilleure;
-  addItem({url:o.url, nom:`${r.marque} – ${r.nom}`, prix:o.prix, pcs:r.pieces, img:r.img, note:"", statut:"idee"});
+  return addItem({url:o.url, nom:`${r.marque} – ${r.nom}`, prix:o.prix, pcs:r.pieces, img:r.img, note:"", statut:"idee"});
 }
 let toutesMarques = false;
 $("#tri").onchange = e => { const [k, d] = e.target.value.split("|"); sI.key = k; sI.dir = d; renderIdees(); };
@@ -818,7 +875,7 @@ fPrix.oninput = () => { fI.prix = +fPrix.value; $("#o-prix").textContent = prixL
 let qT; const surQ = v => { clearTimeout(qT); qT = setTimeout(() => { fI.q = v; renderIdees(); }, 120); };
 $("#q").oninput = e => { $("#q2").value = e.target.value; surQ(e.target.value); };
 $("#q2").oninput = e => { $("#q").value = e.target.value; surQ(e.target.value); };
-$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.marques.clear(); fI.dispo = new Set(DISPO_DEFAUT); fI.prix = PRIX.length - 1; fI.tailles.clear(); fPrix.value = fI.prix; renderIdees(); };
+$("#f-raz").onclick = () => { fI.q = ""; $("#q").value = $("#q2").value = ""; fI.themes.clear(); fI.types.clear(); fI.fabs.clear(); fI.marques.clear(); fI.dispo = new Set(DISPO_DEFAUT); fI.prix = PRIX.length - 1; fI.tailles.clear(); fPrix.value = fI.prix; renderIdees(); };
 $("#f-ouvrir").onclick = e => { const b = e.currentTarget, o = !$("#filtres").classList.contains("ouvert"); $("#filtres").classList.toggle("ouvert", o); b.setAttribute("aria-expanded", o); };
 document.addEventListener("click", e => { if ($("#filtres").classList.contains("ouvert") && !e.target.closest("#filtres,#f-ouvrir")){ $("#filtres").classList.remove("ouvert"); $("#f-ouvrir").setAttribute("aria-expanded", false); } });
 sI.render = renderIdees;
@@ -830,7 +887,7 @@ const nbTests = r => (r.tests || []).length + (r.nb_tests || 0);
 const datesLisibles = t => String(t || "").replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, (m, a, mo, j) => new Date(`${a}-${mo}-${j}T12:00:00`).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"}));
 const CHEVRON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 const OFFRES_VUES = 3;
-const releveLbl = o => !o.releve ? "non daté" : o.releve.length === 10 ? new Date(o.releve + "T12:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) : court(o.releve);
+const releveLbl = o => !o.releve ? "" : o.releve.length === 10 ? new Date(o.releve + "T12:00:00").toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) : court(o.releve);
 /* Prix barré et historique : remise annoncée par la boutique (prix barré), et prix du jour comparé au plus bas
    relevé les jours précédents (30 au plus, moins tant que l'historique est plus court) ; une boutique peut barrer
    un prix qu'elle ne pratiquait pas. */
@@ -845,8 +902,9 @@ function remise(o){
 }
 function remisePill(o){
   const p = remise(o);
-  if (p.annonce) return `<span class="pill ${p.douteux ? "p-neutral" : "p-ok"}" title="${p.douteux ? `Prix barré : ${eur(o.barre)} ; avant la remise, ${eur(p.avant)} relevé` : `Prix barré par la boutique : ${eur(o.barre)}`}">−${p.annonce} %</span>`;
-  if (p.plusBas && p.jours >= 7) return `<span class="pill p-ok" title="Plus bas relevé sur ${joursLbl(p.jours)} : ${eur(p.bas)}">Plus bas relevé</span>`;
+  // détail (prix barré, prix d'avant la remise) dans les offres de la fiche
+  if (p.annonce) return `<span class="pill ${p.douteux ? "p-neutral" : "p-ok"}">−${p.annonce} %</span>`;
+  if (p.plusBas && p.jours >= 7) return '<span class="pill p-ok">Plus bas relevé</span>';
   return "";
 }
 const HIST = {};   // prix relevés par jour, par offre (api/fiche) : [[jour, prix, prix barré, disponibilité], …]
@@ -859,31 +917,31 @@ function courbe(cle){
   if (!(t1 > t0)) return "";
   const x = j => 2 + (t(j) - t0) / (t1 - t0) * (W - 4), y = v => mx > mn ? 2 + (mx - v) / (mx - mn) * (H - 4) : H / 2;
   const der = s[s.length - 1], lbl = `Prix relevés du ${jourLbl(s[0][0])} au ${jourLbl(der[0])} : de ${eur(mn)} à ${eur(mx)}`;
-  return `<svg class="courbe" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${lbl}"><title>${lbl}</title><polyline points="${s.map(p => x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(der[0]).toFixed(1)}" cy="${y(der[1]).toFixed(1)}" r="2" fill="currentColor"/></svg>`;
+  return `<svg class="courbe" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${lbl}"><polyline points="${s.map(p => x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(der[0]).toFixed(1)}" cy="${y(der[1]).toFixed(1)}" r="2" fill="currentColor"/></svg>`;
 }
 function ligneOffre(o){
-  const info = [o.pays && o.pays !== "France" ? o.pays : "", o.delai || ""].filter(Boolean).join(" · ");
+  // Une offre : bloc de prix commun (boutique en lien), puis le détail de la remise, la courbe et la date du relevé
   const p = remise(o);
-  const bas = (p.douteux ? `<div class="sub bas douteux">déjà ${eur(p.avant)} avant la remise</div>` : "")
-    + (p.bas != null ? `<div class="sub bas">plus bas sur ${joursLbl(p.jours)} : ${eur(p.bas)}</div>` : "");
-  return `<tr>
-    <td><a href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener"><strong>${esc(o.boutique)}</strong></a>${info ? `<div class="sub">${esc(info)}</div>` : ""}</td>
-    <td><span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span></td>
-    <td class="num"><b>${eur(o.prix)}</b>${p.annonce ? ` <s>${eur(o.barre)}</s>` : ""}<div class="sub">${portLbl(o)}</div>${bas}</td>
-    <td class="num sub">${o.source === "editorial" && !o.releve ? "prix du 19 novembre" : esc(releveLbl(o))}${courbe(o.cle)}</td></tr>`;
+  const detail = [p.douteux ? `déjà ${eur(p.avant)} avant la remise` : "",
+    p.bas != null ? `plus bas sur ${joursLbl(p.jours)} : ${eur(p.bas)}` : ""].filter(Boolean).map(t => `<div class="sub bas">${t}</div>`).join("");
+  const date = o.source === "editorial" && !o.releve ? "19 novembre" : o.releve ? releveLbl(o) : "";
+  return `<div class="offre">
+    <div class="o-prix">${blocPrix(o, {lien:true, pays:true, apres:detail})}</div>
+    ${courbe(o.cle) || date ? `<div class="o-suivi">${courbe(o.cle)}${date ? `<span class="sub">${esc(date)}</span>` : ""}</div>` : ""}
+  </div>`;
 }
 function offresHtml(r){
   // Les meilleures offres d'abord ; au-delà de trois, les autres se replient (un set LEGO officiel en a parfois dix).
   const vues = r.offres.slice(0, r.offres.length > OFFRES_VUES + 1 ? OFFRES_VUES : r.offres.length), reste = r.offres.slice(vues.length);
-  return `<table class="offres">${vues.map(ligneOffre).join("")}</table>${reste.length ? `<details class="autres"${OUVERT_AUTRES ? " open" : ""}><summary>${reste.length} autres offres${CHEVRON}</summary><table class="offres">${reste.map(ligneOffre).join("")}</table></details>` : ""}`;
+  return `<div class="offres">${vues.map(ligneOffre).join("")}</div>${reste.length ? `<details class="autres"${OUVERT_AUTRES ? " open" : ""}><summary>${reste.length} autres offres${CHEVRON}</summary><div class="offres">${reste.map(ligneOffre).join("")}</div></details>` : ""}`;
 }
 let OUVERT_AUTRES = false;
-function openFiche(id){
+function openFiche(id, selId){
   const r = ideeParId(id); if (!r) return;
   OUVERT_AUTRES = false;
   dlg.onkeydown = null;
-  const o = r._meilleure, c = cents(o.prix, r.pieces), tests = r.tests || [];
-  const inSel = souhaits.some(s => r.offres.some(x => norm(x.url) === norm(s.url)));
+  const o = r._meilleure, c = cents(o.prix, r.pieces), tests = r.tests || [], item = selDe(r, selId);
+  const cible = (selId && item && r.offres.find(x => norm(x.url) === norm(item.url))) || o;   // depuis la Sélection : l'offre suivie
   // recherche de tests : marque, numéro sans sa lettre de variante (19014S → 19014, titre courant des tests) et nom
   // d'origine, sans filtre de région (les tests sont surtout en anglais et en allemand) ; essai du 22/11/2026 sur
   // DuckDuckGo : « "Mould King" 19014 Pneumatic Concrete Pump Truck review » rend deux tests vidéo en tête
@@ -895,20 +953,21 @@ function openFiche(id){
       <div class="fiche-top"><div><div class="lbl ligne-marque">${logo(r.marque)} ${esc(r.marque)}${r.numero ? " · " + esc(r.numero) : ""}</div><h2 id="f-titre">${esc(r.nom)}</h2></div>
         <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="facts">
-        <div class="fact"><span class="lbl">Meilleur prix</span><b>${eur(total(o))}</b><span class="sub">${o.port == null ? "port non relevé" : o.port_estime ? "port estimé compris" : "port compris"} · ${esc(o.boutique)}${o.delai ? " · " + esc(o.delai) : ""}</span></div>
-        <div class="fact"><span class="lbl">Pièces</span><b>${r.pieces ?? "—"}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>
-        <div class="fact"><span class="lbl">Dimensions</span><b>${r.dims ? r.dims.join(" × ") + " cm" : "—"}</b></div>
-        <div class="fact"><span class="lbl">Briques</span>${MODE.admin ? `<select class="sel" id="f-type" aria-label="Type de briques (administrateur)"><option value=""${r.type ? "" : " selected"}>${r.type ? "Type calculé" : "À classer"}</option>${TYPES.map(([v, l]) => `<option value="${v}"${r.type === v ? " selected" : ""}>${l}</option>`).join("")}</select>` : `<b class="ligne-marque">${r.type ? typeIco(r.type) + (r.type === "technic" ? "Technic" : "Classique") : "—"}</b>`}</div>
+        ${r.pieces ? `<div class="fact"><span class="lbl">Pièces</span><b>${r.pieces}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>` : ""}
+        ${r.dims ? `<div class="fact"><span class="lbl">Dimensions</span><b>${r.dims.join(" × ")} cm</b><span class="sub">${tailleMot(r._lg)}</span></div>` : ""}
+        ${MODE.admin || r.type ? `<div class="fact"><span class="lbl">Briques</span>${MODE.admin ? `<select class="sel" id="f-type" aria-label="Type de briques (administrateur)"><option value=""${r.type ? "" : " selected"}>${r.type ? "Type calculé" : "À classer"}</option>${TYPES.map(([v, l]) => `<option value="${v}"${r.type === v ? " selected" : ""}>${l}</option>`).join("")}</select>` : `<b class="ligne-marque">${typeIco(r.type)}${r.type === "technic" ? "Technic" : "Classique"}</b>`}</div>` : ""}
       </div>
-      <div class="offres-t"><span class="lbl">Offres${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(datesLisibles(r.retrait))}</span>` : ""}</div>
+      <div class="offres-t"><span class="lbl">Offres, port compris${MODE.serveur && r.offres.some(x => x.source !== "editorial") ? ' · <button class="btn small ghost" id="f-relire">Relire les prix</button>' : ""}</span><div id="f-offres">${offresHtml(r)}</div>${r.ecart ? '<span class="alerte-l">Écart de prix important entre boutiques : vérifier qu’il s’agit bien du même set.</span>' : ""}${r.retrait ? `<span class="pill p-warn">${esc(datesLisibles(r.retrait))}</span>` : ""}</div>
       <div class="avis"><span class="lbl">Tests indépendants${r.avis ? ` · <span class="pill ${AVIS_CLS[r.avis] || "p-neutral"}">${esc(r.avis)}</span>` : ""}</span>${tests.map(t => `<div class="avis-item"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">${esc(t.source)}</a> <span class="d">${esc(t.date)}</span>${t.note ? ` · <strong>${esc(t.note)}</strong>` : ""}<div>${esc(t.verdict)}</div></div>`).join("")}<div class="liens-tests" id="f-liens"></div>
         <a class="btn small" href="https://duckduckgo.com/?q=${qTests}&ia=web" target="_blank" rel="noopener">Rechercher des tests sur le web</a></div>
+      ${item ? selBloc(item) : ""}
       <div class="fiche-actions">
-        <a class="btn primary" href="${esc(safeUrl(o.url))}" target="_blank" rel="noopener">Voir chez ${esc(o.boutique)}</a>
-        <button class="btn" id="f-add" ${inSel ? "disabled" : ""}>${inSel ? "Dans la sélection" : "Ajouter à la sélection"}</button>
+        <a class="btn primary" href="${esc(safeUrl(cible.url))}" target="_blank" rel="noopener">Voir chez ${esc(cible.boutique)}</a>
+        ${item ? "" : '<button class="btn" id="f-add">Ajouter à la sélection</button>'}
       </div>
     </div></div>`;
   $("#f-close").onclick = () => dlg.close();
+  if (item) brancherSel(item);
   const fType = $("#f-type");
   if (fType) fType.onchange = async () => {
     fType.disabled = true;
@@ -919,7 +978,14 @@ function openFiche(id){
     } catch (e) { fType.value = r.type || ""; toast("Type non enregistré : " + e.message, true); }
     fType.disabled = false;
   };
-  $("#f-add").onclick = e => { addFromIdee(r.id); e.currentTarget.disabled = true; e.currentTarget.textContent = "Dans la sélection"; };
+  const fAdd = $("#f-add");
+  if (fAdd) fAdd.onclick = async () => {   // le bloc Sélection prend la place du bouton, sans reconstruire la fiche
+    fAdd.disabled = true; const f = addFromIdee(r.id); if (f) await f;
+    const it = selDe(r);
+    if (!it || !dlg.open){ fAdd.disabled = false; return; }
+    fAdd.closest(".fiche-actions").insertAdjacentHTML("beforebegin", selBloc(it)); fAdd.remove();
+    brancherSel(it); $("#f-statut").focus();
+  };
   $("#f-offres").addEventListener("toggle", e => { if (e.target.matches("details.autres")) OUVERT_AUTRES = e.target.open; }, true);
   const relire = $("#f-relire");
   if (relire) relire.onclick = async () => {
@@ -984,6 +1050,46 @@ function openFiche(id){
     const vus = liens.slice(0, liens.length > 4 ? 3 : liens.length), reste = liens.slice(vus.length);
     if (liens.length) $("#f-liens").innerHTML = vus.map(ligneLien).join("") + (reste.length ? `<details class="autres"><summary>${reste.length} autres tests${CHEVRON}</summary><div class="liens-tests">${reste.map(ligneLien).join("")}</div></details>` : "");
   }).catch(() => {});
+  if (!dlg.open) dlg.showModal();
+}
+/* Produit de la sélection dans la fiche : statut, note, modifier, retirer (les lignes de la Sélection n'ont pas de bouton) */
+function selBloc(it){
+  return `<div class="sel-f"><span class="lbl">Dans la sélection</span>
+    <div class="sel-l"><select class="status" id="f-statut" aria-label="Statut">${Object.entries(STATUTS).map(([v, l]) => `<option value="${v}" ${it.statut === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+      <button class="btn small" id="f-edit">Modifier</button><button class="btn small ghost" id="f-del">Retirer</button></div>
+    ${it.note ? `<div class="sub note-f">${esc(it.note)}</div>` : ""}
+    ${it.prix != null && vivant(it) && Math.abs(it.prix - vivant(it).o.prix) >= 0.5 ? `<div class="sub">${eur(it.prix)} à l’ajout</div>` : ""}</div>`;
+}
+function brancherSel(it){
+  const actuel = () => souhaits.find(x => x.id === it.id) || it;   // la sélection a pu être relue depuis l'ouverture
+  $("#f-statut").onchange = e => { persist({...actuel(), statut:e.target.value}); if (e.target.value === "achete" && !showBought) toast("Marqué acheté : masqué de la sélection"); };
+  $("#f-edit").onclick = () => { dlg.close(); editer(actuel()); };
+  const del = $("#f-del");
+  del.onclick = () => {
+    if (del.dataset.confirm){ if (editing && editing.id === it.id) $("#add").reset(); persist(actuel(), true); dlg.close(); return; }
+    del.dataset.confirm = 1; del.textContent = "Confirmer"; del.classList.remove("ghost");
+    setTimeout(() => { if (del.isConnected){ delete del.dataset.confirm; del.textContent = "Retirer"; del.classList.add("ghost"); } }, 3000);
+  };
+}
+function ficheSel(it){
+  // Produit ajouté par lien, absent du catalogue : fiche courte, prix saisi
+  dlg.onkeydown = null;
+  const shop = shopFor(it.url), nomB = shop ? shop.nom : hostOf(it.url), c = cents(it.prix, it.pcs);
+  dlg.innerHTML = `<div class="fiche">
+    <div class="fiche-img"><div class="grande">${it.img && !it.img_ecartee ? `<img id="f-photo" src="${esc(thumbUrl(safeUrl(it.img), 900))}" alt="${esc(it.nom)}" draggable="false">` : BRICK}</div></div>
+    <div class="fiche-body">
+      <div class="fiche-top"><div><div class="lbl">${esc(nomB)}</div><h2 id="f-titre">${esc(it.nom || it.url)}</h2></div>
+        <button class="icon-btn" id="f-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="facts">
+        ${it.prix != null ? `<div class="fact"><span class="lbl">Prix saisi</span><b>${eur(it.prix)}</b><span class="sub">non suivi</span></div>` : ""}
+        ${it.pcs ? `<div class="fact"><span class="lbl">Pièces</span><b>${it.pcs}</b>${c ? `<span class="sub">${c} centimes la pièce</span>` : ""}</div>` : ""}
+      </div>
+      ${selBloc(it)}
+      <div class="fiche-actions"><a class="btn primary" href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">Voir chez ${esc(nomB)}</a></div>
+    </div></div>`;
+  $("#f-close").onclick = () => dlg.close();
+  const ph = $("#f-photo"); if (ph) ph.onerror = () => { ph.replaceWith(brique()); };
+  brancherSel(it);
   dlg.showModal();
 }
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
@@ -1172,9 +1278,9 @@ const stripId = ({id, ...rest}) => rest;
 const newId = () => (Date.now().toString(36) + Math.random().toString(36).slice(2,9)).replace(/[^a-z0-9]/g, "");
 function addItem(d){
   if (souhaits.some(s => norm(s.url) === norm(d.url))){ toast("Déjà dans la sélection", true); return false; }
-  persist({id:newId(), cree:new Date().toISOString(), ...d});
+  const fait = persist({id:newId(), cree:new Date().toISOString(), ...d});
   toast(saveOk ? "Ajouté à la sélection" : "Ajouté, mais non enregistré dans ce navigateur", !saveOk);
-  return true;
+  return fait;   // promesse (vraie) : la sélection est à jour quand elle se résout
 }
 
 const iUrl = $("#i-url"), iNom = $("#i-nom"), iPrix = $("#i-prix"), iPcs = $("#i-pcs"), iImg = $("#i-img");
@@ -1190,7 +1296,7 @@ function remplir(id, v){ const el = document.getElementById(id); if (v == null |
 function updateHint(){
   const u = iUrl.value.trim(), parts = [], known = ideeFor(u), h = hostOf(u), shop = shopFor(u);
   if (h && !/\.[a-z]{2,}$/i.test(h)) { $("#hint").innerHTML = ""; return; }
-  if (shop) parts.push(`<b>${esc(shop.nom)}</b> · ${esc(shop.delai)} · douane ${shop.douane == null ? "non relevée" : shop.douane ? "possible" : "non"} · fiabilité ${shop.fiab} sur 3`);
+  if (shop) parts.push([`<b>${esc(shop.nom)}</b>`, connu(shop.delai) ? esc(shop.delai) : "", shop.douane == null ? "" : shop.douane ? "douane possible" : "sans douane", `fiabilité ${shop.fiab} sur 3`].filter(Boolean).join(" · "));
   else if (hostOf(u)) parts.push(`Boutique inconnue (<b>${esc(hostOf(u))}</b>) : vérifier délai et douane`);
   const img = iImg.value.trim() || (known && known.img);
   $("#hint").innerHTML = (img ? thumb(img, "") : "") + `<span>${parts.join("")}</span>`;
@@ -1238,15 +1344,27 @@ function vivant(r){
   return {set, o, total: total(o), mieux: m !== o && rang(m) < rang(o) - 0.5 ? m : null};
 }
 const prixSel = r => { const v = vivant(r); return v ? v.total : r.prix; };
+const horsPort = rs => rs.filter(s => { const v = vivant(s); return v && v.o.port == null; }).length;   // comptés sans leur port, inconnu
 const colsS = [
   {key:"img",label:""},
-  {key:"nom",label:"Produit",val:r => r.nom},
+  {key:"nom",label:"Set",val:r => nomSel(r, ideeFor(r.url))},
+  {key:"taille",label:"Taille",val:r => { const v = vivant(r); return v ? v.set._lg : null; },cls:"num",first:"desc"},
   {key:"pcs",label:"Pièces",val:r => r.pcs,cls:"num",first:"desc"},
   {key:"prix",label:"Prix du jour",val:r => prixSel(r),cls:"num"},
-  {key:"note",label:"Note",val:r => r.note,cls:"hide-m"},
+  {key:"avis",label:"Avis",val:r => { const v = vivant(r); return v ? avisVal(v.set) : null; },first:"desc"},
   {key:"statut",label:"Statut",val:r => ["retenu","idee","achete"].indexOf(r.statut)},
-  {key:"act",label:"",cls:"num"},
 ];
+const LARGEURS_S = ["152px", "auto", "80px", "84px", "230px", "112px", "112px"];
+// nom gardé à l'ajout (« Marque – Nom ») : la marque est déjà sur la ligne suivante
+const nomSel = (r, set) => { const n = r.nom || r.url; return set && n.startsWith(set.marque + " – ") ? n.slice(set.marque.length + 3) : n; };
+function prixSelHtml(r){
+  // Bloc de prix commun, sur l'offre choisie ; un produit hors catalogue garde son prix saisi
+  const v = vivant(r);
+  if (!v) return r.prix != null ? `<span class="big">${eur(r.prix)}</span><div class="sub">prix saisi, non suivi</div>` : "";
+  const o = v.o, ecart = r.prix != null && Math.abs(r.prix - o.prix) >= 0.5;
+  return blocPrix(o, {retrait:!!v.set.retrait, apres:(ecart ? `<div class="sub">${o.prix < r.prix ? "en baisse" : "en hausse"} : ${eur(r.prix)} à l’ajout</div>` : "")
+    + (v.mieux ? `<div class="alerte-l">moins cher ailleurs : ${eur(v.mieux.port == null ? v.mieux.prix : total(v.mieux))}${v.mieux.port == null ? " hors port" : ""} chez ${esc(v.mieux.boutique)}</div>` : "")});
+}
 function renderSel(){
   const bought = souhaits.filter(s => s.statut === "achete").length;
   const rows = souhaits.filter(s => showBought || s.statut !== "achete");
@@ -1254,46 +1372,43 @@ function renderSel(){
   const ret = souhaits.filter(s => s.statut === "retenu");
   $("#stats").innerHTML = `<div><span class="lbl">Idées</span><b>${souhaits.filter(s => s.statut === "idee").length}</b></div>
     <div><span class="lbl">Retenus</span><b>${ret.length}</b></div>
-    <div><span class="lbl">Total retenu</span><b>${eur(ret.reduce((a,s) => a + (prixSel(s) || 0), 0))}</b><span class="sub">${ret.some(s => vivant(s)) ? "prix du jour, port compris quand il est connu" : ""}${ret.some(s => prixSel(s) == null) ? ` · ${ret.filter(s => prixSel(s) == null).length} sans prix` : ""}</span></div>`;
+    <div><span class="lbl">Total retenu</span><b>${eur(ret.reduce((a,s) => a + (prixSel(s) || 0), 0))}</b><span class="sub">${[ret.some(s => vivant(s)) ? "prix du jour, port compris" : "", horsPort(ret) ? `${horsPort(ret)} hors port` : "", ret.some(s => prixSel(s) == null) ? `${ret.filter(s => prixSel(s) == null).length} sans prix` : ""].filter(Boolean).join(" · ")}</span></div>`;
   $("#show-bought").textContent = bought ? `Afficher les achetés (${bought})` : "Afficher les achetés";
   sortable("t-sel", colsS, rows, sS, r => {
-    const shop = shopFor(r.url), known = ideeFor(r.url);
-    return `<tr>
-      <td class="ph">${known ? `<a href="#" data-open="${known.id}" aria-label="Fiche de ${esc(r.nom)}">${thumb(r.img_ecartee ? "" : r.img, r.nom, known.img)}</a>` : thumb(r.img_ecartee ? "" : r.img, r.nom)}</td>
-      <td class="full" data-k="Produit"><a class="name" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">${esc(r.nom || r.url)}</a>
-        <div class="sub">${shop ? `${esc(shop.nom)} · ${esc(shop.delai)}${shop.douane ? " · douane possible" : ""}` : esc(hostOf(r.url))}</div></td>
-      <td class="num" data-k="Pièces"><span class="big">${r.pcs ?? "—"}</span></td>
-      <td class="num ok-wrap" data-k="Prix du jour">${(() => {
-        const v = vivant(r);
-        if (!v) return `<span class="big">${eur(r.prix)}</span>${backend === "server" && r.prix != null ? '<div class="sub">prix saisi, non suivi</div>' : ""}`;
-        const o = v.o, ecart = r.prix != null && Math.abs(r.prix - o.prix) >= 0.5;
-        return `<span class="big">${eur(v.total)}</span>
-          <div class="sub">${o.port ? `${eur(o.prix)} + ${o.port_estime ? "environ " : ""}${eur(o.port)} de port` : o.port === 0 ? "port offert" : "port non relevé"}</div>
-          ${ecart ? `<div class="sub">${o.prix < r.prix ? "en baisse" : "en hausse"} : ${eur(r.prix)} à l’ajout</div>` : ""}
-          ${o.dispo !== "vente" ? `<span class="pill ${DISPO[o.dispo][1]}">${DISPO[o.dispo][0]}</span>` : ""}${v.set.retrait ? '<span class="pill p-warn">Bientôt retiré</span>' : ""}
-          ${v.mieux ? `<div class="alerte-l">${eur(total(v.mieux))} chez ${esc(v.mieux.boutique)}</div>` : ""}`;
-      })()}</td>
-      <td class="hide-m wide note-cell" data-k="Note">${esc(r.note) || '<span style="color:var(--faint)">—</span>'}</td>
-      <td data-k="Statut"><select class="status" data-st="${r.id}" aria-label="Statut">${Object.entries(STATUTS).map(([v,l]) => `<option value="${v}" ${r.statut === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
-      <td class="num wide"><div class="row-actions"><button class="btn small" data-ed="${r.id}">Modifier</button><button class="btn small ghost" data-del="${r.id}" aria-label="Retirer ${esc(r.nom)}">Retirer</button></div></td>
+    const v = vivant(r), set = v ? v.set : ideeFor(r.url), lg = set ? set._lg : null;
+    return `<tr class="clic" data-sel="${r.id}">
+      <td class="ph">${thumb(r.img_ecartee ? "" : r.img, r.nom, set ? set.img : "")}</td>
+      <td class="full" data-k="Set"><button type="button" class="name nb">${esc(nomSel(r, set))}</button>
+        ${set ? `<div class="sub ligne-marque">${logo(set.marque)}<span>${esc(set.marque)}${set.numero ? " " + esc(set.numero) : ""}</span>${set.type ? typeIco(set.type) : ""}</div>` : `<div class="sub">${esc(hostOf(r.url))}</div>`}
+        ${r.note ? `<div class="sub note-cell">${esc(r.note)}</div>` : ""}</td>
+      <td class="num${lg ? "" : " m-off"}" data-k="Taille">${cellTaille(lg)}</td>
+      <td class="num${r.pcs ? "" : " m-off"}" data-k="Pièces">${r.pcs ? `<span class="big">${r.pcs}</span><span class="m-only sub"> pièces</span>` : ""}</td>
+      <td class="num ok-wrap" data-k="Prix">${prixSelHtml(r)}</td>
+      <td class="${set && cellAvis(set) ? "" : "m-off"}" data-k="Avis">${set ? cellAvis(set) : ""}</td>
+      <td data-k="Statut"><select class="status" data-st="${r.id}" aria-label="Statut de ${esc(r.nom || r.url)}">${Object.entries(STATUTS).map(([v,l]) => `<option value="${v}" ${r.statut === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
     </tr>`;
-  }, souhaits.length ? "Tout est acheté : « Afficher les achetés » pour revoir la sélection." : "Sélection vide. Coller un lien dans « Ajouter un produit » ou utiliser « Ajouter à la sélection » dans Recherche.");
-  document.querySelectorAll("[data-open]").forEach(a => a.onclick = e => { e.preventDefault(); openFiche(a.dataset.open); });
+  }, souhaits.length ? "Tout est acheté : « Afficher les achetés » pour revoir la sélection." : "Sélection vide. Coller un lien dans « Ajouter un produit » ou utiliser « Ajouter » dans la Recherche.");
+  const t = $("#t-sel");
+  if (!t.querySelector("colgroup")) t.insertAdjacentHTML("afterbegin", `<colgroup>${LARGEURS_S.map(w => `<col style="width:${w}">`).join("")}</colgroup>`);
   document.querySelectorAll("[data-st]").forEach(s => s.onchange = () => {
     const it = souhaits.find(x => x.id === s.dataset.st); persist({...it, statut:s.value});
     if (s.value === "achete" && !showBought) toast("Marqué acheté : masqué de la sélection");
   });
-  document.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => {
-    const it = souhaits.find(x => x.id === b.dataset.ed); editing = it;
-    iUrl.value = it.url; iNom.value = it.nom || ""; iPrix.value = it.prix ?? ""; iPcs.value = it.pcs ?? ""; iImg.value = it.img || "";
-    $("#i-note").value = it.note || ""; $("#i-statut").value = it.statut; $("#save").textContent = "Enregistrer";
-    updateHint(); $("#add").scrollIntoView({behavior:"smooth", block:"center"}); iNom.focus();
-  });
-  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
-    if (b.dataset.confirm){ if (editing && editing.id === b.dataset.del) $("#add").reset(); persist(souhaits.find(x => x.id === b.dataset.del), true); return; }
-    b.dataset.confirm = 1; b.textContent = "Confirmer"; b.classList.remove("ghost");
-    setTimeout(() => { if (b.isConnected){ delete b.dataset.confirm; b.textContent = "Retirer"; b.classList.add("ghost"); } }, 3000);
-  });
+}
+$("#t-sel").addEventListener("click", e => {
+  if (e.target.closest("select")) return;   // le statut se change dans la ligne
+  const tr = e.target.closest("tr[data-sel]"); if (!tr) return;
+  const it = souhaits.find(x => x.id === tr.dataset.sel); if (!it) return;
+  const set = ideeFor(it.url);
+  set ? openFiche(set.id, it.id) : ficheSel(it);
+});
+function editer(it){
+  editing = it;
+  iUrl.value = it.url; iNom.value = it.nom || ""; iPrix.value = it.prix ?? ""; iPcs.value = it.pcs ?? ""; iImg.value = it.img || "";
+  $("#i-note").value = it.note || ""; $("#i-statut").value = it.statut; $("#save").textContent = "Enregistrer";
+  updateHint();
+  if (location.hash !== "#selection"){ location.hash = "#selection"; route(); }   // depuis une fiche ouverte dans la Recherche
+  requestAnimationFrame(() => { $("#add").scrollIntoView({behavior:"smooth", block:"center"}); iNom.focus({preventScroll:true}); });
 }
 $("#show-bought").onclick = e => { showBought = !showBought; e.currentTarget.setAttribute("aria-pressed", showBought); renderSel(); };
 sS.render = renderSel;

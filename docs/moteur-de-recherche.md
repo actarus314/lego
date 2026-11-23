@@ -48,8 +48,10 @@ Les tests indépendants et verdicts des 32 sets restent attachés à leur set. S
 ## Interface de l'onglet principal
 
 - Plus de titre : la saisie libre en tête (nom, numéro, marque, thème en français).
-- Filtres toujours visibles au défilement (colonne fixe sur ordinateur, barre fixe dépliable sur téléphone) : thèmes ; marques par leur logo ; type de briques par une icône (brique ou poutre Technic) ; curseur de prix plafond (piste en dégradé) ; taille en trois boutons, par la longueur du set monté (Petit, moins de 40 cm ; Moyen, 40 à 59 cm ; Grand, 60 cm et plus) ; disponibilité en cases à cocher.
-- Résultat : photo, logo, nom, pièces, taille, meilleur prix port compris, nombre de boutiques, fraîcheur ; fiche : offres relues en direct, tests, achat.
+- Filtres toujours visibles au défilement (colonne fixe sur ordinateur, barre fixe dépliable sur téléphone) : thèmes ; LEGO officiel ou marques alternatives, puis marques par leur logo ; type de briques par une icône (brique ou poutre Technic) ; curseur de prix plafond (piste en dégradé) ; taille en trois boutons, par la longueur du set monté (Petit, moins de 40 cm ; Moyen, 40 à 59 cm ; Grand, 60 cm et plus) ; disponibilité en cases à cocher.
+- Résultat, colonnes triables : photo ; set (nom, logo, marque, numéro, type de briques, thèmes) ; taille ; pièces ; prix ; avis (verdict des testeurs, sinon nombre de tests) ; ajout à la sélection. La Sélection a les mêmes colonnes, plus le statut.
+- Conventions de toutes les vues (validées par Romain le 23/11/2026) : un clic sur une ligne ouvre la fiche ; seule la fiche mène à une boutique (« Voir chez … », nom de la boutique sur chaque offre) ; même bloc de prix partout (prix port compris, puis prix et port, puis boutique et délai, puis pastilles) ; une couleur, un sens (vert bon pour acheter, orange à vérifier, gris neutre, rouge fait renoncer) ; une valeur absente ne s'affiche pas, et un prix sans port connu est dit « hors port ».
+- Fiche : pièces, dimensions, type de briques ; offres relues en direct, chacune avec le bloc de prix, la courbe des prix relevés et la date du relevé ; tests ; pour un produit de la sélection, son statut, sa modification et son retrait.
 - Photos : liens vers les sources, vérifiés en continu par le service ; photo introuvable remplacée par la suivante du set (README, « Photos des sets »).
 - Logos : icônes des sites des marques récupérées par le service dans son dossier de données (rien dans le dépôt) ; pastille aux initiales sinon.
 
