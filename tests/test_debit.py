@@ -11,8 +11,7 @@ from app import lien
 class Debit(unittest.TestCase):
     def setUp(self):
         famille = dict(lien._famille)
-        lien._famille.clear()
-        lien._famille["cdn.shopify.com"] = lien.SHOPIFY   # état de départ, quels que soient les tests passés avant
+        lien._famille.clear()   # état de départ, quels que soient les tests passés avant
         for d in (lien._prochaine, lien._pause, lien._suite_429, lien._dernier_429):
             d.clear()
             self.addCleanup(d.clear)
@@ -32,18 +31,21 @@ class Debit(unittest.TestCase):
         self.assertAlmostEqual(attentes[0], lien.INTERVALLE_SITE_S, delta=0.1)
 
     def test_cdn_de_photos_intervalle_court(self):
-        self.assertLess(lien.INTERVALLES["cdn.rebrickable.com"], lien.INTERVALLE_SITE_S)
+        for hote in ("cdn.shopify.com", "cdn.rebrickable.com"):
+            self.assertLess(lien.INTERVALLES[hote], lien.INTERVALLE_SITE_S)
+        self.assertEqual(lien.cle("cdn.shopify.com"), "cdn.shopify.com")
 
     def test_famille_shopify_file_commune(self):
-        """Boutiques Shopify et photos de Shopify : une seule file pour toute la famille."""
+        """Boutiques Shopify : une seule file pour toute la famille ; le serveur de photos n'en est pas."""
         lien.rattacher(["kbs-shop.com", "www.bausteinreich.de"])
         attentes = []
         with mock.patch.object(lien, "_get", return_value=self.rep()), \
                 mock.patch.object(lien.time, "sleep", side_effect=attentes.append):
             lien.recuperer("https://kbs-shop.com/a")
             lien.recuperer("https://www.bausteinreich.de/b")
-            lien.recuperer("https://cdn.shopify.com/s/files/c.jpg")
-            lien.recuperer("https://www.galaxus.fr/d")   # hors famille : sans attente
+            lien.recuperer("https://x.myshopify.com/c")
+            lien.recuperer("https://cdn.shopify.com/s/files/d.jpg")   # hors famille : sans attente
+            lien.recuperer("https://www.galaxus.fr/e")
         self.assertEqual(len(attentes), 2)
         self.assertAlmostEqual(attentes[1], 2 * lien.INTERVALLE_FAMILLE_S, delta=0.2)
 
@@ -52,12 +54,13 @@ class Debit(unittest.TestCase):
         with mock.patch.object(lien, "_get", return_value=self.rep(429, "60")) as get, mock.patch.object(lien.time, "sleep"):
             with self.assertRaises(lien.LienRefuse):
                 lien.recuperer("https://kbs-shop.com/a")
-            for url in ("https://www.bausteinreich.de/b", "https://cdn.shopify.com/c.jpg", "https://x.myshopify.com/d"):
+            for url in ("https://www.bausteinreich.de/b", "https://x.myshopify.com/d"):
                 with self.assertRaises(lien.LienRefuse) as e:
                     lien.recuperer(url)
                 self.assertTrue(e.exception.pause)
         self.assertEqual(get.call_count, 1)
         self.assertEqual(lien.en_pause("galaxus.fr"), 0)
+        self.assertEqual(lien.en_pause("cdn.shopify.com"), 0)   # photos servies pendant le refus des boutiques
         self.assertIn("shopify", lien.pauses())
 
     def test_hote_shopify_appris_par_sa_reponse(self):
@@ -163,7 +166,7 @@ class Debit(unittest.TestCase):
         lien._noter_429("kbs-shop.com", "60")
         lien._pause.clear()
         t = lien.time.time() + 1
-        for hote, statut in (("cdn.shopify.com", 200), ("kbs-shop.com", 302), ("kbs-shop.com", 403), ("kbs-shop.com", 503)):
+        for hote, statut in (("cdn.shopify.com", 200), ("kbs-shop.com", 302), ("kbs-shop.com", 403), ("kbs-shop.com", 503)):   # le CDN est hors famille
             lien._noter_reponse(hote, lien.Reponse(f"https://{hote}/", statut, "", b"", None, {}), t)
             self.assertEqual(lien._suite_429.get("shopify"), 1, (hote, statut))
         lien._noter_reponse("kbs-shop.com", lien.Reponse("https://kbs-shop.com/", 200, "", b"", None, {}), t - 10)

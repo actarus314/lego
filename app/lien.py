@@ -9,8 +9,8 @@ suivies une à une, chacune revérifiée.
 
 `recuperer` tient aussi le débit par site commun à tout le service : une seconde au moins entre deux
 départs de requête vers un même site, quel que soit le module, et une pause de tout le service sur un
-site qui répond 429 (voir `INTERVALLE_SITE_S` et la suite) ; les boutiques Shopify et leurs photos forment
-une seule famille, avec une file et une pause communes.
+site qui répond 429 (voir `INTERVALLE_SITE_S` et la suite) ; les boutiques Shopify forment une seule
+famille, avec une file et une pause communes.
 """
 from __future__ import annotations
 
@@ -45,17 +45,18 @@ AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
 # aussitôt, sans réseau : LienRefuse de statut 429 et d'attribut `pause` vrai (la pause restante est dans
 # `attente`), pour que l'appelant reporte l'essai sans compter un échec du site.
 INTERVALLE_SITE_S = 1.0
-INTERVALLES = {"cdn.rebrickable.com": 0.3, "images.brickset.com": 0.5,
+INTERVALLES = {"cdn.shopify.com": 0.5, "cdn.rebrickable.com": 0.3, "images.brickset.com": 0.5,
                "cdn.bricksvalue.com": 0.3}   # serveurs de photos des boutiques, pas les boutiques
-# Famille Shopify : toutes les boutiques hébergées par Shopify et son serveur de photos passent par une même
-# protection contre les robots, qui juge l'adresse IP du service dans son ensemble (23/11/2026 : depuis le NUC,
-# 429 sur toutes les boutiques Shopify à la fois, 200 depuis une autre adresse avec le même client). La famille
-# partage donc une seule file (INTERVALLE_FAMILLE_S entre deux requêtes, toutes boutiques et photos confondues)
-# et une seule pause : un 429 d'un membre arrête toute la famille. Membres : cdn.shopify.com, *.myshopify.com,
-# les hôtes déclarés par `rattacher` (sources Shopify) et tout hôte qui répond « Powered-By: Shopify ».
+# Famille Shopify : les boutiques hébergées par Shopify passent par une même protection contre les robots,
+# qui juge l'adresse IP du service pour toutes les boutiques à la fois (23/11/2026 : depuis le serveur, 429 sur
+# toutes les boutiques Shopify, 200 depuis une autre adresse avec le même client). La famille partage donc une
+# seule file (INTERVALLE_FAMILLE_S entre deux requêtes, toutes boutiques confondues) et une seule pause : un 429
+# d'une boutique arrête toute la famille. Le serveur de photos cdn.shopify.com n'en est pas : le même matin, il
+# a servi 1031 photos sans un refus pendant que les boutiques répondaient 429. Membres : *.myshopify.com, les
+# hôtes déclarés par `rattacher` (sources Shopify) et tout hôte qui répond « Powered-By: Shopify ».
 INTERVALLE_FAMILLE_S = 1.0
 SHOPIFY = "shopify"
-_famille: dict[str, str] = {"cdn.shopify.com": SHOPIFY}
+_famille: dict[str, str] = {}
 PAUSE_429_S = 600
 PAUSE_429_MIN_S = 60
 PAUSE_429_MAX_S = 3600
@@ -154,12 +155,12 @@ def _noter_429(hote: str, attente) -> None:
 
 def _noter_reponse(hote: str, r: "Reponse", depart: float) -> None:
     """Réponse autre qu'un 429 : un hôte Shopify rejoint sa famille ; la suite de 429 repart de zéro sur une
-    réponse acceptée (2xx, 304) d'une boutique, partie après le dernier 429 : une photo servie par le CDN
-    pendant que les boutiques refusent, une redirection ou une erreur ne la remettent pas à zéro."""
+    réponse acceptée (2xx, 304), partie après le dernier 429 : une redirection ou une erreur ne la remettent
+    pas à zéro."""
     if (r.entetes or {}).get("powered-by", "").strip().lower() == "shopify" and cle(hote) != SHOPIFY:
         rattacher([hote])
     c = cle(hote)
-    if c in _suite_429 and (200 <= r.statut < 300 or r.statut == 304) and site(hote) != "cdn.shopify.com":
+    if c in _suite_429 and (200 <= r.statut < 300 or r.statut == 304):
         with _verrou_sites:   # revu sous verrou : un 429 noté entre-temps par un autre fil garde la suite
             if depart > _dernier_429.get(c, 0.0):
                 _suite_429.pop(c, None)
