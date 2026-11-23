@@ -20,7 +20,8 @@ photo oubliée par `photos.py` (absente du catalogue depuis 30 jours) perd ses d
 Route : `GET /photo?u=<adresse d'origine>&l=<largeur affichée>` ; largeur de 400 ou moins :
 vignette, au-delà : grande. Seules les adresses du catalogue et de la sélection sont servies
 (le service n'est pas un relais ouvert). Téléchargements à la demande : six à la fois au plus, une demi-
-seconde au moins entre deux sur un même site ; un échec n'est pas retenté avant une heure.
+seconde au moins entre deux sur un même site (le débit commun du service, `lien.py`, s'y ajoute) ; un
+échec n'est pas retenté avant une heure, sauf une pause après un 429, retentée à sa fin.
 
 Une photo que le cache ne peut pas garder (trop lourde, format non gardé, disque plein) n'est pas
 une photo morte : `photos.py` la vérifie alors comme avant (4 premiers Ko) et ne retente le cache
@@ -201,7 +202,8 @@ class CachePhotos:
             try:
                 return self.telecharger(url, taille)[0]
             except (lien.LienRefuse, OSError, ValueError, CacheLocal) as e:
-                self._echecs[cle] = time.time()
+                # site en pause après un 429 (lien.py) : nouvel essai à la fin de la pause, pas dans une heure
+                self._echecs[cle] = time.time() - (ECHEC_DEMANDE_S - float(e.attente) if getattr(e, "pause", False) else 0)
                 log.info("photo %s non téléchargée (%s) : %s", taille, getattr(e, "public", type(e).__name__), url)
                 return None
 

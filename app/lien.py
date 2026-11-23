@@ -6,6 +6,10 @@ diffusion) et se connecte à l'adresse IP déjà vérifiée, ce qui empêche un
 nom de domaine de changer de résolution entre la vérification et la
 connexion. Seuls les ports 80 et 443 sont acceptés. Les redirections sont
 suivies une à une, chacune revérifiée.
+
+`recuperer` tient aussi le débit par site commun à tout le service : une seconde au moins entre deux
+départs de requête vers un même site, quel que soit le module, et une pause de tout le service sur un
+site qui répond 429 (voir `INTERVALLE_SITE_S` et la suite).
 """
 from __future__ import annotations
 
@@ -17,6 +21,8 @@ import json
 import re
 import socket
 import ssl
+import threading
+import time
 from dataclasses import dataclass
 from urllib.parse import quote, urljoin, urlsplit
 
@@ -24,8 +30,78 @@ TAILLE_MAX = 3 * 1024 * 1024
 DELAI = 12
 REDIRECTIONS_MAX = 4
 PORTS = (80, 443)  # ports web standard : une boutique n'en emploie pas d'autre
-ENTETES_LUS = ("Cross-Origin-Resource-Policy", "ETag")  # photo affichable sur un autre site ; version de la page (requête conditionnelle)
+# photo affichable sur un autre site ; version de la page (requête conditionnelle) ; serveur et protection
+# anti-robot, pour dire la cause exacte d'un refus
+ENTETES_LUS = ("Cross-Origin-Resource-Policy", "ETag", "Server", "cf-mitigated")
 AGENT = "carnet-briques (+https://github.com/actarus314/lego)"
+
+# Débit par site, commun à tout le service (synchronisation, sélection, photos, logos, boutiques, occasion,
+# tests) : chaque module a sa pause, mais deux modules qui passent en même temps sur une même boutique
+# s'additionnaient (429 de KBS, Bausteinreich et Mould King signalés le 23/11/2026). Une requête vers un
+# site part INTERVALLE_SITE_S au moins après le départ de la précédente vers ce site, quel que soit le
+# module ; un 429 met le site en pause pour tout le service (durée de Retry-After, bornée entre
+# PAUSE_429_MIN_S et PAUSE_429_MAX_S, sinon PAUSE_429_S), et toute requête pendant la pause échoue
+# aussitôt, sans réseau : LienRefuse de statut 429 et d'attribut `pause` vrai (la pause restante est dans
+# `attente`), pour que l'appelant reporte l'essai sans compter un échec du site.
+INTERVALLE_SITE_S = 1.0
+INTERVALLES = {"cdn.shopify.com": 0.2, "cdn.rebrickable.com": 0.3, "images.brickset.com": 0.5,
+               "cdn.bricksvalue.com": 0.3}   # serveurs de photos des boutiques, pas les boutiques
+PAUSE_429_S = 600
+PAUSE_429_MIN_S = 60
+PAUSE_429_MAX_S = 3600
+_prochaine: dict[str, float] = {}   # site : instant du prochain départ permis
+_pause: dict[str, float] = {}       # site : fin de la pause après un 429
+_verrou_sites = threading.Lock()
+
+
+def site(hote: str) -> str:
+    return (hote or "").lower().rstrip(".").removeprefix("www.")
+
+
+def _attente_s(valeur) -> float:
+    """Pause après un 429 : Retry-After en secondes, bornée ; une date HTTP, une valeur absente,
+    nulle, négative ou non finie : PAUSE_429_S."""
+    try:
+        v = float(valeur)
+    except (TypeError, ValueError):
+        return float(PAUSE_429_S)
+    if v != v or v in (float("inf"), float("-inf")) or v <= 0:
+        return float(PAUSE_429_S)
+    return min(max(v, PAUSE_429_MIN_S), PAUSE_429_MAX_S)
+
+
+def en_pause(hote: str, maintenant: float | None = None) -> float:
+    """Secondes de pause restantes pour ce site après un 429 (0 : pas en pause)."""
+    return max(_pause.get(site(hote), 0.0) - (maintenant or time.time()), 0.0)
+
+
+def _refus_pause(reste: float) -> "LienRefuse":
+    e = LienRefuse(f"site en pause après un refus 429 (encore {int(reste) + 1} s)")
+    e.statut, e.attente, e.pause, e.entetes = 429, str(int(reste) + 1), True, {}
+    return e
+
+
+def _reserver(hote: str) -> None:
+    """Attend le tour de ce site, puis vérifie encore la pause (un 429 reçu par une autre requête pendant
+    l'attente arrête aussi celle-ci). Site en pause : LienRefuse sans attendre."""
+    cle = site(hote)
+    with _verrou_sites:
+        maintenant = time.time()
+        reste = _pause.get(cle, 0.0) - maintenant
+        if reste > 0:
+            raise _refus_pause(reste)
+        depart = max(maintenant, _prochaine.get(cle, 0.0))
+        _prochaine[cle] = depart + INTERVALLES.get(cle, INTERVALLE_SITE_S)
+    if depart > maintenant:
+        time.sleep(depart - maintenant)
+        reste = en_pause(cle)
+        if reste > 0:
+            raise _refus_pause(reste)
+
+
+def _noter_429(hote: str, attente) -> None:
+    with _verrou_sites:
+        _pause[site(hote)] = time.time() + _attente_s(attente)
 
 
 class LienRefuse(ValueError):
@@ -133,13 +209,21 @@ def _get(url: str, accept: str, entetes: dict | None = None, max_octets: int | N
 def recuperer(url: str, accept: str = "text/html,application/json;q=0.9,*/*;q=0.5",
               entetes: dict | None = None, statuts: tuple[int, ...] = (200,), max_octets: int | None = None) -> Reponse:
     for _ in range(REDIRECTIONS_MAX + 1):
+        p = urlsplit(url)
+        hote = p.hostname or ""
+        if p.scheme in ("http", "https") and hote:   # adresse refusée d'avance : sans attendre son tour
+            _reserver(hote)
         r = _get(url, accept, entetes, max_octets)
+        if r.statut == 429:
+            _noter_429(hote, r.attente)
         if 300 <= r.statut < 400 and r.url != url:   # redirection ; un 3xx sans Location est refusé plus bas
             url = r.url
             continue
         if r.statut not in statuts:
             e = LienRefuse(f"le site a répondu {r.statut}")
-            e.statut, e.attente = r.statut, r.attente
+            e.statut, e.attente, e.entetes = r.statut, r.attente, r.entetes or {}
+            if r.statut == 429:   # la pause commune commence : l'appelant la traite comme les requêtes suivantes
+                e.pause, e.attente = True, str(int(en_pause(hote)) + 1)
             raise e
         return r
     raise LienRefuse("trop de redirections")

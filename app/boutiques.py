@@ -11,7 +11,17 @@ Le service y lit, une requête à la fois avec une pause :
   politique seulement : port vers la France (montant qui suit « France »), délai écrit après « France »
   ou, à défaut, après « Europe » (`livraison_france` : page propre à la France, premier délai écrit),
   mention de TVA comprise ou d'IOSS.
-Une lecture en échec garde la dernière valeur lue, avec sa date ; l'échec est noté avec sa raison.
+- les mentions légales (`mentions_page`), pour une boutique hors Shopify : pays du numéro de TVA
+  intracommunautaire, celui où le vendeur acquitte la TVA (préfixe DE, FR…), sinon préfixe de pays du
+  code postal de l'adresse (« DK-7190 Billund »).
+La page de livraison donne aussi le seuil de gratuité (« gratuit dès 39 € », « free from €99 », montant
+en euros de 10 à 500 €) et, pour une boutique hors Shopify, la devise du port et la livraison en France
+quand un port vers la France y est publié. Une place de marché a port, délai et douane « selon le
+vendeur » (règle). Le pays lu par le numéro de TVA est celui où le vendeur acquitte la TVA, pas celui
+d'où part le colis ; il fonde la douane (TVA d'un pays de l'Union) et le délai estimé.
+Une lecture en échec garde la dernière valeur lue, avec sa date ; l'échec est noté avec sa cause exacte
+(code HTTP et protection qui a répondu : Cloudflare, défi anti-robot, Akamai ; page anti-robot servie à
+la place du contenu). Aucun contournement : la cause est dite, la valeur précédente reste.
 
 Champs calculés par une règle, sans lecture (« origine » : « règle », la règle est dite) :
 - douane : vendeur dans l'Union européenne → aucune ; hors Union, TVA comprise lue → TVA payée à la
@@ -50,6 +60,9 @@ UE = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "H
       "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"}
 PAYS = {"DE": "Allemagne", "FR": "France", "NL": "Pays-Bas", "BE": "Belgique", "AT": "Autriche", "PL": "Pologne",
         "IT": "Italie", "ES": "Espagne", "DK": "Danemark", "CZ": "Tchéquie", "LU": "Luxembourg", "CH": "Suisse",
+        "BG": "Bulgarie", "CY": "Chypre", "EE": "Estonie", "FI": "Finlande", "GR": "Grèce", "HR": "Croatie", "HU": "Hongrie",
+        "IE": "Irlande", "LT": "Lituanie", "LV": "Lettonie", "MT": "Malte", "PT": "Portugal", "RO": "Roumanie",
+        "SE": "Suède", "SI": "Slovénie", "SK": "Slovaquie",
         "GB": "Royaume-Uni", "US": "États-Unis", "CN": "Chine", "HK": "Hong Kong", "TW": "Taïwan"}
 CHAMPS = ("pays", "devise", "livre_france", "port", "delai", "douane", "boite", "avis", "fiabilite")
 VERROU = threading.Lock()
@@ -76,6 +89,50 @@ class _Tva:
 _TVA = _Tva()
 _JUDGEME_NOTE = re.compile(r"jdgm-all-reviews-rating['\"][^>]*?aria-label=['\"]([\d.]+) stars", re.I)
 _JUDGEME_NOMBRE = re.compile(r"data-number-of-reviews=['\"](\d+)['\"]", re.I)
+
+
+# page servie à la place du contenu par une protection anti-robot (réponse 200)
+_DEFI = re.compile(r"_____tmd_____/punish|<title>Just a moment\.\.\.|<title>Attention Required! \| Cloudflare|captcha-delivery\.com|"
+                   r"Human Verification", re.I)
+# numéro de TVA intracommunautaire, dont le préfixe dit le pays où le vendeur acquitte la TVA
+# Version stricte (décision du 23/11/2026, après deux corrections qui n'ont pas convergé) : libellés
+# précis, aucun faux positif connu ; limite connue : « VAT Reg No: », « VAT-ID », « USt.-IdNr. »,
+# « Umsatzsteuer-ID », « TVA intracommunautaire n° », « TVA : », « BTW-nummer » et un numéro séparé de son
+# libellé par plus de quelques signes ne sont pas lus. Conception à refaire : validation du numéro par la
+# somme de contrôle officielle de chaque pays.
+_TVA_ID = re.compile(r"(?i:\b(?:n(?:°|o\.?|uméro)\s*(?:de\s*)?TVA|TVA\s+intracommunautaire|VAT\s*(?:ID|No\.?|number|Reg\w*)|"
+                     r"USt-?Id\w*|Umsatzsteuer-?Identifikationsnummer|identification de taxe sur le chiffre d.affaires[^:]{0,90})"
+                     r")\W{0,5}(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)"
+                     r" ?((?:[0-9A-Z] ?){8,13})(?![0-9A-Za-z])")
+# adresse à code postal préfixé du pays (« DK-7190 Billund », pied de page de LEGO, 23/11/2026)
+# … suivi de la ville puis du nom du pays : une référence comme « DE-2024 Z » n'est pas une adresse
+_CODE_POSTAL = re.compile(r"\b(AT|BE|CH|DE|DK|ES|FR|IT|LU|NL|PL|SE)-\d{4,5}\s+[A-ZÀ-Ý][\wÀ-ÿ'-]{1,25}(?:\s[A-ZÀ-Ý][\wÀ-ÿ'-]{1,25})?,?\s+"
+                          r"(?:Austria|Autriche|Österreich|Belgium|Belgique|Belgien|Switzerland|Suisse|Schweiz|Germany|Allemagne|"
+                          r"Deutschland|Denmark|Danemark|Dänemark|Spain|Espagne|Spanien|Italy|Italie|Italien|Luxembourg|Luxemburg|"
+                          r"Netherlands|Pays-Bas|Niederlande|Poland|Pologne|Polen|Sweden|Suède|Schweden|France|Frankreich)\b")
+_SEUIL = re.compile(r"(?:gratuit\w*|offert\w*|\bfree\b|kostenlos|versandkostenfrei)\D{0,80}?\b(?:dès|à partir de|from|ab|"
+                    r"supérieur à|égal ou supérieur à|au-delà de|over)\s*(?:€\s*(\d{1,4}(?:[.,]\d{2})?)|(\d{1,4}(?:[.,]\d{2})?)\s*(?:€|EUR\b|euros?\b))",
+                    re.I)
+# « Orders up to 55 € have a delivery cost of 5.95 € » (LEGO, 23/11/2026) : seuil puis port
+_SOUS_PORT = re.compile(r"(?:orders?|commandes?|Bestellungen)\s+(?:up to|under|below|jusqu.à|inférieures? à|de moins de|bis|unter)\s+"
+                        r"(?:€\s*)?(\d{1,4})\s*(?:€|eur\b)?[^.\d]{0,40}?(\d{1,2}[.,]\d{2})\s*€", re.I)
+_PORT_SOUS = re.compile(r"(\d{1,2}[.,]\d{2})\s*€\s*(?:pour les|aux|for|für)\s+(?:commandes?|orders?|Bestellungen)\s+"
+                        r"(?:inférieures?|de moins|under|below|unter)\s+(?:à|de)?\s*(?:€\s*)?(\d{1,4})", re.I)
+
+
+def cause(e: Exception) -> str:
+    """Cause d'un échec, avec la protection qui a répondu quand ses en-têtes la nomment."""
+    texte = getattr(e, "public", None) or type(e).__name__
+    h = {k.lower(): (v or "").lower() for k, v in (getattr(e, "entetes", None) or {}).items()}
+    serveur = h.get("server", "")
+    if h.get("cf-mitigated") == "challenge":
+        return texte + " (Cloudflare, défi anti-robot)"
+    if getattr(e, "statut", None) != 403:   # un 404, un 429 ou un 5xx n'est pas un refus de la protection
+        return texte
+    for nom, protection in (("cloudflare", "Cloudflare"), ("akamai", "Akamai"), ("cloudfront", "CloudFront")):
+        if nom in serveur:
+            return texte + f" ({protection})"
+    return texte
 
 
 def configuration() -> list[dict]:
@@ -180,24 +237,88 @@ def corps_politique(page: str) -> str:
     return n.texte(page[i:i + 80000] if i >= 0 else page)
 
 
-def lire_livraison(url: str, page_france: bool = False) -> dict:
-    texte = corps_politique(_page(url))
-    out = {"delai": delai(texte, page_france), "tva_comprise": bool(_TVA.search(texte))}
+_AUTRE_PAYS = re.compile(r"\b(?:Germany|Deutschland|Allemagne|Austria|Österreich|Autriche|Belgium|Belgique|Belgien|Netherlands|"
+                         r"Niederlande|Pays-Bas|Italy|Italie|Italien|Spain|Espagne|Spanien|Switzerland|Schweiz|Suisse|Poland|Polen|"
+                         r"Pologne|Luxembourg|Denmark|Dänemark|Danemark|Sweden|Schweden|Suède|United Kingdom|Royaume-Uni|Europe|EU)\b")
+
+
+def _jusqu_au_pays_suivant(fenetre: str) -> str:
+    """Fenêtre qui suit « France », coupée au nom du pays ou de la zone suivant (« France €9.95 Austria €12.95
+    free from €199 » : le seuil de l'Autriche n'est pas celui de la France)."""
+    m = _AUTRE_PAYS.search(fenetre)
+    return fenetre[:m.start()] if m else fenetre
+
+
+def port_et_seuil(texte: str, page_france: bool = False) -> tuple[float | None, float | None]:
+    """Port vers la France et seuil de gratuité. Port : montant qui suit « France » ; sur une page propre
+    à la France, aussi « 3,90 € pour les commandes inférieures à 39 € ». Seuil : « gratuit dès 39 € »,
+    « free from €99 »… dans les FENETRE caractères qui suivent « France » (toute la page si elle est
+    propre à la France ; aussi « Orders up to 55 € have a delivery cost of 5.95 € »)."""
     port = livraison.port_du_pays(texte, "France")
-    if port is not None and port <= livraison.PORT_MAX:
+    seuil = None
+    zones = [texte] if page_france else [_jusqu_au_pays_suivant(texte[m.end():m.end() + FENETRE]) for m in _FRANCE.finditer(texte)]
+    for z in zones:
+        sous = _PORT_SOUS.search(z) if page_france else None
+        if sous and port is None:
+            port, seuil = float(sous.group(1).replace(",", ".")), float(sous.group(2))
+        inverse = _SOUS_PORT.search(z) if page_france else None
+        if inverse and port is None:
+            seuil, port = float(inverse.group(1)), float(inverse.group(2).replace(",", "."))
+        m = _SEUIL.search(z)
+        if m and seuil is None:
+            seuil = float((m.group(1) or m.group(2)).replace(",", "."))
+        if port is not None and seuil is not None:
+            break
+    if port is not None and not 0 <= port <= livraison.PORT_MAX:
+        port = None
+    if seuil is not None and not (10 <= seuil <= 500 and (port is None or seuil > port)):
+        seuil = None
+    return port, seuil
+
+
+def lire_livraison(url: str, page_france: bool = False) -> dict:
+    page = _page(url)
+    if _DEFI.search(page):
+        raise ValueError("page anti-robot servie à la place du contenu")
+    texte = corps_politique(page)
+    out = {"delai": delai(texte, page_france), "tva_comprise": bool(_TVA.search(texte))}
+    port, seuil = port_et_seuil(texte, page_france)
+    if port is not None:
         out["port"] = port
+        if re.search(r"€|\bEUR\b", texte):
+            out["devise"] = "EUR"
+    if seuil is not None:
+        out["seuil"] = seuil
     return out
 
 
-def relever(dossier: Path, pause: float = PAUSE_S) -> dict:
-    """Relit toutes les boutiques et écrit `boutiques_lues.json` : {id: {le, lus: {champ: {valeur, source, le}}, echecs}}."""
+def lire_mentions(url: str) -> dict:
+    """Mentions légales : pays du numéro de TVA intracommunautaire (où le vendeur acquitte la TVA)."""
+    page = _page(url)
+    if _DEFI.search(page):
+        raise ValueError("page anti-robot servie à la place du contenu")
+    texte = n.texte(page)
+    m = next((x for x in _TVA_ID.finditer(texte) if sum(ch.isdigit() for ch in x.group(2)) >= 7), None) \
+        or _CODE_POSTAL.search(texte)
+    if not m:
+        raise ValueError("ni numéro de TVA intracommunautaire, ni code postal à préfixe de pays")
+    code = m.group(1).upper()
+    return {"pays": "GR" if code == "EL" else code, "par": "tva" if m.re is _TVA_ID else "adresse"}
+
+
+def relever(dossier: Path, pause: float = PAUSE_S, ids: list[str] | None = None) -> dict:
+    """Relit les boutiques (`ids` : celles-là seulement) et écrit `boutiques_lues.json` :
+    {id: {le, lus: {champ: {valeur, source, le}}, echecs, en_pause}}."""
     with VERROU:
         avant = _lire(Path(dossier) / "boutiques_lues.json", {})
         sources = _sources()
-        out = {}
+        connues = {b["id"] for b in configuration()}
+        out = {k: v for k, v in avant.items() if k in connues}   # une boutique retirée de la liste ne reste pas
         for b in configuration():
+            if ids is not None and b["id"] not in ids:
+                continue
             ancien = avant.get(b["id"]) or {}
-            lus, echecs = dict(ancien.get("lus") or {}), {}
+            lus, echecs, pauses = dict(ancien.get("lus") or {}), {}, []
             le = _horodatage()
 
             def garder(champ, valeur, source):
@@ -210,7 +331,9 @@ def relever(dossier: Path, pause: float = PAUSE_S) -> dict:
                     time.sleep(pause)
                     return r
                 except Exception as e:   # refus, réseau, format inattendu : la valeur précédente reste
-                    echecs[nom] = getattr(e, "public", type(e).__name__)
+                    if getattr(e, "pause", False) or getattr(e, "statut", None) == 429:
+                        pauses.append(nom)
+                    echecs[nom] = cause(e) if not isinstance(e, ValueError) or getattr(e, "public", None) else str(e)
                     time.sleep(pause)
                     return None
 
@@ -223,6 +346,9 @@ def relever(dossier: Path, pause: float = PAUSE_S) -> dict:
                 garder("avis", essai("avis", lambda: lire_trustedshops(b["trustedshops"])),
                        f"https://www.trustedshops.de/bewertung/info_{b['trustedshops']}.html")
             accueil = essai("accueil", lambda: _page(b["url"])) if "accueil" in lire else None
+            if accueil and _DEFI.search(accueil):
+                echecs["accueil"] = "page anti-robot servie à la place du contenu"
+                accueil = None
             if accueil:
                 if not b.get("trustedshops"):
                     garder("avis", avis_affiches(accueil), b["url"])
@@ -234,9 +360,19 @@ def relever(dossier: Path, pause: float = PAUSE_S) -> dict:
                 if liv:
                     garder("delai", liv.get("delai"), page_liv)
                     garder("port", liv.get("port"), page_liv)
+                    garder("seuil", liv.get("seuil"), page_liv)
+                    if "devise" not in lus:   # une devise déjà lue (meta.json) n'est jamais remplacée par la page
+                        garder("devise", liv.get("devise"), page_liv)
+                    if liv.get("port") is not None and "meta" not in lire:   # port vers la France publié : la boutique y livre
+                        garder("livre_france", True, page_liv)
                     if liv.get("tva_comprise"):
                         garder("tva_comprise", True, page_liv)
-            out[b["id"]] = {"le": le, "lus": lus, "echecs": echecs}
+            if b.get("mentions_page") and "mentions" in lire:
+                ment = essai("mentions", lambda: lire_mentions(b["mentions_page"]))
+                if ment and not meta:   # meta.json, quand il répond, donne le pays du siège : il prime
+                    garder("pays", ment["pays"], b["mentions_page"])
+                    lus["pays"]["par"] = ment["par"]
+            out[b["id"]] = {"le": le, "lus": lus, "echecs": echecs, **({"en_pause": True} if pauses else {})}
         _ecrire(Path(dossier) / "boutiques_lues.json", out)
         return out
 
@@ -267,11 +403,15 @@ def fiche(b: dict, lue: dict | None, source: dict | None = None, ports_lus: dict
     lus = (lue or {}).get("lus") or {}
     val = lambda c: (lus.get(c) or {}).get("valeur")
     champs: dict[str, dict] = {}
-    for c in ("pays", "devise", "livre_france", "avis"):
+    for c in ("pays", "devise", "livre_france", "avis", "seuil"):
         if c in lus:
             x = lus[c]
             v = PAYS.get(x["valeur"], x["valeur"]) if c == "pays" else x["valeur"]
-            champs[c] = _champ(v, "lu", x.get("source"), x.get("le"))
+            methode = None
+            if c == "pays" and x.get("source") == b.get("mentions_page"):
+                methode = ("pays du numéro de TVA intracommunautaire" if x.get("par", "tva") == "tva"
+                           else "préfixe de pays du code postal de l'adresse")
+            champs[c] = _champ(v, "lu", x.get("source"), x.get("le"), methode)
     liv = (source or {}).get("livraison") or {}
     # port : page lue par ce relevé, sinon relevé de livraison.py (boutiques lues), sinon data/sources.json
     if "port" in lus:
@@ -285,13 +425,20 @@ def fiche(b: dict, lue: dict | None, source: dict | None = None, ports_lus: dict
         champs["delai"] = _champ(val("delai"), "lu", lus["delai"].get("source"), lus["delai"].get("le"))
     elif liv.get("delai"):
         champs["delai"] = _champ(liv["delai"], "écrit", liv.get("page"), methode="relevé à la main le 20/11/2026 (data/sources.json)")
+    if b.get("type") == "place_de_marche":   # chaque vendeur a son port, son délai et son pays d'envoi
+        for c in ("port", "delai", "douane"):
+            if c not in champs:
+                champs[c] = _champ("selon le vendeur", "règle", methode="place de marché : fixé par chaque vendeur")
+    if val("livre_france") is False:   # ne livre pas la France : port, délai et douane sans objet, dit par une règle
+        for c in ("port", "delai", "douane"):
+            champs[c] = _champ("sans objet", "règle", lus["livre_france"].get("source"), methode="ne livre pas la France")
     pays = val("pays")
     if "delai" not in champs and pays:
         if pays in UE:
             champs["delai"] = _champ("2 à 6 jours ouvrés", "estimé", methode="envoi depuis l'Union européenne")
         elif pays in ("CN", "HK"):
             champs["delai"] = _champ("10 à 30 jours", "estimé", methode="envoi depuis la Chine")
-    if pays:
+    if pays and "douane" not in champs:
         if pays in UE:
             champs["douane"] = _champ("aucune", "règle", methode="vendeur dans l'Union européenne")
         elif val("tva_comprise"):
@@ -318,23 +465,38 @@ def toutes(dossier: Path) -> dict:
             "completes": sum(1 for b in liste if not b["manquants"]), "total": len(liste)}
 
 
-def a_relire(dossier: Path, maintenant: float) -> bool:
-    dates = [r.get("le") for r in _lire(Path(dossier) / "boutiques_lues.json", {}).values() if r.get("le")]
-    if not dates:
-        return True
-    return maintenant - time.mktime(time.strptime(max(dates), "%Y-%m-%dT%H:%M:%S")) > PERIODE_J * 86400
+def _instant(le: str | None) -> float:
+    try:
+        return time.mktime(time.strptime(le, "%Y-%m-%dT%H:%M:%S"))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def a_relire(dossier: Path, maintenant: float) -> list[str]:
+    """Boutiques à relire : relevé de plus de PERIODE_J jours, jamais relevées, ou dont une lecture a buté
+    sur une pause après un 429 (relue une heure après)."""
+    lues = _lire(Path(dossier) / "boutiques_lues.json", {})
+    dues = []
+    for b in configuration():
+        r = lues.get(b["id"]) or {}
+        age = maintenant - _instant(r.get("le"))
+        if age > PERIODE_J * 86400 or (r.get("en_pause") and age > 3600):
+            dues.append(b["id"])
+    return dues
 
 
 def demarrer(dossier: Path) -> None:
-    """Relevé au démarrage s'il date de plus de 7 jours, puis vérifié chaque jour."""
+    """Chaque heure, relit les boutiques échues (`a_relire`) : 7 jours, ou une heure après une pause 429."""
     def boucle():
         time.sleep(180)
         while True:
             try:
-                if a_relire(dossier, time.time()):
-                    r = relever(dossier)
-                    log.info("boutiques relevées : %s, %s avec au moins un échec", len(r), sum(1 for x in r.values() if x["echecs"]))
+                dues = a_relire(dossier, time.time())
+                if dues:
+                    r = relever(dossier, ids=dues)
+                    log.info("boutiques relevées : %s, %s avec au moins un échec", len(dues),
+                             sum(1 for i in dues if (r.get(i) or {}).get("echecs")))
             except Exception:
                 log.exception("relevé des boutiques en échec")
-            time.sleep(86400)
+            time.sleep(3600)
     threading.Thread(target=boucle, name="boutiques", daemon=True).start()

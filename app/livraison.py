@@ -60,12 +60,15 @@ def pages() -> list[dict]:
 
 def relire(dossier: Path, pause: float = 2.0) -> dict:
     """Relit toutes les pages et écrit `livraison_lue.json` : {nom: {le, etat, manquants, port_lu}}."""
-    resultat = {}
+    resultat, avant = {}, lue(dossier)
     for p in pages():
         r = {"le": time.strftime("%Y-%m-%dT%H:%M:%S"), "url": p["url"], "source_id": p["source_id"]}
         try:
             texte = n.texte(lien.recuperer(p["url"]).corps.decode("utf-8", "replace"))
         except Exception as e:  # refus, réseau, réponse tronquée : la valeur écrite reste en vigueur
+            if getattr(e, "pause", False) and p["nom"] in avant:   # site en pause après un 429 : relevé précédent gardé
+                resultat[p["nom"]] = avant[p["nom"]]
+                continue
             r.update(etat="illisible", raison=getattr(e, "public", type(e).__name__))
             resultat[p["nom"]] = r
             time.sleep(pause)

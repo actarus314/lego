@@ -1,6 +1,6 @@
 # Mécanique ou LLM : qui fait quoi
 
-État de la v3.18.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
+État de la v3.19.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
 
 **Le service n'appelle aucun LLM** (aucune clé, aucun appel vers un service d'intelligence artificielle). Tout ce qu'il calcule, il le calcule par script : sur les mêmes données lues, le même calcul. Les LLM sont intervenus en amont, hors du service, pour produire une partie des données qu'il applique. Ces données sont figées : elles ne changent qu'à une nouvelle passe, faite à la demande dans une conversation.
 
@@ -32,7 +32,7 @@ Dates, modèles et contrôles des passes LLM : relevés du projet (CHANGELOG, no
 | Prix de la pièce comparé au LEGO officiel, boutiques d'une marque | calculés par la page sur l'index |
 | Liens de tests (vidéos, articles) | titre qui nomme la marque et le numéro, dans les flux des chaînes et blogs suivis, sans verdict ; contrôlé à la main sur 93 liens : 1 erreur |
 | Photos et logos | vérifiés et récupérés par le service, revérifiés périodiquement ; photos gardées en cache sur le serveur (vignette de 400 px pour toutes, grande de 1200 px à la première demande), à la taille donnée par le site de la photo |
-| Boutiques : pays, devise, livraison en France, port, délai, avis, douane, fiabilité | relus chaque semaine (`app/boutiques.py`) : `meta.json` des boutiques Shopify, API publique de Trusted Shops, avis affichés sur la page d'accueil, page de livraison ; douane, délai à défaut de lecture, boîte d'origine et fiabilité calculés par des règles écrites, l'origine de chaque champ (lu, estimé, règle) est rendue avec lui |
+| Boutiques : pays, devise, livraison en France, port, délai, avis, douane, fiabilité | relus chaque semaine (`app/boutiques.py`) : `meta.json` des boutiques Shopify, API publique de Trusted Shops, avis affichés sur la page d'accueil, page de livraison (port, seuil de gratuité), mentions légales des boutiques hors Shopify (pays du numéro de TVA ou du code postal) ; douane, délai à défaut de lecture, boîte d'origine et fiabilité calculés par des règles écrites, l'origine de chaque champ (lu, estimé, règle) est rendue avec lui |
 | Occasion des sets LEGO officiel | catalogues publics de deux boutiques d'occasion, chaque jour (état lu dans l'option de la variante ou l'attribut du produit, numéro dans le titre ou la référence) ; avec les clés du `.env`, guide des prix BrickLink chaque semaine et annonces eBay à l'ouverture d'une fiche ; annonce eBay retenue si son titre porte « LEGO » et le numéro, sans mot d'exclusion (notice ou boîte seule, autocollants, incomplet, compatible…) |
 | Alertes (courriel, Signal) et surveillance du service | comparaison de l'état du jour à l'état connu |
 

@@ -71,6 +71,16 @@ class Cache(unittest.TestCase):
             self.assertIsNone(self.c.servir(SHOP, 240))
         self.assertEqual(m.call_count, 1)
 
+    def test_pause_429_retentee_a_sa_fin(self):
+        e = lien.LienRefuse("site en pause après un refus 429 (encore 20 s)")
+        e.statut, e.pause, e.attente = 429, True, "20"
+        with mock.patch.object(lien, "recuperer", side_effect=e):
+            self.assertIsNone(self.c.servir(SHOP, 240))
+        with mock.patch.object(lien, "recuperer", return_value=rep()) as m, \
+                mock.patch.object(cp.time, "time", return_value=time.time() + 25):
+            self.assertEqual(self.c.servir(SHOP, 240), (JPG, "image/jpeg"))   # pas une heure d'attente
+        m.assert_called_once()
+
     def test_ecriture_impossible(self):
         self.c.dossier.parent.mkdir(parents=True, exist_ok=True)
         self.c.dossier.write_text("pas un dossier")   # dossier du cache inutilisable

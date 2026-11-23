@@ -586,7 +586,7 @@ def demarrer_rotation(index: Index, selection) -> None:
                     except lien.LienRefuse as e:
                         log.warning("fiche %s en échec : %s", num, e.public)
                         if getattr(e, "statut", None) == 429:
-                            pas = max(pas, min(float(getattr(e, "attente", None) or 600), 3600))
+                            pas = max(pas, lien._attente_s(getattr(e, "attente", None)))   # Retry-After borné (date HTTP, 0, nan compris)
                     except (OSError, ValueError) as e:
                         log.warning("fiche %s en échec : %s", num, _raison(e))
             except Exception:

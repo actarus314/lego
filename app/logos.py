@@ -223,6 +223,8 @@ def _lire_icone(url: str) -> tuple[bytes, str] | None:
     try:
         r = lien.recuperer(url, accept="image/*,*/*;q=0.5")
     except Exception as ex:  # refus, délai, réponse illisible : on passe à l'icône suivante
+        if getattr(ex, "pause", False):   # site en pause après un 429 (lien.py) : la marque attend le passage suivant
+            raise
         log.debug("icône %s refusée : %s", url, getattr(ex, "public", ex))
         return None
     ext = _format(r.corps)
@@ -494,6 +496,8 @@ class Logos:
                                "source": origine}
                     lus += 1
                 except Exception as ex:  # une marque sans logo garde sa pastille
+                    if getattr(ex, "pause", False):   # site en pause après un 429 : rien compté, essai au passage suivant
+                        continue
                     log.info("logo %s non récupéré : %s", marque, getattr(ex, "public", ex))
                     # un logo déjà récupéré reste servi ; « le » garde la date de ce logo
                     etat[s] = {**e, "marque": marque, "essai": maintenant, "erreur": True, "regle": regle,

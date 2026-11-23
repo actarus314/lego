@@ -5,7 +5,7 @@ Routes :
   GET    /api/sante              état du service et de la synchronisation (sans authentification ; 503 en panne)
   GET    /api/catalogue          sets de toutes les sources actives, regroupés (compressé si le client l'accepte)
   GET    /api/offre?cle=…        relit une offre sur sa boutique
-  GET    /api/synchro            synchronisation en cours, dernier passage, historique
+  GET    /api/synchro            synchronisation en cours, dernier passage, historique ; sites en pause après un 429 (« sites_en_pause »)
   POST   /api/synchro            synchronise maintenant ({"sources": [...]} : seulement celles-ci)
   GET    /api/selection          sélection visible par le compte connecté
   PUT    /api/selection/<id>     ajoute ou modifie un produit
@@ -246,6 +246,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                     "selection": synchro.etat_selection(),
                                     "photos": self.index.photos.resume(),
                                     "occasion": self.occasion.etat() if self.occasion else {},
+                                    "sites_en_pause": {h: int(r) + 1 for h in list(lien._pause) if (r := lien.en_pause(h)) > 0},
                                     "completude": (d.get("dernier") or {}).get("completude") or self._completude(),
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
