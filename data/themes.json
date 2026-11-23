@@ -43,7 +43,6 @@
     "espace",
     "weltraum",
     "satellite",
-    "rover",
     "lunar",
     "moon",
     "lune",
@@ -52,7 +51,6 @@
     "spaceship",
     "raumschiff",
     "vaisseau",
-    "star wars",
     "star destroyer",
     "sternenzerstorer",
     "destroyer stellaire",
@@ -82,9 +80,6 @@
     "f-35",
     "tu-160",
     "zeppelin",
-    "jedi",
-    "eclipse",
-    "monarch",
     "space station",
     "iss",
     "apollo 11",
@@ -98,9 +93,35 @@
     "nighthawk",
     "f-117",
     "gunship",
-    "at-at",
     "*raumschiff",
-    "valor-class"
+    "valor-class",
+    "starfighter",
+    "star cruiser",
+    "dreadnought",
+    "star dreadnought",
+    "interceptor",
+    "f-35a",
+    "lightning ii",
+    "galaxy",
+    "galaxie",
+    "milky way",
+    "voie lactee",
+    "airliner",
+    "dc-3",
+    "douglas",
+    "death star",
+    "etoile de la mort",
+    "todesstern",
+    "mars rover",
+    "lunar rover",
+    "moon rover",
+    "mondfahrzeug",
+    "a-wing",
+    "b-wing",
+    "u-wing",
+    "razor crest",
+    "dark falcon",
+    "helicarrier"
    ]
   },
   {
@@ -169,7 +190,13 @@
     "goelette",
     "steamboat",
     "paddle steamer",
-    "raddampfer"
+    "raddampfer",
+    "schiffsmast",
+    "barge",
+    "canoe",
+    "kanu",
+    "pirogue",
+    "the endurance"
    ]
   },
   {
@@ -255,7 +282,24 @@
     "taxi",
     "cruiser motorcycle",
     "coutach",
-    "countach"
+    "countach",
+    "racer",
+    "race car",
+    "rennwagen",
+    "hot rod",
+    "shelby",
+    "camper",
+    "camper van",
+    "camping-car",
+    "wohnmobil",
+    "shelby cobra",
+    "opel",
+    "batmobile",
+    "tumbler",
+    "kart",
+    "go-kart",
+    "racing car",
+    "williams racing"
    ]
   },
   {
@@ -334,7 +378,8 @@
     "nutzfahrzeug",
     "rettungsfahrzeug",
     "feuerwehrfahrzeug",
-    "*kipper"
+    "*kipper",
+    "sandcrawler"
    ]
   },
   {
@@ -427,7 +472,54 @@
     "stadt",
     "*garten",
     "bibliothek",
-    "library"
+    "library",
+    "cottage",
+    "manor",
+    "manoir",
+    "abbey",
+    "abbaye",
+    "*abtei",
+    "hotel",
+    "resort",
+    "police station",
+    "commissariat",
+    "polizeistation",
+    "fire station",
+    "caserne",
+    "*wache",
+    "prison",
+    "gefangnis",
+    "cantina",
+    "academy",
+    "academie",
+    "school",
+    "ecole",
+    "*schule",
+    "classroom",
+    "parlour",
+    "alley",
+    "workshops",
+    "museum",
+    "musee",
+    "*museum",
+    "doghouse",
+    "burrow",
+    "asylum",
+    "outpost",
+    "stadium",
+    "stade",
+    "stadion",
+    "statue of liberty",
+    "statue de la liberte",
+    "freiheitsstatue",
+    "christ the redeemer",
+    "christ redempteur",
+    "jesus statue",
+    "minas tirith",
+    "barad-dur",
+    "rivendell",
+    "krusty burger",
+    "bikini bottom"
    ]
   },
   {
@@ -456,7 +548,12 @@
     "steam",
     "dampflok",
     "tgv",
-    "metro"
+    "metro",
+    "switcher",
+    "streamliner",
+    "mallard",
+    "monorail",
+    "emd"
    ]
   },
   {
@@ -500,7 +597,23 @@
     "t-72",
     "t-34",
     "zugmaschine",
-    "panzerspahwagen"
+    "panzerspahwagen",
+    "humvee",
+    "assault vehicle",
+    "heavy tank",
+    "heavy tanks",
+    "kv2",
+    "kv-2",
+    "ztl-11",
+    "apc",
+    "armored",
+    "armoured",
+    "gepanzert*",
+    "at-at",
+    "at-st",
+    "at-te",
+    "mtt",
+    "juggernaut"
    ]
   },
   {
@@ -538,7 +651,17 @@
     "schreibmaschine",
     "machine a ecrire",
     "pinball",
-    "flipper"
+    "flipper",
+    "four-cylinder",
+    "quatre cylindres",
+    "cylinder",
+    "zylinder",
+    "moteur a essence",
+    "vierzylinder*",
+    "*zylinder",
+    "benzinmotor",
+    "*benzinmotor",
+    "dieselmotor"
    ]
   },
   {
@@ -593,7 +716,12 @@
     "eucalyptus",
     "wall art",
     "wall decor",
-    "aquarium"
+    "aquarium",
+    "garden",
+    "gardens",
+    "jardin",
+    "jardins",
+    "sunflowers"
    ]
   },
   {
@@ -622,49 +750,6 @@
     "advent",
     "avent",
     "adventskalender"
-   ]
-  },
-  {
-   "id": "films",
-   "nom": "Films, séries et jeux",
-   "etiquettes": [
-    "movie",
-    "anime",
-    "film",
-    "movies-tv-games",
-    "star wars"
-   ],
-   "mots": [
-    "movie",
-    "film",
-    "anime",
-    "spongebob",
-    "patrick",
-    "sandy cheeks",
-    "harry potter",
-    "batman",
-    "superhero",
-    "superhelden",
-    "marvel",
-    "avengers",
-    "jurassic",
-    "ghostbusters",
-    "back to the future",
-    "retour vers le futur",
-    "delorean",
-    "transformers",
-    "gundam",
-    "zelda",
-    "mario",
-    "pokemon",
-    "minecraft",
-    "the mandalorian",
-    "mandalorian",
-    "at-at",
-    "lightsaber",
-    "sabre laser",
-    "laserschwert",
-    "vader"
    ]
   },
   {
@@ -700,7 +785,21 @@
     "qbz-95",
     "ak-47",
     "desert eagle",
-    "glock"
+    "glock",
+    "submachine",
+    "smg",
+    "shotgun",
+    "double barrel",
+    "awm",
+    "kar98k",
+    "mp5",
+    "p90",
+    "mk14",
+    "thompson",
+    "sniper",
+    "assault rifle",
+    "m4a1",
+    "uzi"
    ]
   },
   {
@@ -710,12 +809,12 @@
     "tiere",
     "dinosaur",
     "creatures",
-    "dinosaurier"
+    "dinosaurier",
+    "haustiere"
    ],
    "mots": [
     "animal",
     "animaux",
-    "*tier",
     "tiere",
     "bird",
     "oiseau",
@@ -756,7 +855,81 @@
     "drache",
     "owl",
     "hibou",
-    "eule"
+    "eule",
+    "scorpion",
+    "skorpion",
+    "animals",
+    "kitten",
+    "chaton",
+    "dog",
+    "dogs",
+    "puppy",
+    "chiot",
+    "retriever",
+    "lion",
+    "lions",
+    "wolf",
+    "loup",
+    "*wolf",
+    "rhino",
+    "rhinoceros",
+    "nashorn",
+    "dolphin",
+    "dolphins",
+    "dauphin",
+    "delfin",
+    "otter",
+    "otters",
+    "loutre",
+    "koala",
+    "bear",
+    "ours",
+    "elephant",
+    "giraffe",
+    "girafe",
+    "fox",
+    "renard",
+    "fuchs",
+    "deer",
+    "cerf",
+    "hirsch",
+    "aigle",
+    "adler",
+    "requin",
+    "hai",
+    "octopus",
+    "pieuvre",
+    "krake",
+    "penguin",
+    "pingouin",
+    "manchot",
+    "pinguin",
+    "zebra",
+    "zebre",
+    "singe",
+    "affe",
+    "gorilla",
+    "gorille",
+    "rabbit",
+    "lapin",
+    "hase",
+    "frog",
+    "grenouille",
+    "frosch",
+    "chevaux",
+    "cow",
+    "vache",
+    "kuh",
+    "pig",
+    "cochon",
+    "schwein",
+    "tuxedo cat",
+    "orange cat",
+    "kitty",
+    "schildkrote*",
+    "haustier",
+    "wildtier",
+    "raubtier"
    ]
   },
   {
@@ -778,8 +951,1078 @@
     "cyborg",
     "exoskeleton",
     "gundam",
-    "sentinel"
+    "sentinel",
+    "droid",
+    "droids",
+    "astromech",
+    "r2-d2",
+    "c-3po",
+    "mechs"
+   ]
+  },
+  {
+   "id": "personnages",
+   "nom": "Personnages et figurines",
+   "etiquettes": [
+    "brickheadz",
+    "figures",
+    "characters",
+    "minifigures",
+    "figuren"
+   ],
+   "mots": [
+    "figure",
+    "figures",
+    "minifigure",
+    "minifigures",
+    "minifigur*",
+    "bust",
+    "buste",
+    "*buste",
+    "helmet",
+    "helme",
+    "casque",
+    "character",
+    "characters",
+    "personnage",
+    "personnages",
+    "portrait",
+    "brickheadz",
+    "mascot",
+    "mascotte",
+    "catrina",
+    "messi",
+    "ronaldo",
+    "grogu",
+    "ewok",
+    "k-2so",
+    "boba fett"
+   ]
+  },
+  {
+   "id": "art",
+   "nom": "Art et mosaïques",
+   "etiquettes": [
+    "mosaic",
+    "wall art",
+    "kunst"
+   ],
+   "mots": [
+    "art",
+    "mosaic",
+    "mosaique",
+    "*mosaik",
+    "painting",
+    "peinture",
+    "tableau",
+    "*gemalde",
+    "canvas",
+    "toile",
+    "starry night",
+    "nuit etoilee",
+    "sternennacht",
+    "van gogh",
+    "hokusai",
+    "kanagawa",
+    "great wave",
+    "grande vague",
+    "mona lisa",
+    "joconde",
+    "warhol",
+    "monet",
+    "klimt",
+    "picasso",
+    "wall art",
+    "wall decor",
+    "kunstwerk",
+    "logo"
+   ]
+  },
+  {
+   "id": "fantastique",
+   "nom": "Contes et fantastique",
+   "etiquettes": [
+    "fantasy",
+    "fairy tale",
+    "fairytale",
+    "marchen",
+    "medieval",
+    "mittelalter"
+   ],
+   "mots": [
+    "dragon",
+    "dragons",
+    "drache",
+    "*drache",
+    "wizard",
+    "wizards",
+    "sorcier",
+    "zauberer",
+    "witch",
+    "sorciere",
+    "hexe",
+    "magic",
+    "magie",
+    "magique",
+    "*zauber",
+    "zauber*",
+    "elf",
+    "elves",
+    "elfique",
+    "elfen",
+    "*elfen",
+    "fairy",
+    "fee",
+    "fees",
+    "feen",
+    "fairytale",
+    "fairy tale",
+    "conte",
+    "contes",
+    "*marchen",
+    "enchanted",
+    "enchante",
+    "enchantee",
+    "unicorn",
+    "licorne",
+    "einhorn",
+    "mermaid",
+    "sirene",
+    "meerjungfrau",
+    "knight",
+    "knights",
+    "chevalier",
+    "ritter",
+    "*ritter",
+    "medieval",
+    "medievale",
+    "mittelalter*",
+    "haunted",
+    "hante",
+    "hantee",
+    "ghost",
+    "fantome",
+    "gespenst",
+    "*geist",
+    "myth",
+    "mythique",
+    "mythical",
+    "kingdom",
+    "royaume",
+    "princess",
+    "princesse",
+    "prinzessin",
+    "carrosse",
+    "kutsche",
+    "ruin",
+    "ruine",
+    "ruins",
+    "*ruine",
+    "fantasy"
+   ]
+  },
+  {
+   "id": "objets",
+   "nom": "Objets et jeux",
+   "etiquettes": [
+    "games",
+    "spiele",
+    "gaming"
+   ],
+   "mots": [
+    "arcade",
+    "pac-man",
+    "pacman",
+    "game boy",
+    "gameboy",
+    "console",
+    "playstation",
+    "camera",
+    "appareil photo",
+    "kamera",
+    "polaroid",
+    "typewriter",
+    "machine a ecrire",
+    "schreibmaschine",
+    "piano",
+    "*klavier",
+    "guitar",
+    "guitare",
+    "gitarre",
+    "record player",
+    "tourne-disque",
+    "plattenspieler",
+    "gramophone",
+    "grammophon",
+    "jukebox",
+    "juke-box",
+    "telephone",
+    "telefon",
+    "globe",
+    "chess",
+    "echecs",
+    "schach",
+    "sneaker",
+    "sneakers",
+    "shoe",
+    "chaussure",
+    "schuh",
+    "nike",
+    "bookends",
+    "serre-livres",
+    "book nook",
+    "buchstutze",
+    "lamp",
+    "lampe",
+    "brick box",
+    "boite de briques",
+    "creative bricks",
+    "briques creatives",
+    "football",
+    "soccer",
+    "fussball",
+    "basketball",
+    "trophee",
+    "pokal",
+    "music box",
+    "boite a musique",
+    "spieluhr",
+    "flipper",
+    "pinball",
+    "retro radio",
+    "mineral",
+    "minerals",
+    "ferris wheel",
+    "grande roue",
+    "riesenrad",
+    "roller coaster",
+    "montagnes russes",
+    "achterbahn",
+    "carousel",
+    "carrousel",
+    "karussell",
+    "manege",
+    "playground",
+    "aire de jeux",
+    "spielplatz",
+    "amusement park",
+    "parc d'attractions",
+    "fairground",
+    "fete foraine",
+    "kirmes",
+    "fifa",
+    "world cup trophy",
+    "official trophy"
    ]
   }
- ]
+ ],
+ "rebrickable": {
+  "_note": "Thème de Rebrickable (à n'importe quel niveau du chemin, nom exact) → thèmes du moteur, ajoutés aux thèmes lus dans le nom.",
+  "Architecture": [
+   "architecture"
+  ],
+  "Modular Buildings": [
+   "architecture"
+  ],
+  "Botanicals": [
+   "fleurs"
+  ],
+  "LEGO Art": [
+   "art"
+  ],
+  "Mosaic": [
+   "art"
+  ],
+  "DOTS": [
+   "art"
+  ],
+  "Brickheadz": [
+   "personnages"
+  ],
+  "Speed Champions": [
+   "voitures"
+  ],
+  "Train": [
+   "trains"
+  ],
+  "Space": [
+   "aerospatial"
+  ],
+  "Pirates": [
+   "marine"
+  ],
+  "Castle": [
+   "fantastique"
+  ],
+  "Classic": [
+   "objets"
+  ],
+  "Helmet Collection": [
+   "personnages"
+  ],
+  "Ultimate Collector Series": [],
+  "Sculptures": [
+   "art"
+  ]
+ },
+ "univers": [
+  {
+   "id": "star-wars",
+   "nom": "Star Wars",
+   "rebrickable": [
+    "Star Wars"
+   ],
+   "sujet": "aerospatial",
+   "mots": [
+    "star wars",
+    "jedi",
+    "sith",
+    "x-wing",
+    "y-wing",
+    "a-wing",
+    "b-wing",
+    "u-wing",
+    "tie fighter",
+    "tie bomber",
+    "tie silencer",
+    "tie interceptor",
+    "tie advanced",
+    "tie striker",
+    "at-at",
+    "at-st",
+    "at-te",
+    "at-ap",
+    "millennium falcon",
+    "faucon millenium",
+    "millenium falcon",
+    "star destroyer",
+    "sternenzerstorer",
+    "destroyer stellaire",
+    "death star",
+    "etoile de la mort",
+    "todesstern",
+    "executor",
+    "venator",
+    "tantive",
+    "lucrehulk",
+    "mandalorian",
+    "razor crest",
+    "boba fett",
+    "slave i",
+    "vader",
+    "yoda",
+    "stormtrooper",
+    "clone trooper",
+    "republic gunship",
+    "imperial shuttle",
+    "command shuttle",
+    "jedha",
+    "ahsoka",
+    "grogu",
+    "ewok",
+    "endor",
+    "tatooine",
+    "mos eisley",
+    "naboo",
+    "kashyyyk",
+    "lightsaber",
+    "sabre laser",
+    "laserschwert",
+    "star dreadnought",
+    "snowspeeder",
+    "landspeeder",
+    "podracer"
+   ]
+  },
+  {
+   "id": "harry-potter",
+   "nom": "Harry Potter",
+   "rebrickable": [
+    "Harry Potter"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "harry potter",
+    "hogwarts",
+    "poudlard",
+    "hogsmeade",
+    "pre-au-lard",
+    "diagon alley",
+    "chemin de traverse",
+    "gringotts",
+    "hedwig",
+    "hedwige",
+    "dumbledore",
+    "hagrid",
+    "quidditch",
+    "hogwarts express",
+    "poudlard express",
+    "the burrow",
+    "fantastic beasts",
+    "animaux fantastiques"
+   ]
+  },
+  {
+   "id": "seigneur-des-anneaux",
+   "nom": "Le Seigneur des anneaux",
+   "rebrickable": [
+    "The Hobbit and Lord of the Rings"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "lord of the rings",
+    "seigneur des anneaux",
+    "herr der ringe",
+    "hobbit",
+    "rivendell",
+    "fondcombe",
+    "bruchtal",
+    "barad-dur",
+    "mordor",
+    "gandalf",
+    "frodo",
+    "sauron",
+    "minas tirith",
+    "the shire",
+    "bag end"
+   ]
+  },
+  {
+   "id": "marvel",
+   "nom": "Marvel",
+   "rebrickable": [
+    "Super Heroes Marvel"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "marvel",
+    "avengers",
+    "spider-man",
+    "spiderman",
+    "iron man",
+    "hulk",
+    "hulkbuster",
+    "thor",
+    "captain america",
+    "groot",
+    "guardians of the galaxy",
+    "black panther",
+    "wakanda",
+    "x-men",
+    "venom",
+    "daily bugle",
+    "helicarrier",
+    "infinity gauntlet",
+    "gant de l'infini",
+    "deadpool",
+    "wolverine",
+    "fantastic four",
+    "quatre fantastiques"
+   ]
+  },
+  {
+   "id": "dc",
+   "nom": "DC",
+   "rebrickable": [
+    "Super Heroes DC",
+    "DC Super Hero Girls"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "batman",
+    "batmobile",
+    "batcave",
+    "batwing",
+    "batcycle",
+    "gotham",
+    "joker",
+    "superman",
+    "wonder woman",
+    "arkham",
+    "tumbler",
+    "justice league"
+   ]
+  },
+  {
+   "id": "disney",
+   "nom": "Disney",
+   "rebrickable": [
+    "Disney",
+    "Cars"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "disney",
+    "pixar",
+    "mickey",
+    "minnie",
+    "stitch",
+    "reine des neiges",
+    "elsa",
+    "toy story",
+    "woody",
+    "buzz lightyear",
+    "cinderella",
+    "cendrillon",
+    "aladdin",
+    "little mermaid",
+    "petite sirene",
+    "moana",
+    "vaiana",
+    "encanto",
+    "snow white",
+    "blanche-neige",
+    "schneewittchen",
+    "flying house",
+    "la-haut",
+    "lion king",
+    "roi lion",
+    "beauty and the beast",
+    "belle et la bete",
+    "rapunzel",
+    "raiponce",
+    "tinker bell",
+    "fee clochette",
+    "dumbo",
+    "bambi",
+    "pinocchio",
+    "peter pan",
+    "arendelle"
+   ]
+  },
+  {
+   "id": "pokemon",
+   "nom": "Pokémon",
+   "rebrickable": [
+    "Pokémon"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "pokemon",
+    "pikachu",
+    "eevee",
+    "evoli",
+    "charizard",
+    "dracaufeu",
+    "bulbasaur",
+    "bulbizarre",
+    "squirtle",
+    "carapuce",
+    "mewtwo",
+    "poke ball",
+    "pokeball",
+    "munchlax",
+    "goinfrex",
+    "snorlax",
+    "ronflex"
+   ]
+  },
+  {
+   "id": "nintendo",
+   "nom": "Nintendo",
+   "rebrickable": [
+    "Super Mario",
+    "The Legend of Zelda",
+    "Animal Crossing"
+   ],
+   "sujet": "objets",
+   "mots": [
+    "nintendo",
+    "super mario",
+    "mario kart",
+    "luigi",
+    "bowser",
+    "princess peach",
+    "donkey kong",
+    "zelda",
+    "hyrule",
+    "animal crossing",
+    "game boy",
+    "gameboy",
+    "nes"
+   ]
+  },
+  {
+   "id": "minecraft",
+   "nom": "Minecraft",
+   "rebrickable": [
+    "Minecraft"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "minecraft",
+    "creeper",
+    "enderman"
+   ]
+  },
+  {
+   "id": "ninjago",
+   "nom": "Ninjago",
+   "rebrickable": [
+    "Ninjago",
+    "Ninja"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "ninjago"
+   ]
+  },
+  {
+   "id": "jurassic",
+   "nom": "Jurassic Park et World",
+   "rebrickable": [
+    "Jurassic World"
+   ],
+   "sujet": "animaux",
+   "mots": [
+    "jurassic",
+    "jurassic park",
+    "jurassic world"
+   ]
+  },
+  {
+   "id": "one-piece",
+   "nom": "One Piece",
+   "rebrickable": [
+    "One Piece"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "one piece",
+    "going merry",
+    "thousand sunny",
+    "luffy",
+    "tony tony chopper"
+   ]
+  },
+  {
+   "id": "pirates-des-caraibes",
+   "nom": "Pirates des Caraïbes",
+   "rebrickable": [
+    "Pirates of the Caribbean"
+   ],
+   "sujet": "marine",
+   "mots": [
+    "pirates of the caribbean",
+    "pirates des caraibes",
+    "black pearl",
+    "flying dutchman",
+    "hollandais volant",
+    "fliegende hollander",
+    "queen anne's revenge",
+    "queen revenger",
+    "silent mary",
+    "jack sparrow"
+   ]
+  },
+  {
+   "id": "bob-l-eponge",
+   "nom": "Bob l'éponge",
+   "rebrickable": [
+    "SpongeBob SquarePants"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "spongebob",
+    "bob l'eponge",
+    "krusty krab",
+    "crabe croustillant",
+    "sandy cheeks",
+    "patrick star",
+    "plankton",
+    "planton",
+    "mrs. puff",
+    "mrs puff",
+    "squidward",
+    "carlo tentacule"
+   ]
+  },
+  {
+   "id": "simpsons",
+   "nom": "Les Simpson",
+   "rebrickable": [
+    "The Simpsons"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "simpsons",
+    "simpson"
+   ]
+  },
+  {
+   "id": "retour-vers-le-futur",
+   "nom": "Retour vers le futur",
+   "rebrickable": [],
+   "sujet": "voitures",
+   "mots": [
+    "back to the future",
+    "retour vers le futur",
+    "zuruck in die zukunft",
+    "delorean"
+   ]
+  },
+  {
+   "id": "ghostbusters",
+   "nom": "SOS Fantômes",
+   "rebrickable": [
+    "Ghostbusters"
+   ],
+   "sujet": "voitures",
+   "mots": [
+    "ghostbusters",
+    "sos fantomes",
+    "ecto-1"
+   ]
+  },
+  {
+   "id": "star-trek",
+   "nom": "Star Trek",
+   "rebrickable": [
+    "Star Trek"
+   ],
+   "sujet": "aerospatial",
+   "mots": [
+    "star trek",
+    "ncc-1701",
+    "uss enterprise"
+   ]
+  },
+  {
+   "id": "transformers",
+   "nom": "Transformers",
+   "rebrickable": [
+    "Transformers"
+   ],
+   "sujet": "robots",
+   "mots": [
+    "transformers",
+    "optimus prime",
+    "bumblebee",
+    "megatron"
+   ]
+  },
+  {
+   "id": "gundam",
+   "nom": "Gundam",
+   "rebrickable": [],
+   "sujet": "robots",
+   "mots": [
+    "gundam"
+   ]
+  },
+  {
+   "id": "initial-d",
+   "nom": "Initial D",
+   "rebrickable": [],
+   "sujet": "voitures",
+   "mots": [
+    "initial d"
+   ]
+  },
+  {
+   "id": "fortnite",
+   "nom": "Fortnite",
+   "rebrickable": [
+    "Fortnite"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "fortnite"
+   ]
+  },
+  {
+   "id": "wicked",
+   "nom": "Wicked",
+   "rebrickable": [
+    "Wicked"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "elphaba",
+    "glinda",
+    "emerald city",
+    "munchkinland"
+   ]
+  },
+  {
+   "id": "wednesday",
+   "nom": "Mercredi",
+   "rebrickable": [
+    "Wednesday"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "nevermore",
+    "addams"
+   ]
+  },
+  {
+   "id": "sonic",
+   "nom": "Sonic",
+   "rebrickable": [
+    "Sonic The Hedgehog"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "sonic the hedgehog"
+   ]
+  },
+  {
+   "id": "dreamzzz",
+   "nom": "Dreamzzz",
+   "rebrickable": [
+    "Dreamzzz"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "dreamzzz"
+   ]
+  },
+  {
+   "id": "monkie-kid",
+   "nom": "Monkie Kid",
+   "rebrickable": [
+    "Monkie Kid"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "monkie kid"
+   ]
+  },
+  {
+   "id": "indiana-jones",
+   "nom": "Indiana Jones",
+   "rebrickable": [
+    "Indiana Jones"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "indiana jones"
+   ]
+  },
+  {
+   "id": "avatar",
+   "nom": "Avatar",
+   "rebrickable": [
+    "Avatar",
+    "Avatar: The Last Airbender"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "avatar",
+    "pandora",
+    "toruk"
+   ]
+  },
+  {
+   "id": "shrek",
+   "nom": "Shrek",
+   "rebrickable": [
+    "Shrek"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "shrek"
+   ]
+  },
+  {
+   "id": "stranger-things",
+   "nom": "Stranger Things",
+   "rebrickable": [
+    "Stranger Things"
+   ],
+   "sujet": "fantastique",
+   "mots": [
+    "stranger things",
+    "demogorgon"
+   ]
+  },
+  {
+   "id": "kpop-demon-hunters",
+   "nom": "KPop Demon Hunters",
+   "rebrickable": [
+    "KPop Demon Hunters"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "kpop demon hunters"
+   ]
+  },
+  {
+   "id": "horizon",
+   "nom": "Horizon",
+   "rebrickable": [
+    "Horizon Adventures"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "horizon adventures",
+    "aloy"
+   ]
+  },
+  {
+   "id": "tortues-ninja",
+   "nom": "Tortues Ninja",
+   "rebrickable": [
+    "Teenage Mutant Ninja Turtles"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "teenage mutant ninja turtles",
+    "tortues ninja",
+    "ninja turtles"
+   ]
+  },
+  {
+   "id": "minions",
+   "nom": "Moi, moche et méchant",
+   "rebrickable": [
+    "Despicable Me 4",
+    "Minions"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "minions",
+    "despicable me",
+    "moi, moche et mechant"
+   ]
+  },
+  {
+   "id": "maman-j-ai-rate-l-avion",
+   "nom": "Maman, j'ai raté l'avion",
+   "rebrickable": [],
+   "sujet": "architecture",
+   "mots": [
+    "home alone",
+    "maman j'ai rate l'avion"
+   ]
+  },
+  {
+   "id": "donjons-et-dragons",
+   "nom": "Donjons et Dragons",
+   "rebrickable": [],
+   "sujet": "fantastique",
+   "mots": [
+    "dungeons & dragons",
+    "donjons et dragons",
+    "dungeons and dragons"
+   ]
+  },
+  {
+   "id": "gremlins",
+   "nom": "Gremlins",
+   "rebrickable": [],
+   "sujet": "personnages",
+   "mots": [
+    "gremlins",
+    "gizmo"
+   ]
+  },
+  {
+   "id": "e-t",
+   "nom": "E.T.",
+   "rebrickable": [],
+   "sujet": "personnages",
+   "mots": [
+    "e.t.",
+    "the extra-terrestrial",
+    "l'extra-terrestre"
+   ]
+  },
+  {
+   "id": "tintin",
+   "nom": "Tintin",
+   "rebrickable": [],
+   "sujet": "aerospatial",
+   "mots": [
+    "tintin"
+   ]
+  },
+  {
+   "id": "peanuts",
+   "nom": "Peanuts",
+   "rebrickable": [],
+   "sujet": "personnages",
+   "mots": [
+    "peanuts",
+    "snoopy",
+    "charlie brown"
+   ]
+  },
+  {
+   "id": "l-etrange-noel-de-monsieur-jack",
+   "nom": "L'Étrange Noël de monsieur Jack",
+   "rebrickable": [],
+   "sujet": "fantastique",
+   "mots": [
+    "nightmare before christmas",
+    "etrange noel",
+    "jack skellington"
+   ]
+  },
+  {
+   "id": "twilight",
+   "nom": "Twilight",
+   "rebrickable": [],
+   "sujet": "architecture",
+   "mots": [
+    "twilight"
+   ]
+  },
+  {
+   "id": "looney-tunes",
+   "nom": "Looney Tunes",
+   "rebrickable": [],
+   "sujet": "personnages",
+   "mots": [
+    "looney tunes",
+    "bugs bunny"
+   ]
+  },
+  {
+   "id": "overwatch",
+   "nom": "Overwatch",
+   "rebrickable": [
+    "Overwatch"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "overwatch"
+   ]
+  },
+  {
+   "id": "scooby-doo",
+   "nom": "Scooby-Doo",
+   "rebrickable": [
+    "Scooby-Doo"
+   ],
+   "sujet": "personnages",
+   "mots": [
+    "scooby-doo",
+    "scooby doo"
+   ]
+  },
+  {
+   "id": "charlie-et-la-chocolaterie",
+   "nom": "Charlie et la Chocolaterie",
+   "rebrickable": [],
+   "sujet": "architecture",
+   "mots": [
+    "willy wonka",
+    "chocolate factory",
+    "chocolaterie",
+    "schokoladenfabrik"
+   ]
+  },
+  {
+   "id": "downton-abbey",
+   "nom": "Downton Abbey",
+   "rebrickable": [],
+   "sujet": "architecture",
+   "mots": [
+    "downton abbey"
+   ]
+  }
+ ],
+ "_note_univers": "Univers : la licence ou le monde de fiction d'un set (film, série, jeu, livre, personnage). Un set le reçoit si son chemin de thèmes Rebrickable contient un des noms de « rebrickable », si son nom contient un des « mots » (même règle que les thèmes), ou une de ses étiquettes de boutique un des termes de « etiquettes » (facultatif, aucun déclaré au 23/11/2026). Un set sans licence n'a pas d'univers. « sujet » : thème donné par défaut, marqué estimé, à un set de cet univers dont ni le nom ni les étiquettes ni Rebrickable ne donnent de thème."
 }

@@ -9,7 +9,8 @@ que les canaux d'ALERTES : « courriel:adresse,signal:+33… » ; vide : surveil
 Baisse de lecture : une source dont le dernier passage réussi lit moins de 70 % de la médiane de ses
 cinq passages réussis précédents (sets, ou sets avec dimensions), ou une rotation de fiches LEGO
 officiel dont plus d'un cinquième des fiches est en erreur. Ce signal vise une boutique qui a changé
-la présentation de ses pages : la source ne tombe pas en panne, elle rend moins.
+la présentation de ses pages : la source ne tombe pas en panne, elle rend moins. Même principe pour la
+complétude du catalogue (completude.py) : un champ dont la part mesurée à la source baisse nettement.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ import threading
 import time
 from pathlib import Path
 
-from . import alertes, livraison, synchro
+from . import alertes, completude, livraison, synchro
 from .donnees import _ecrire, _lire
 from .reglage import reglage
 
@@ -117,7 +118,9 @@ class Surveillance:
                 self.index._cache = None  # un port relu change le meilleur prix
             except Exception:
                 log.exception("relecture des pages de livraison en échec")
-        actuelles = {**baisses(self.journal.lire(), synchro.etat_rotation(self.index)), **livraison.ecarts(self.dossier)}
+        j = self.journal.lire()
+        actuelles = {**baisses(j, synchro.etat_rotation(self.index)), **completude.degradations(j.get("historique", [])),
+                     **livraison.ecarts(self.dossier)}
         prevenus = {k: v for k, v in note.get("prevenus", note.get("baisses", {})).items() if k in actuelles}
         nouvelles = {k: v for k, v in actuelles.items() if k not in prevenus}
         if nouvelles:

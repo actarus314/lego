@@ -72,6 +72,44 @@ def types_photos() -> dict[str, str]:
     return {k: v for k, v in (brut.get("sets") or {}).items() if isinstance(k, str) and v in ("technic", "classique")}
 
 
+THEME_MIN, THEME_PART = 3, 0.5
+
+
+def themes_par_defaut(sets: list[dict]) -> None:
+    """Thème estimé des sets dont ni le nom, ni les étiquettes, ni Rebrickable ne donnent de sujet, marqué
+    dans `themes_estimes` par sa méthode : thème par défaut de l'univers (« univers ») ; sinon thème le plus
+    fréquent de la série de la marque (marque et deux premiers chiffres du numéro), s'il porte au moins la
+    moitié de ses sets à thème et trois sets au moins (« série ») ; sinon le plus fréquent de la marque (« marque »)."""
+    def compte(groupe: list[dict]) -> list[tuple[str, int]]:
+        c: dict[str, int] = {}
+        for s in groupe:
+            for t in s["themes"]:
+                c[t] = c.get(t, 0) + 1
+        return sorted(c.items(), key=lambda x: (-x[1], x[0]))
+    avec = [s for s in sets if s.get("themes") and not s.get("themes_estimes")]
+    par_serie: dict = {}
+    par_marque: dict = {}
+    for s in avec:
+        if _serie(s):
+            par_serie.setdefault(_serie(s), []).append(s)
+        par_marque.setdefault(s["marque"], []).append(s)
+    for s in sets:
+        if s.get("themes"):
+            continue
+        sujet = n.sujet_univers(s.get("univers") or [])
+        if sujet:
+            s["themes"], s["themes_estimes"] = [sujet], "univers"
+            continue
+        groupe = par_serie.get(_serie(s), []) if _serie(s) else []
+        c = compte(groupe)
+        if c and c[0][1] >= THEME_MIN and c[0][1] >= THEME_PART * len(groupe):
+            s["themes"], s["themes_estimes"] = [c[0][0]], "série"
+            continue
+        c = compte(par_marque.get(s["marque"]) or avec)
+        if c:
+            s["themes"], s["themes_estimes"] = [c[0][0]], "marque"
+
+
 def types_par_serie(sets: list[dict], surs: set[str] | None = None) -> None:
     """Type de briques d'un set sans type, d'après sa série (marque et deux premiers chiffres du numéro) :
     quand au moins 10 sets de la série ont un type connu et que 90 % d'entre eux ont le même. Mesure du
@@ -96,7 +134,7 @@ def types_par_serie(sets: list[dict], surs: set[str] | None = None) -> None:
     for s in sets:
         a_remplir = not s.get("type") if surs is None else s.get("id") not in surs
         if a_remplir and _serie(s) in regle:
-            s["type"] = regle[_serie(s)]
+            s["type"], s["type_estime"] = regle[_serie(s)], "série"
 
 
 def corrections() -> dict:
@@ -163,6 +201,7 @@ class Index:
         self.photos_brutes: tuple[list[str], list[str]] = ([], [])
         self.historique = Historique(Path(dossier))   # prix de chaque jour (voir historique.py)
         self._classes: dict[tuple, tuple] = {}
+        self._ref_lego: tuple = (None, {})
 
     def fichier(self, source_id: str) -> Path:
         return dans(self.dossier, f"{re.sub(r'[^a-z0-9_-]', '', source_id)}.json")
@@ -229,17 +268,27 @@ class Index:
         except Exception:
             log.exception("historique des prix non noté")
 
-    def _classer(self, sig: dict, marque: str) -> tuple[str | None, list[str]]:
-        """Type de briques et thèmes d'une offre d'après les signaux bruts de sa boutique ; gardés en mémoire
-        par signaux (les règles ne changent qu'avec le code, donc au redémarrage)."""
+    def _classer(self, sig: dict, marque: str) -> tuple[str | None, list[str], list[str]]:
+        """Type de briques, thèmes et univers d'une offre d'après les signaux bruts de sa boutique ; gardés en
+        mémoire par signaux (les règles ne changent qu'avec le code, donc au redémarrage)."""
         cat, etq, titre = sig.get("categorie") or "", [str(x) for x in sig.get("etiquettes") or []], sig.get("titre") or ""
         k = (cat, tuple(etq), titre, marque)
         val = self._classes.get(k)
         if val is None:
             if len(self._classes) > 20000:
                 self._classes.clear()
-            val = self._classes[k] = (n.type_briques(cat, etq, titre, marque), n.themes(titre, etq, cat))
-        return val[0], list(val[1])
+            val = self._classes[k] = (n.type_briques(cat, etq, titre, marque), n.themes(titre, etq, cat),
+                                      n.univers(titre, etq, cat))
+        return val[0], list(val[1]), list(val[2])
+
+    def _reference_lego(self) -> dict:
+        """Référence Rebrickable (`reference_lego.json`, écrite à chaque synchronisation), relue quand elle change."""
+        f = self.dossier.parent / "reference_lego.json"
+        cle = f.stat().st_mtime_ns if f.exists() else 0
+        if self._ref_lego[0] != cle:
+            ref = _lire(f, {})
+            self._ref_lego = (cle, ref if isinstance(ref, dict) else {})
+        return self._ref_lego[1]
 
     # ----- corrections faites depuis la page -----
     @property
@@ -272,7 +321,8 @@ class Index:
     def sets(self, actives: list[str]) -> list[dict]:
         intrants = [self.fichier(s) for s in actives] + [RACINE / "data" / f for f in (
             "corrections.json", "sources.json", "livraison.json", "glossaire.json", "themes.json", "types_photos.json")] + [
-            self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales, self.historique.fichier]
+            self.dossier.parent / "livraison_lue.json", self.photos.fichier, self.fichier_locales, self.historique.fichier,
+            self.dossier.parent / "reference_lego.json"]
         cle_cache = (tuple(sorted(actives)), tuple(p.stat().st_mtime_ns if p.exists() else 0 for p in intrants),
                      self.tests.signature(), time.strftime("%Y-%m-%d"))   # le jour : « plus bas sur 30 jours » exclut le jour même
         if self._cache and self._cache[0] == cle_cache:
@@ -281,14 +331,19 @@ class Index:
         revendeurs = livraison_revendeurs()
         from .livraison import ports_lus
         lus = ports_lus(self.dossier.parent)  # port relu sur la page de livraison (ligne « France 4,95 € »)
+        ref_lego = self._reference_lego()
         offres = []
         for sid in actives:
             d = self.lire(sid)
             for o in d.get("offres", []):
                 o.setdefault("releve", d.get("le"))
                 sig = o.get("signaux")
-                if isinstance(sig, dict):   # type et thèmes recalculés sur les signaux bruts de la boutique
-                    o["type"], o["themes"] = self._classer(sig, o["marque"])
+                if isinstance(sig, dict):   # type, thèmes et univers recalculés sur les signaux bruts de la boutique
+                    o["type"], o["themes"], o["univers"] = self._classer(sig, o["marque"])
+                elif sid == "bricksvalue":   # thèmes et univers recalculés sur le chemin de thèmes Rebrickable
+                    chemin = (ref_lego.get(o.get("numero") or "") or {}).get("themes_lego")
+                    if chemin:
+                        o["themes"], o["univers"] = n.themes(o["nom"], [], "", chemin), n.univers(o["nom"], [], "", chemin)
                 try:
                     h = self.historique.resume(o["cle"]) or {}
                 except Exception:   # historique illisible : le catalogue reste servi, sans résumé
@@ -334,6 +389,7 @@ class Index:
             if (locales.get(s["id"]) or {}).get("type") in TYPES:  # imposé depuis la fiche par un administrateur
                 s["type"] = locales[s["id"]]["type"]
         types_par_serie(out, surs)
+        themes_par_defaut(out)
         self.photos_brutes = adresses_photos(out)
         appliquer_photos(out, self.photos.ecartees(), self.photos.douteuses())
         self._cache = (cle_cache, out)
@@ -355,7 +411,10 @@ def _set(cle: str, offres: list[dict], edito: dict, tests: Tests | None = None) 
     if ed:  # thème choisi à la main pour les sets du catalogue éditorial
         themes = n.themes(ed["nom"] + " " + (ed.get("theme") or ""), [ed.get("theme") or ""])
     else:
-        themes = sorted({t for o in offres for t in o.get("themes", [])})
+        themes = sorted({t for o in offres for t in o.get("themes", []) if t in n.ids_connus()[0]})
+    # thème ou univers retiré, encore porté par une offre enregistrée avant : ignoré
+    univers = sorted({u for o in offres for u in o.get("univers") or [] if u in n.ids_connus()[1]}
+                     | set(n.univers(ed["nom"]) if ed else ()))
     actifs = [o["prix"] for o in offres if o["dispo"] != "epuise"]
     nom = (ed or {}).get("nom") or n.nom_court(premier("nom"))
     origine = None
@@ -366,7 +425,7 @@ def _set(cle: str, offres: list[dict], edito: dict, tests: Tests | None = None) 
     s = {
         "id": _slug(cle), "nom": nom,
         "marque": meilleure["marque"], "numero": premier("numero"),
-        "themes": themes, "type": premier("type"), "pieces": premier("pieces"),
+        "themes": themes, "univers": univers, "type": premier("type"), "pieces": premier("pieces"),
         "dims": (ed or {}).get("dims") or premier("dims"), "img": premier("img"),
         "dispo": meilleure["dispo"], "prix": meilleure["prix"], "port": meilleure.get("port"),
         "depuis": min((o.get("depuis") or "9999") for o in offres),
@@ -435,7 +494,7 @@ def editoriales() -> list[dict]:
             "img": it.get("img"), "pieces": it.get("pcs"), "dims": None,
             "type": "technic" if it.get("type") == "Technic" else "classique",
             "themes": n.themes(it["nom"] + " " + (it.get("theme") or ""), [it.get("theme") or ""]),
-            "releve": None, "depuis": "2026-11-19",
+            "univers": n.univers(it["nom"]), "releve": None, "depuis": "2026-11-19",
         })
     return out
 
@@ -458,7 +517,8 @@ def sets_hors_ligne() -> list[dict]:
     for o in offres:
         groupes.setdefault(_cle_set(o), []).append(o)
     edito = {e["cle"]: e for e in editorial()}
-    out = [_set(cle, g, edito) for cle, g in groupes.items()]
+    out = [s for s in (_set(cle, g, edito) for cle, g in groupes.items()) if s]
+    themes_par_defaut(out)
     photos, corr = types_photos(), corrections().get("sets", {})
     for s in out:   # même ordre de preuve que le service : les corrections priment sur les photos
         if s and (corr.get(s["id"]) or {}).get("type") or s and s["id"] in photos:

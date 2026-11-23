@@ -31,7 +31,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import acces, alertes as alertes_mod, boutiques as boutiques_mod, index as index_mod, lien, logos as logos_mod, normalise, qualite, surveillance, synchro, tests_auto
+from . import acces, alertes as alertes_mod, boutiques as boutiques_mod, completude, index as index_mod, lien, logos as logos_mod, normalise, qualite, surveillance, synchro, tests_auto
 from .reglage import reglage
 from .donnees import Depot, dans
 from .index import Index
@@ -197,7 +197,16 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def _catalogue(self) -> dict:
         ids = [s["id"] for s in synchro.actives()]
         return {"sets": self.index.sets(ids), "themes": normalise.themes_disponibles(),
+                "univers": normalise.univers_disponibles(),
                 "sources": [{k: s.get(k) for k in ("id", "nom", "pays_boutique", "livraison")} for s in synchro.actives()]}
+
+    def _completude(self) -> dict | None:
+        """Complétude du catalogue du moment, quand aucun passage ne l'a encore notée (premier démarrage)."""
+        try:
+            return completude.compter(self._catalogue()["sets"])
+        except Exception:
+            log.exception("complétude du catalogue non comptée")
+            return None
 
     # ---------- routes ----------
     def do_GET(self):
@@ -237,6 +246,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                     "selection": synchro.etat_selection(),
                                     "photos": self.index.photos.resume(),
                                     "occasion": self.occasion.etat() if self.occasion else {},
+                                    "completude": (d.get("dernier") or {}).get("completude") or self._completude(),
                                     "baisses": self.surveillance.etat()["baisses"] if self.surveillance else []})
         if url.path == "/api/offre":
             cle = (parse_qs(url.query).get("cle") or [""])[0]

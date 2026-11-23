@@ -32,7 +32,9 @@ EXCLUS = re.compile(r"\b(bundle|accessor(y|ies)|zubeh[oö]r|partpacks?|einzelste
 
 
 def sans_accents(t: str) -> str:
-    return "".join(c for c in unicodedata.normalize("NFD", t or "") if unicodedata.category(c) != "Mn").lower()
+    """Minuscules sans accents, apostrophes typographiques (’ ‘ ´) ramenées à « ' »."""
+    t = re.sub("[\u2018\u2019\u00b4\u02bc]", "'", t or "")
+    return "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn").lower()
 
 
 def texte(html_brut: str) -> str:
@@ -120,30 +122,75 @@ def _mot(m: str) -> str:
 
 
 @lru_cache(maxsize=1)
+def _donnees_themes() -> dict:
+    return json.loads((RACINE / "data" / "themes.json").read_text("utf-8"))
+
+
+def _motifs(t: dict) -> dict:
+    etq = [e for e in t.get("etiquettes", []) if e]
+    return {"etiq": re.compile("|".join(r"(?<!\w)" + re.escape(sans_accents(e)) + r"(?!\w)" for e in etq)) if etq else None,
+            "motif": re.compile("|".join(_mot(sans_accents(m)) for m in t["mots"])) if t.get("mots") else None}
+
+
+@lru_cache(maxsize=1)
 def _themes() -> list[dict]:
-    d = json.loads((RACINE / "data" / "themes.json").read_text("utf-8"))
-    out = []
-    for t in d["themes"]:
-        out.append({"id": t["id"], "nom": t["nom"],
-                    "etiq": re.compile("|".join(r"(?<!\w)" + re.escape(sans_accents(e)) + r"(?!\w)" for e in t["etiquettes"])),
-                    "motif": re.compile("|".join(_mot(sans_accents(m)) for m in t["mots"]))})
-    return out
+    return [{"id": t["id"], "nom": t["nom"], **_motifs(t)} for t in _donnees_themes()["themes"]]
+
+
+@lru_cache(maxsize=1)
+def _univers() -> list[dict]:
+    return [{"id": u["id"], "nom": u["nom"], "sujet": u.get("sujet"), "rebrickable": set(u.get("rebrickable", [])),
+             **_motifs(u)} for u in _donnees_themes().get("univers", [])]
+
+
+def _rebrickable() -> dict[str, list[str]]:
+    return {k: v for k, v in (_donnees_themes().get("rebrickable") or {}).items() if not k.startswith("_")}
+
+
+@lru_cache(maxsize=1)
+def ids_connus() -> tuple[frozenset, frozenset]:
+    """Identifiants des thèmes et des univers déclarés."""
+    d = _donnees_themes()
+    return frozenset(t["id"] for t in d["themes"]), frozenset(u["id"] for u in d.get("univers", []))
 
 
 def themes_disponibles() -> list[dict]:
     """Thèmes et leurs mots-clés sans accents (la page s'en sert comme dictionnaire de recherche)."""
-    d = json.loads((RACINE / "data" / "themes.json").read_text("utf-8"))
-    return [{"id": t["id"], "nom": t["nom"], "mots": sorted({sans_accents(m).strip("*") for m in t["mots"]})} for t in d["themes"]]
+    return [{"id": t["id"], "nom": t["nom"], "mots": sorted({sans_accents(m).strip("*") for m in t["mots"]})}
+            for t in _donnees_themes()["themes"]]
 
 
-def themes(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "") -> list[str]:
+def univers_disponibles() -> list[dict]:
+    """Univers (licences et mondes de fiction) et leurs mots-clés sans accents."""
+    return [{"id": u["id"], "nom": u["nom"], "mots": sorted({sans_accents(m).strip("*") for m in u["mots"]})}
+            for u in _donnees_themes().get("univers", [])]
+
+
+def _trouve(t: dict, tags: list[str], nom: str) -> bool:
+    return bool((t["etiq"] and any(t["etiq"].search(tag) for tag in tags if tag)) or (t["motif"] and t["motif"].search(nom)))
+
+
+def themes(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "", chemin_lego: list[str] | tuple = ()) -> list[str]:
+    """Thèmes-sujets d'un produit : étiquettes de la boutique et mots du nom (data/themes.json), puis
+    correspondance des thèmes Rebrickable d'un set LEGO officiel (`chemin_lego`, racine d'abord)."""
+    tags = [sans_accents(e) for e in list(etiquettes) + list(chemin_lego)] + [sans_accents(categorie)]
+    nom = sans_accents(titre)
+    table = _rebrickable()
+    par_rb = {i for c in chemin_lego for i in table.get(c, [])}
+    return [t["id"] for t in _themes() if t["id"] in par_rb or _trouve(t, tags, nom)]
+
+
+def univers(titre: str, etiquettes: list[str] | tuple = (), categorie: str = "", chemin_lego: list[str] | tuple = ()) -> list[str]:
+    """Univers d'un produit (licence, monde de fiction) : chemin Rebrickable, mots du nom, et étiquettes de
+    boutique quand l'univers en déclare (`etiquettes`, facultatif)."""
     tags = [sans_accents(e) for e in etiquettes] + [sans_accents(categorie)]
     nom = sans_accents(titre)
-    trouves = []
-    for t in _themes():
-        if any(t["etiq"].search(tag) for tag in tags if tag) or t["motif"].search(nom):
-            trouves.append(t["id"])
-    return trouves
+    return [u["id"] for u in _univers() if u["rebrickable"] & set(chemin_lego) or _trouve(u, tags, nom)]
+
+
+def sujet_univers(ids: list[str]) -> str | None:
+    """Thème par défaut du premier univers qui en déclare un (dans l'ordre de data/themes.json)."""
+    return next((u["sujet"] for u in _univers() if u["id"] in ids and u.get("sujet")), None)
 
 
 # Étiquettes de boutique qui désignent un type sans le nommer. Mesure du 21/11/2026 contre l'étalon des

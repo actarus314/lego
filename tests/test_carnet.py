@@ -264,7 +264,8 @@ class LegoOfficiel(unittest.TestCase):
         self.assertTrue(d["adulte"])
         o = {x["boutique"]: x for x in d["offres"]}
         self.assertEqual((o["Amazon.fr"]["prix"], o["Amazon.fr"]["dispo"], o["LEGO.com"]["dispo"]), (807.49, "vente", "epuise"))
-        self.assertEqual((o["LEGO.com"]["numero"], o["LEGO.com"]["img"], o["LEGO.com"]["themes"]), ("75192", "https://r/75192.jpg", ["aerospatial", "films"]))
+        self.assertEqual((o["LEGO.com"]["numero"], o["LEGO.com"]["img"], o["LEGO.com"]["themes"]), ("75192", "https://r/75192.jpg", ["aerospatial"]))
+        self.assertEqual(o["LEGO.com"]["univers"], ["star-wars"], "univers lu dans le chemin de thèmes Rebrickable")
         self.assertEqual(o["LEGO.com"]["retrait"], "Retrait prévu d’ici le 2026-12-31")
 
     def test_fiche_donnees_rsc(self):
@@ -663,7 +664,19 @@ class Serveur(unittest.TestCase):
         self.assertTrue(d["themes"] and any(s["marque"] == "LEGO officiel" for s in d["sets"]))
         code, corps, _ = self.req("GET", "/api/synchro", "alice")
         self.assertIn("en_cours", json.loads(corps)["etat"])
+        self.assertIn("theme", json.loads(corps)["completude"]["champs"], "sans passage : compté sur le catalogue")
         self.assertEqual(self.req("POST", "/api/synchro", "alice", {"sources": "kbs"})[0], 400)
+
+    def test_completude_du_dernier_passage(self):
+        from app import serveur
+        j = serveur.Gestionnaire.journal
+        avant = j.lire()
+        try:
+            j.enregistrer({"le": "x", "sources": [], "completude": {"sets": 7, "en_vente": 5, "champs": {}}})
+            self.assertEqual(json.loads(self.req("GET", "/api/synchro", "alice")[1])["completude"]["sets"], 7)
+        finally:
+            from app.donnees import _ecrire
+            _ecrire(j.fichier, avant)
 
     def test_catalogue_compresse(self):
         import gzip
@@ -799,6 +812,23 @@ class Surveillance(unittest.TestCase):
             self.assertEqual(len(list((Path(d) / "sauvegardes").glob("selection-*.json"))), 14)
 
 
+class CompletudeAuJournal(unittest.TestCase):
+    def test_passage_note_la_completude(self):
+        from app import synchro
+        with tempfile.TemporaryDirectory() as d:
+            i, j = Index(Path(d)), synchro.Journal(Path(d))
+            vrai = synchro.actives
+            synchro.actives = lambda: []
+            try:
+                synchro.synchroniser(i, j, pause=0)
+            finally:
+                synchro.actives = vrai
+            c = j.lire()["dernier"]["completude"]
+            self.assertEqual(set(c["champs"]), {"theme", "univers", "type", "dimensions", "avis", "port", "delai"})
+            self.assertEqual(c["sets"], c["champs"]["theme"]["tous"]["mesure"] + c["champs"]["theme"]["tous"]["estime"],
+                             "aucun set sans thème")
+
+
 class Classement(unittest.TestCase):
     def test_type_de_briques(self):
         from app import normalise as n
@@ -820,6 +850,49 @@ class Classement(unittest.TestCase):
         self.assertEqual(n.themes("Mould King 12054 Steam Locomotive", ["Architecture And Rail"]), ["trains"],
                          "une étiquette mêlant deux sujets ne classe pas, le nom tranche")
         self.assertNotIn("robots", n.themes("Mould King Forklift", ["Mechanical"]), "étiquette comparée par mot entier")
+
+    def test_themes_rebrickable_et_univers(self):
+        from app import normalise as n
+        self.assertEqual(n.themes("Tranquil Garden", [], "", ["Icons"]), ["fleurs"], "nom d'abord")
+        self.assertEqual(n.themes("Vincent van Gogh – Sunflowers", [], "", ["LEGO Art"]), ["fleurs", "art"],
+                         "chemin Rebrickable ajouté ; « van » ne fait pas une voiture")
+        self.assertEqual(n.univers("Millennium Falcon", [], "", ["Star Wars", "Ultimate Collector Series"]), ["star-wars"])
+        self.assertEqual(n.univers("Lord of the Rings: Rivendell", [], "", ["Icons"]), ["seigneur-des-anneaux"],
+                         "licence absente du chemin Rebrickable : reconnue par le nom")
+        self.assertEqual(n.univers("Mould King 21008 TIE Bomber"), ["star-wars"])
+        self.assertEqual(n.univers("Mould King 13141 Black Pearl II Pirate Ship"), ["pirates-des-caraibes"])
+        self.assertEqual(n.univers("Mould King 13163 Bugatti Chiron"), [], "un set sans licence n'a pas d'univers")
+        self.assertEqual(n.themes("Pikachu and Poké Ball", [], "", ["Pokémon"]), [])
+        self.assertEqual(n.sujet_univers(["pokemon"]), "personnages")
+        self.assertNotIn("animaux", n.themes("CaDA CAT D11 Bulldozer"), "CAT n'est pas un chat")
+        self.assertNotIn("voitures", n.themes("Mould King 10023 AH-1 Cobra Helicopter"))
+        self.assertNotIn("objets", n.themes("Mould King 13171 RC Desert Trophy Truck"))
+        self.assertNotIn("films", {t["id"] for t in n.themes_disponibles()})
+        self.assertEqual(n.univers("Queen Anne’s Revenge"), ["pirates-des-caraibes"], "apostrophe typographique")
+        self.assertEqual(n.themes("Parc d’attractions"), ["objets"])
+
+    def test_type_par_la_serie_estime(self):
+        from app.index import types_par_serie
+        sets = [{"id": f"m{k}", "marque": "Mould King", "numero": f"170{k:02d}", "type": "technic"} for k in range(10)]
+        sets.append({"id": "x", "marque": "Mould King", "numero": "17099", "type": None})
+        types_par_serie(sets, {f"m{k}" for k in range(10)})
+        self.assertEqual((sets[-1]["type"], sets[-1].get("type_estime")), ("technic", "série"))
+        self.assertNotIn("type_estime", sets[0], "type sûr : pas estimé")
+
+    def test_themes_par_defaut(self):
+        from app.index import themes_par_defaut
+        sets = [{"marque": "Mould King", "numero": "13001", "themes": ["voitures"]} for _ in range(3)] + [
+            {"marque": "Mould King", "numero": "13099", "themes": []},
+            {"marque": "Mould King", "numero": "99001", "themes": [], "univers": ["pokemon"]},
+            {"marque": "Mould King", "numero": "88001", "themes": []},
+            {"marque": "Cobi", "numero": "13002", "themes": ["militaire"]},
+            {"marque": "Cobi", "numero": "77002", "themes": []},
+            {"marque": "Kazi", "numero": None, "themes": []}]
+        themes_par_defaut(sets)
+        self.assertEqual([(s["themes"], s.get("themes_estimes")) for s in sets[3:]], [
+            (["voitures"], "série"), (["personnages"], "univers"), (["voitures"], "marque"),
+            (["militaire"], None), (["militaire"], "marque"), (["voitures"], "marque")])
+        self.assertTrue(all(s["themes"] for s in sets), "aucun set sans thème")
 
     def test_dimensions_dans_le_texte(self):
         from app import normalise as n
@@ -850,6 +923,23 @@ class Corrections(unittest.TestCase):
         groupes = sorted(sorted(o["cle"] for o in s["offres"]) for s in sets.values() if s["offres"][0]["source"] != "editorial")
         self.assertEqual(groupes, [["kbs:a"], ["kbs:b", "kbs:c"], ["mouldkingcorp:a"]])
         self.assertEqual((sets["mould-king-17001"]["type"], sets["mould-king-17001"]["nom"]), ("technic", "Camion"))
+
+    def test_themes_et_univers_lego_par_la_reference(self):
+        """Offres BricksValue sans signaux : thèmes et univers recalculés sur la référence Rebrickable, relue
+        quand elle change ; univers des offres réunis dans le set ; thème retiré ignoré."""
+        offre = {"source": "bricksvalue", "boutique": "LEGO.com", "pays": "France", "cle": "bricksvalue:10316:lego-com",
+                 "url": "https://x/10316", "nom": "Eevee", "marque": "LEGO officiel", "numero": "10316", "prix": 499.99,
+                 "dispo": "vente", "themes": ["films"], "type": "classique"}
+        with tempfile.TemporaryDirectory() as d:
+            i = Index(Path(d))
+            i.enregistrer("bricksvalue", [offre])
+            s = next(x for x in i.sets(["bricksvalue"]) if x["numero"] == "10316")
+            self.assertNotIn("films", s["themes"], "sans référence : thème retiré de l'offre enregistrée, ignoré")
+            self.assertEqual((s["univers"], s.get("themes_estimes")), ([], "marque"))
+            (Path(d) / "reference_lego.json").write_text(json.dumps({"10316": {"nom": "Eevee", "themes_lego": ["Pokémon"]}}))
+            s = next(x for x in i.sets(["bricksvalue"]) if x["numero"] == "10316")
+            self.assertEqual(s["univers"], ["pokemon"], "la référence change : catalogue reconstruit")
+            self.assertEqual((s["themes"], s.get("themes_estimes")), (["personnages"], "univers"))
 
     def test_ordre_de_preuve_du_type(self):
         """Administrateur, puis corrections, puis photos, puis série et signaux des boutiques."""

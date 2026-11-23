@@ -1,6 +1,6 @@
 # Mécanique ou LLM : qui fait quoi
 
-État de la v3.17.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
+État de la v3.18.0 (23/11/2026). Ce document est tenu à jour à chaque version : un contrôle automatique du dépôt échoue si un fichier de données n'y est pas classé, ou si la version ci-dessus n'est pas celle du dépôt.
 
 **Le service n'appelle aucun LLM** (aucune clé, aucun appel vers un service d'intelligence artificielle). Tout ce qu'il calcule, il le calcule par script : sur les mêmes données lues, le même calcul. Les LLM sont intervenus en amont, hors du service, pour produire une partie des données qu'il applique. Ces données sont figées : elles ne changent qu'à une nouvelle passe, faite à la demande dans une conversation.
 
@@ -20,7 +20,8 @@ Dates, modèles et contrôles des passes LLM : relevés du projet (CHANGELOG, no
 | Offres LEGO officiel | référence Rebrickable ; prix des revendeurs français lus sur BricksValue après chaque mise à jour du site (source activée par le `.env` ; sans elle, seul le prix relevé le 19/11 est servi) |
 | Prix de la sélection | relus sur la boutique chaque heure, avant les alertes |
 | Regroupement des offres d'un même set | marque et numéro extraits du nom par des règles écrites (`app/normalise.py`) |
-| Thèmes | étiquettes des boutiques et mots-clés de `data/themes.json` |
+| Thèmes et univers | étiquettes des boutiques, mots-clés du nom et correspondance des thèmes Rebrickable (`data/themes.json`) ; un set sans sujet reconnu reçoit un thème estimé, marqué comme tel : celui de son univers, sinon le plus fréquent de sa série, sinon de sa marque |
+| Complétude du catalogue | comptée par champ (thème, univers, type, dimensions, avis, port, délai ; mesuré, estimé, absent) à chaque synchronisation ; une baisse nette est signalée à l'administrateur |
 | Type de briques (Technic ou classique) | de la preuve la plus forte à la plus faible : choix de l'administrateur, corrections, étalon photo, règle par série (calculée sur les types connus), signaux des boutiques |
 | Dimensions, pièces, âge | lus dans les fiches et les pages produits |
 | Noms allemands | traduits mot à mot par `data/glossaire.json` |
@@ -51,7 +52,7 @@ Le bouton « Rechercher des tests sur le web » de la fiche ouvre une recherche 
 | Spécialité, note et « où acheter » de chaque marque | `web/index.html` (`MARQUES`) | 19 à 21/11/2026, Claude | spécialité et « où acheter » calculés sur l'index quand ils manquent ; les taux de défauts cités en note (Galaxus) ne sont pas mis à jour |
 | Port et délai des boutiques lues | `data/sources.json` | 20/11/2026, pages de livraison lues par Claude | pages relues chaque semaine par le service |
 | Port des revendeurs LEGO officiel | `data/livraison.json` | 20/11/2026, pages officielles lues par Claude | pages relues chaque semaine par le service |
-| Listes de mots : thèmes, glossaire allemand | `data/themes.json`, `data/glossaire.json` | 20/11/2026, écrites par Claude | appliquées par script ; règles de thème mesurées sur les étiquettes des boutiques |
+| Listes de mots : thèmes, univers, correspondance Rebrickable, glossaire allemand | `data/themes.json`, `data/glossaire.json` | 20/11/2026, complétées le 23/11/2026 (univers, quatre thèmes), écrites par Claude | appliquées par script ; mesure du 23/11/2026 : 0 set sans thème sur le catalogue local et sur les 412 sets LEGO officiel suivis, dont une part de thèmes estimés (CHANGELOG) ; ajouts relus set par set sur le catalogue local |
 | Chaînes et blogs de tests suivis | `data/tests_sources.json` | 20/11/2026, choisis par Claude | le rattachement aux sets est mécanique (plus haut) |
 | Sites et logos déclarés des marques | `data/marques.json` | 19 à 21/11/2026, Claude | logo vérifié par le service (format, taille) |
 

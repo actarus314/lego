@@ -16,7 +16,7 @@ import threading
 import time
 from pathlib import Path
 
-from . import lien
+from . import completude, lien
 from .reglage import reglage
 from .donnees import _ecrire, _lire
 from .index import Index, sources_config
@@ -143,6 +143,10 @@ def synchroniser(index: Index, journal: Journal, par: str = "programme", ids: li
              "duree_s": round(time.time() - debut), "par": par, "portee": "toutes" if ids is None else "choix",
              "sources": resultats, "echecs": sum(1 for r in resultats if r["etat"] == "echec"),
              "lus": sum(r.get("lus", 0) for r in resultats)}
+        try:   # complétude du catalogue à la fin du passage, comparée aux passages précédents par la surveillance
+            j["completude"] = completude.compter(index.sets([s["id"] for s in actives()]))
+        except Exception:
+            log.exception("complétude du catalogue non comptée")
         try:
             journal.enregistrer(j)
         except Exception:

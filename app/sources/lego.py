@@ -196,7 +196,8 @@ def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
     images = [x if isinstance(x, str) else (x or {}).get("url") for x in (images if isinstance(images, list) else [images])]
     images = [x for x in images if x][:8]
     img = ref.get("img") or (images[0] if images else None)
-    themes = n.themes(nom, ref.get("themes_lego", []) + [categorie])
+    chemin = ref.get("themes_lego", [])
+    themes, univers = n.themes(nom, [categorie], "", chemin), n.univers(nom, [categorie], "", chemin)
     retrait = props.get("Retrait")
     offres_ld = (p.get("offers") or {})
     offres_ld = offres_ld.get("offers", [offres_ld]) if isinstance(offres_ld, dict) else offres_ld
@@ -220,6 +221,6 @@ def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
             # jour du dernier relevé du revendeur dans la série ; sans série, jour de la publication de BricksValue
             "releve": _releve_pour(vendeur, releves) or _jour_local(publie), "releve_par": "BricksValue",
             "type": "technic" if "Technic" in " ".join(ref.get("themes_lego", [])) + categorie else "classique",
-            "themes": themes, "retrait": retrait if retrait and "Pas de retrait" not in retrait else None,
+            "themes": themes, "univers": univers, "retrait": retrait if retrait and "Pas de retrait" not in retrait else None,
         })
     return {"adulte": (age or 0) >= 16 or (pieces or 0) >= 2000, "age": age, "publie": publie, "offres": offres}
