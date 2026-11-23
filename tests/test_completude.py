@@ -31,6 +31,10 @@ class Compter(unittest.TestCase):
         self.assertTrue(ch["univers"]["facultatif"])
         self.assertEqual(c.compter([])["champs"]["theme"]["tous"], {"mesure": 0, "estime": 0, "manque": 0})
 
+    def test_dimensions_estimees(self):
+        r = c.compter([set_(), set_(dims=None, dims_estimees=[52.0], dims_estime="pièces, type et thème"), set_(dims=None)])
+        self.assertEqual(r["champs"]["dimensions"]["tous"], {"mesure": 1, "estime": 1, "manque": 1})
+
     def test_set_sans_offre(self):
         r = c.compter([set_(offres=[])])
         self.assertEqual(r["champs"]["port"]["tous"]["manque"], 1)

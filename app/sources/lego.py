@@ -158,21 +158,49 @@ def _jour_local(publie: str | None) -> str | None:
     return time.strftime("%Y-%m-%d", time.localtime(calendar.timegm(time.strptime(publie, "%Y-%m-%dT%H:%M:%S"))))
 
 
-def _lire_donnees(url: str) -> tuple[dict | None, dict | None, str | None]:
-    """(produit JSON-LD, série des prix, publication) d'une fiche : réponse de données d'abord, page HTML
-    en secours. La série des prix n'est plus dans la fiche depuis novembre 2026 (constat du 21/11) : None."""
+_TEXTE_RSC = re.compile(rb"(?:^|\n)([0-9a-f]+:T([0-9a-f]+),)")
+_TEXTE_SUIVANT = re.compile(rb"[0-9a-f]+:T([0-9a-f]+),")
+
+
+def _description(texte: str) -> str:
+    """Description complète du set (texte de LEGO officiel repris par BricksValue), tirée des blocs de texte
+    de la réponse de données (« <n>:T<longueur en octets, hexadécimal>,<html> ») qui portent un paragraphe
+    ou une liste. Un bloc n'est pas suivi d'un saut de ligne : le bloc suivant peut commencer juste après
+    lui. Vide si la réponse n'en a pas (page HTML de secours : seule la description abrégée du JSON-LD sert)."""
+    brut = texte.encode("utf-8")
+    vus: set[int] = set()
+    blocs = []
+    for m in _TEXTE_RSC.finditer(brut):
+        debut = m.start(1)
+        while debut not in vus:
+            t = _TEXTE_SUIVANT.match(brut, debut)
+            if not t:
+                break
+            vus.add(debut)
+            fin = t.end() + int(t.group(1), 16)
+            bloc = brut[t.end():fin].decode("utf-8", "replace")
+            if re.search(r"<(?:p|li)\b", bloc):
+                blocs.append(bloc)
+            debut = fin
+    return n.texte(" ".join(blocs))
+
+
+def _lire_donnees(url: str) -> tuple[dict | None, dict | None, str | None, str]:
+    """(produit JSON-LD, série des prix, publication, description) d'une fiche : réponse de données
+    d'abord, page HTML en secours. La série des prix n'est plus dans la fiche depuis novembre 2026
+    (constat du 21/11) : None."""
     try:
         r = lien.recuperer(url + ("&" if "?" in url else "?") + "_rsc", accept="text/x-component", entetes={"RSC": "1"})
         texte = r.corps.decode("utf-8", "replace")
         p = _produit(texte)
         if p:
-            return p, _serie(texte), _publie(texte)
+            return p, _serie(texte), _publie(texte), _description(texte)
     except lien.LienRefuse as e:
         if getattr(e, "statut", None) == 429:
             raise
     r = lien.recuperer(url)
     texte = r.corps.decode("utf-8", "replace")
-    return _produit(texte), _serie(texte), _publie(texte)
+    return _produit(texte), _serie(texte), _publie(texte), ""
 
 
 def _age(texte: str | None) -> int | None:
@@ -182,7 +210,7 @@ def _age(texte: str | None) -> int | None:
 
 def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
     """Lit une fiche BricksValue. Rend {"adulte", "age", "publie", "offres": [...]}."""
-    p, serie, publie = _lire_donnees(url)
+    p, serie, publie, description = _lire_donnees(url)
     releves = _derniers_releves(serie)
     if not p:
         raise ValueError("fiche sans données structurées")
@@ -199,6 +227,9 @@ def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
     chemin = ref.get("themes_lego", [])
     themes, univers = n.themes(nom, [categorie], "", chemin), n.univers(nom, [categorie], "", chemin)
     retrait = props.get("Retrait")
+    # cotes publiées par LEGO officiel dans la description (« Mesure plus de 21 cm de haut, 84 cm de long… ») ;
+    # description abrégée du JSON-LD quand la réponse de données n'a pas servi
+    dims = n.dimensions(description or n.texte(p.get("description")))
     offres_ld = (p.get("offers") or {})
     offres_ld = offres_ld.get("offers", [offres_ld]) if isinstance(offres_ld, dict) else offres_ld
     offres = []
@@ -217,7 +248,7 @@ def lire_fiche(num: str, url: str, ref: dict | None = None) -> dict:
             "url": o.get("url"), "nom": nom, "marque": "LEGO officiel", "numero": num,
             "prix": prix, "devise": "EUR",
             "dispo": "vente" if "InStock" in dispo else "precommande" if "PreOrder" in dispo else "epuise",
-            "img": img, "images": images, "pieces": pieces, "dims": None,
+            "img": img, "images": images, "pieces": pieces, "dims": dims,
             # jour du dernier relevé du revendeur dans la série ; sans série, jour de la publication de BricksValue
             "releve": _releve_pour(vendeur, releves) or _jour_local(publie), "releve_par": "BricksValue",
             "type": "technic" if "Technic" in " ".join(ref.get("themes_lego", [])) + categorie else "classique",

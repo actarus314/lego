@@ -236,6 +236,28 @@ class IndexSets(unittest.TestCase):
         self.assertEqual(s["nom"], "Pirate Ship")
         self.assertEqual(self.i.enregistrer("kbs", []), {"nouveaux": 0, "disparus": 1})
 
+    def test_dimensions_estimees_et_sources_dans_le_catalogue(self):
+        """Index.sets : cote de la boutique avec sa source, estimation des sets sans cote, cote du catalogue éditorial."""
+        from app.sources import shopify
+        offres = []
+        for k in range(8):
+            p = {**PRODUIT_KBS, "title": f"Mould King {13300 + k} Truck", "handle": f"mk-{k}",
+                 "body_html": f"<p>Mit {1000 + 300 * k} Teilen. Size: {40 + 3 * k} x 20 x 15 cm</p>",
+                 "variants": [{"price": "99.99", "available": True, "sku": str(13300 + k)}]}
+            offres.append(shopify.offre(p, SOURCE_KBS))
+        offres.append(shopify.offre({**PRODUIT_KBS, "title": "Mould King 13399 Truck", "handle": "mk-sans",
+                                     "body_html": "<p>Mit 2000 Teilen.</p>",
+                                     "variants": [{"price": "99.99", "available": True, "sku": "13399"}]}, SOURCE_KBS))
+        self.i.enregistrer("kbs", [o for o in offres if o])
+        sets = {s["numero"]: s for s in self.i.sets(["kbs"])}
+        self.assertEqual((sets["13300"]["dims"], sets["13300"]["dims_source"]), ([40.0, 20.0, 15.0], "KBS"))
+        sans = sets["13399"]
+        self.assertNotIn("dims", {k for k, v in sans.items() if v})
+        self.assertTrue(sans["dims_estimees"] and sans["dims_estime"].startswith("pièces"), sans)
+        from app.index import _set
+        ed = {"kbs:mk-0": {"cle": "kbs:mk-0", "nom": "Truck", "dims": [41.0, 21.0, 16.0]}}
+        self.assertEqual(_set("x", [dict(o) for o in offres[:1]], ed)["dims_source"], "catalogue")
+
     def test_editorial_rattache(self):
         from app.index import editorial, sets_hors_ligne
         self.assertEqual(len(sets_hors_ligne()), len(editorial()))
@@ -290,6 +312,40 @@ class LegoOfficiel(unittest.TestCase):
         o = {x["boutique"]: x for x in d["offres"]}
         self.assertEqual((o["Amazon.fr"]["releve"], o["LEGO.com"]["releve"]), ("2026-11-20", "2026-11-19"))
         self.assertEqual((o["LEGO.com"]["releve_par"], o["LEGO.com"]["images"]), ("BricksValue", ["https://cdn.x/75192.png"]))
+
+    def test_fiche_cotes_de_la_description(self):
+        """Cotes de LEGO officiel lues dans la description complète (bloc de texte de la réponse de données)."""
+        from app.sources import lego
+        produit = json.loads(FICHE_BV.split('json">')[1].split("</script>")[0])
+        html_desc = ("<p>Ce nouveau modèle LEGO® Star Wars Millennium Falcon…</p><ul><li> Ce modèle comprend 7 500 pièces.\n"
+                     "</li><li> Mesure plus de 21 cm de haut, 84 cm de long et 60 cm de large.</li></ul>")
+        bloc = html_desc.encode("utf-8")
+        rsc = ('0:["$","script",null,' + json.dumps(produit) + ']\n88:T' + format(len(bloc), "x") + "," + html_desc
+               + '63:["$","section",null,{"title":"Hose, Ribbed 7mm D. 26L / 20.8cm"}]')
+        vrai = lien.recuperer
+        lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/x-component", rsc.encode())
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon", None)
+        finally:
+            lien.recuperer = vrai
+        self.assertEqual(d["offres"][0]["dims"], [84.0, 60.0, 21.0])
+        # deux blocs de texte à la suite, le second sans saut de ligne avant lui : la liste est lue aussi
+        p1, p2 = "<p>Ce nouveau modèle…</p>", "<ul><li> Mesure plus de 21 cm de haut, 84 cm de long et 60 cm de large.</li></ul>"
+        rsc2 = ('0:["$","script",null,' + json.dumps(produit) + ']\n87:T' + format(len(p1.encode()), "x") + "," + p1
+                + "88:T" + format(len(p2.encode()), "x") + "," + p2 + '63:["$","section",null,{}]')
+        lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/x-component", rsc2.encode())
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon", None)
+        finally:
+            lien.recuperer = vrai
+        self.assertEqual(d["offres"][0]["dims"], [84.0, 60.0, 21.0])
+        # page HTML de secours, sans bloc de texte : aucune cote inventée
+        lien.recuperer = lambda url, **k: lien.Reponse(url, 200, "text/html", FICHE_BV.encode())
+        try:
+            d = lego.lire_fiche("75192", "https://bricksvalue.com/fr/set/75192-millennium-falcon", None)
+        finally:
+            lien.recuperer = vrai
+        self.assertIsNone(d["offres"][0]["dims"])
 
     def test_fiche_sans_serie_datee_par_la_publication(self):
         """Fiche de novembre 2026 : plus de série des prix, mais l'heure de publication de la page (dateModified)."""
@@ -901,6 +957,87 @@ class Classement(unittest.TestCase):
         self.assertEqual(n.dimensions('it measures 16.7" (42.5 cm) long'), [42.5])
         self.assertIsNone(n.dimensions("Circular display track included (approx. 71cm loop)"))
 
+    def test_dimensions_unites_et_reperes(self):
+        """Cotes relevées sur les descriptions du 23/11/2026 (Mould King officiel, KBS, BricksValue)."""
+        from app import normalise as n
+        cas = {
+            "Dimensions: 28.7 cm (L) × 13.7 cm (W) × 9.3 cm (H) Based": [28.7, 13.7, 9.3],
+            "128 cm (length) × 55.1 cm (width) × 23.7 cm (height)": [128.0, 55.1, 23.7],
+            "Life-size katana scale 105.9 cm (41.7 in) long": [105.9],
+            "Measuring a staggering 91.2cm (nearly 1 meter) in length": [91.2],
+            "finished wingspan of nearly 11 inches": [27.9],
+            "With 7,105 pieces and a finished width of 70 cm": [70.0],
+            "Mesure plus de 21 cm de haut, 84 cm de long et 60 cm de large.": [84.0, 60.0, 21.0],
+            "Measures over 8.5 in. (21 cm) high": [21.0],
+            "Länge: 45 cm, Breite: 22 cm, Höhe: 13 cm": [45.0, 22.0, 13.0],
+            "Modellgröße: 450 x 220 x 130 mm": [45.0, 22.0, 13.0],
+            "It has 3181 bricks and stands 56.9 cm tall, about 57 cm high": [57.0],
+            "Impressive Dimensions : 25cm High, 62cm Long, 25.5cm Wide": [62.0, 25.5, 25.0],
+            "mesure plus de 33 cm de haut, 22 cm de large et 41 cm de profondeur.": [41.0, 33.0, 22.0],
+            "castle display model – 64.5 cm deep, 55.5 cm high – with towers": [64.5, 55.5],
+            "Dimensions: 16.5 x 8.7 x 5 inches": [41.9, 22.1, 12.7],
+            "Measures 8.3 x 4.3 x 3.1 inches (21 x 11 x 8 cm)": [21.0, 11.0, 8.0],
+            "Size: 450 mm x 220 mm x 130 mm": [45.0, 22.0, 13.0],
+            "a massive 1040 mm (40.9 in) long locomotive": [104.0],
+            "Dimensions: 16,5 x 8,7 x 5 inches (42 x 22 x 13 cm)": [42.0, 22.0, 13.0],
+            "Dimensions: 16,5 x 8,7 x 5 inches": [41.9, 22.1, 12.7],
+            "Model height: 52.2cm / 20.6in": [52.2],
+            "the fully extended crane arm reaches a height of approximately 160 cm": [160.0],
+        }
+        for texte, attendu in cas.items():
+            self.assertEqual(n.dimensions(texte), attendu, texte)
+        # cotes d'objets réels, calibres, pièces : pas une dimension du modèle
+        for texte in ("fired 60 cm shells", "a long 90 mm gun", "it fires the 9×39 mm cartridge", "The suspension offers 30 cm of travel",
+                      "With a total length of 244 meters", "3,7 cm Flak", "Modell-Maße : - cm; - cm;- cm",
+                      "stands on a 20 cm base", "all within a 30 cm radius", "Sticker sheet 100 x 70 mm included",
+                      "Der Lauf ist 150 mm lang", "Wavelength 20 cm", "poster 24 x 36 in. included",
+                      "Includes a 12 x 12 inches baseplate", "Size 11 x 5 inches", "Wheel width 6 cm",
+                      "Power Functions battery box, cable length 50 cm", "Stand height 10 cm", "with a rope of length 40 cm",
+                      "Barrel length: 30 cm"):
+            self.assertIsNone(n.dimensions(texte), texte)
+        self.assertEqual(n.dimensions("the 7.62×51mm rifle, approx. 52.9 × 8.5 × 29.1 cm"), [52.9, 29.1, 8.5])
+
+
+class DimensionsEstimees(unittest.TestCase):
+    def test_regle_et_methodes(self):
+        from app.index import dimensions_par_defaut
+        mesures = [{"id": f"m{i}", "marque": "X", "type": "technic", "themes": ["voitures"], "pieces": p, "dims": [d]}
+                   for i, (p, d) in enumerate([(1000, 40), (2000, 50), (4000, 62), (1500, 45), (3000, 56)])]
+        autres = [{"id": f"a{i}", "marque": "X", "type": "classique", "themes": ["architecture"], "pieces": p, "dims": [d]}
+                  for i, (p, d) in enumerate([(1000, 30), (2000, 37), (4000, 47), (1500, 34), (3000, 43)])]
+        cibles = [{"id": "c1", "marque": "X", "type": "technic", "themes": ["voitures"], "pieces": 2000},
+                  {"id": "c2", "marque": "X", "type": "classique", "themes": ["voitures"], "pieces": 2000},
+                  {"id": "c3", "marque": "X", "type": "technic", "themes": ["espace"], "pieces": 2000},
+                  {"id": "c4", "marque": "X", "type": "technic", "themes": ["voitures"]},
+                  {"id": "c5", "marque": "X", "type": "technic", "themes": ["voitures"], "pieces": 2000, "dims": [33.0]}]
+        sets = mesures + autres + cibles
+        dimensions_par_defaut(sets)
+        c = {s["id"]: s for s in cibles}
+        self.assertEqual(c["c1"]["dims_estime"], "pièces, type et thème")
+        self.assertTrue(45 <= c["c1"]["dims_estimees"][0] <= 55, c["c1"]["dims_estimees"])
+        self.assertNotIn("dims", c["c1"], "l'estimation est servie à part des cotes mesurées")
+        self.assertEqual(c["c2"]["dims_estime"], "pièces et thème")
+        self.assertEqual(c["c3"]["dims_estime"], "pièces")
+        # sans nombre de pièces : médiane des cotes mesurées du groupe (40, 45, 50, 56, 62 et c5 à 33 cm)
+        self.assertEqual((c["c4"]["dims_estime"], c["c4"]["dims_estimees"]), ("type et thème", [48.0]))
+        self.assertNotIn("dims_estime", c["c5"], "un set mesuré garde sa cote")
+        self.assertTrue(all("dims_estime" not in s for s in mesures + autres))
+
+    def test_trop_peu_de_mesures(self):
+        from app.index import dimensions_par_defaut
+        sets = [{"id": "a", "marque": "X", "pieces": 1000, "dims": [40.0]}, {"id": "b", "marque": "X", "pieces": 1000}]
+        dimensions_par_defaut(sets)
+        self.assertNotIn("dims_estimees", sets[1])
+
+    def test_source_de_la_cote(self):
+        from app.index import _set
+        o = lambda **k: {"source": "kbs", "boutique": "KBS", "cle": "kbs:a", "marque": "Mould King", "numero": "10189", "nom": "Claw",
+                         "prix": 100.0, "port": 4.95, "dispo": "vente", "themes": [], **k}
+        self.assertEqual(_set("x", [o(dims=[48.0, 43.0])], {})["dims_source"], "KBS")
+        bv = o(source="bricksvalue", boutique="Amazon.fr", cle="bricksvalue:1:a", dims=[84.0])
+        self.assertEqual(_set("x", [bv], {})["dims_source"], "description LEGO officiel (BricksValue)")
+        self.assertIsNone(_set("x", [o()], {})["dims_source"])
+
 
 class Corrections(unittest.TestCase):
     def test_regrouper_separer_imposer(self):
@@ -915,7 +1052,7 @@ class Corrections(unittest.TestCase):
             i.enregistrer("mouldkingcorp", [offre("mouldkingcorp:a", "17001")])
             try:
                 ix.corrections = lambda: {"regrouper": [["kbs:b", "kbs:c"]], "separer": ["mouldkingcorp:a"],
-                                          "sets": {"mould-king-17001": {"type": "technic", "nom": "Camion"}}}
+                                          "sets": {"mould-king-17001": {"type": "technic", "nom": "Camion", "dims": [52.0, 20.0]}}}
                 i._cache = None
                 sets = {s["id"]: s for s in i.sets(["kbs", "mouldkingcorp"])}
             finally:
@@ -923,6 +1060,7 @@ class Corrections(unittest.TestCase):
         groupes = sorted(sorted(o["cle"] for o in s["offres"]) for s in sets.values() if s["offres"][0]["source"] != "editorial")
         self.assertEqual(groupes, [["kbs:a"], ["kbs:b", "kbs:c"], ["mouldkingcorp:a"]])
         self.assertEqual((sets["mould-king-17001"]["type"], sets["mould-king-17001"]["nom"]), ("technic", "Camion"))
+        self.assertEqual((sets["mould-king-17001"]["dims"], sets["mould-king-17001"]["dims_source"]), ([52.0, 20.0], "correction"))
 
     def test_themes_et_univers_lego_par_la_reference(self):
         """Offres BricksValue sans signaux : thèmes et univers recalculés sur la référence Rebrickable, relue

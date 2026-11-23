@@ -83,34 +83,90 @@ _NB = r"(\d{1,3}(?:[.,]\d{1,2})?)"
 _DIM_X = re.compile(_NB + r"\s*(?:cm)?\s*[x×*]\s*" + _NB + r"\s*(?:cm)?\s*(?:[x×*]\s*" + _NB + r")?\s*cm", re.I)
 _DIM_LISTE = re.compile(r"(?:ma(?:ß|ss)e|dimensions?|abmessungen|size)\s*:?\s*" + _NB + r"\s*cm\s*[;,/]\s*" + _NB
                         + r"\s*cm(?:\s*[;,/]\s*" + _NB + r"\s*cm)?", re.I)
-_DIM_LONG = re.compile(r"(?:about|approximately|nearly|around|etwa|ca\.?|rund|environ|plus de|over)\s*" + _NB
-                       + r"\s*cm\s*(?:long|lang|de long|high|hoch|tall|de haut|wide|breit)", re.I)
-
-
-_DIM_APRES = re.compile(_NB + r"\s*cm\)?\s*(?:long|tall|high|wide|in length|in height|in width|length|height|width|"
-                        r"lang|hoch|breit|de long|de haut|de large)\b", re.I)
-_DIM_VERBE = re.compile(r"(?:measures?|measuring|stands?|standing(?: at)?|reaches|spans?|spanning|all|misst)\s+(?:in at\s+)?"
-                        r"(?:about |approx\.? |approximately |nearly |over |around |up to )?"
+_ENV = r"(?:about|approx\.?|approximately|nearly|almost|around|over|up to|etwa|ca\.?|rund|knapp|über|environ|plus de|près de)"
+# mot d'axe qui suit une cote (« 44 cm long », « 21 cm de haut ») ou la précède (« width of 70 cm »)
+_AXE_APRES = (r"long|tall|high|wide|deep|in length|in height|in width|in depth|(?:total\s+)?length|height|width|depth|"
+              r"lang|hoch|breit|tief|de long|de haut|de large|de longueur|de hauteur|de largeur|de profondeur|d'envergure")
+_AXE_AVANT = r"height|width|length|depth|wingspan|höhe|länge|breite|tiefe|spannweite|hauteur|longueur|largeur|profondeur|envergure"
+_AXES = (("L", r"long|length|lang|länge|longueur"), ("H", r"tall|high|height|hoch|höhe|haut|hauteur"),
+         ("D", r"deep|depth|tief|tiefe|profondeur"), ("W", r"wide|width|breit|breite|large|largeur|wingspan|spannweite|envergure"))
+_DIM_APRES = re.compile(_NB + r"\s*cm\)?\s*(" + _AXE_APRES + r")\b", re.I)
+_DIM_VERBE = re.compile(r"(?:measures?|measuring|stands?|standing(?: at)?|reaches|spans?|spanning|all|misst|mesure)\s+(?:in at\s+)?"
+                        r"(?:(?:about|approx\.?|approximately|nearly|almost|over|around|up to|roughly|just|some|a staggering|"
+                        r"an impressive|a massive|a whopping|an amazing|at|plus de|près de|environ|etwa|über|rund)\s+){0,2}"
                         r"(?:\d{1,3}(?:\.\d)?\s*(?:\"|”|in(?:ches)?)\s*\(\s*)?" + _NB + r"\s*cm\b", re.I)
+# cote précédée de son nom (« a finished width of 70 cm », « wingspan of around 70 cm », « Länge: 45 cm ») ;
+# ni diamètre ni course (une pièce du modèle, pas le modèle)
+# le mot qui précède le nom de l'axe dit si la cote est celle du modèle : déterminant ou mot du modèle
+# (« a height of », « finished width of », « Model height: », « Länge: » en tête), jamais une pièce
+# (« Wheel width », « cable length », « Stand height », « lift height »)
+_AVANT_AXE = {"a", "an", "the", "its", "total", "overall", "finished", "completed", "model", "modell", "gesamt", "die", "der",
+              "une", "la", "sa", "maximum", "impressive", "full", "whole"}
+_DIM_NOM = re.compile(r"(?:([^\W\d_]+)\s+)?(?<![^\W\d_])(" + _AXE_AVANT + r")\s*(?:of|von|de|d')?\s*:?\s*(?:" + _ENV + r"\s*)?" + _NB + r"\s*cm\b", re.I)
+
+
+def _axe(mot: str) -> str:
+    return next(a for a, motif in _AXES if re.search(motif, mot, re.I))
+
+
+_EN_CM = re.compile(r"(\d{1,3}(?:[.,]\d{1,2})?)\s*cm\s*\(\s*(?:[\w ]{0,12}?\s*)?\d{1,3}(?:[.,]\d{1,2})?\s*(?:in(?:ch(?:es)?)?\.?|\"|”|″)\s*\)", re.I)
+_EN_POUCES_CM = re.compile(r"\d{1,3}(?:[.,]\d{1,2})?\s*(?:in(?:ch(?:es)?)?\.?|\"|”|″)\s*\(\s*(\d{1,3}(?:[.,]\d{1,2})?)\s*cm\s*\)", re.I)
+_ETIQUETTE = re.compile(r"cm\s*\(\s*(?:l|w|h|d|b|t|length|width|height|depth|long|wide|high|tall|länge|breite|höhe|tiefe)\s*\)", re.I)
+# millimètres : une cote seule à partir de 200 mm (une pièce du modèle, « Lauf 150 mm lang », un calibre
+# « 7.62×51mm », « 90 mm gun » restent) ; trois cotes de 50 mm et plus chacune
+_MM = re.compile(r"(?<![\d.,x×*])(?<![x×*]\s)(\d{1,2}[,.]\d{3}|\d{3,4})\s*mm\b", re.I)
+_X_MM = re.compile(r"(?<![\d.,])(\d{2,4})\s*(?:mm)?\s*[x×*]\s*(\d{2,4})\s*(?:mm)?\s*[x×*]\s*(\d{2,4})\s*mm\b", re.I)
+_X_POUCES = re.compile(r"(?<![\d.,])(\d{1,2}(?:[.,]\d{1,2})?)\s*[x×*]\s*(\d{1,2}(?:[.,]\d{1,2})?)(?:\s*[x×*]\s*(\d{1,2}(?:[.,]\d{1,2})?))?"
+                       r"\s*(?:inches|inch|in\.|\"|”|″)(\s*\(\s*[^)]*\bcm\s*\))?", re.I)
+_POUCES = re.compile(r"(?<![\d.,])(\d{1,2}(?:[.,]\d{1,2})?)\s*(?:inches|inch|in\.)(?!\w)", re.I)
+
+
+def _en_cm(t: str) -> str:
+    """Texte aux cotes ramenées en centimètres : équivalent en pouces entre parenthèses retiré, repère
+    d'axe retiré (« 28.7 cm (L) × 13.7 cm (W) »), millimètres et pouces convertis (« 1040 mm »,
+    « 11 inches », « 16.5 x 8.7 x 5 inches »)."""
+    # « 16.5 x 8.7 x 5 inches » : converti ; suivi de son équivalent en cm entre parenthèses, l'équivalent seul
+    # reste ; deux cotes seules (« poster 24 x 36 in. », « 12 x 12 inches baseplate ») : un objet joint, retirées
+    t = _X_POUCES.sub(lambda m: m.group(4).strip(" ()") if m.group(4) else
+                      " x ".join(f"{float(x.replace(',', '.')) * 2.54:.1f}" for x in m.groups()[:3]) + " cm"
+                      if m.group(3) else " ", t or "")
+    # « 450 x 220 x 130 mm », « 450 mm x 220 mm x 130 mm » : converti si chaque cote fait au moins 50 mm
+    t = _X_MM.sub(lambda m: " x ".join(f"{int(x) / 10:g}" for x in m.groups()) + " cm"
+                  if all(int(x) >= 50 for x in m.groups()) else m.group(0), t)
+    t = _MM.sub(lambda m: f"{v / 10:g} cm" if (v := int(re.sub(r"[,.]", "", m.group(1)))) >= 200 else m.group(0), t)
+    t = _EN_CM.sub(r"\1 cm", t)
+    t = _EN_POUCES_CM.sub(r"\1 cm", t)
+    t = _ETIQUETTE.sub("cm", t)
+    return _POUCES.sub(lambda m: f"{float(m.group(1).replace(',', '.')) * 2.54:.1f} cm", t)
 
 
 def dimensions(t: str) -> list[float] | None:
     """Dimensions en cm, la plus grande en premier ; None si absentes ou nulles."""
+    t = _en_cm(t)
     for motif in (_DIM_X, _DIM_LISTE):
-        m = motif.search(t or "")
+        m = motif.search(t)
         if m:
             d = sorted((float(x.replace(",", ".")) for x in m.groups() if x), reverse=True)
             if d and d[0] > 0:
                 return d
-    m = _DIM_LONG.search(t or "")
-    if m:
-        v = float(m.group(1).replace(",", "."))
-        return [v] if v > 0 else None
-    # Dimensions données une à une dans le texte (« At 44 cm long », « stands 53.9 cm tall »,
-    # « Measuring 43 cm wide and 48 cm tall », « 75.7cm Length ») : jusqu'à trois, la plus grande d'abord.
-    vals = [float(x.replace(",", ".")) for x in _DIM_APRES.findall(t or "") + _DIM_VERBE.findall(t or "")]
-    vals = sorted({v for v in vals if 5 <= v <= 300}, reverse=True)[:3]
-    return vals or None
+    # Dimensions données une à une dans le texte (« At 44 cm long », « stands 53.9 cm tall », « Mesure plus
+    # de 21 cm de haut, 84 cm de long et 60 cm de large », « 75.7cm Length », « a finished width of
+    # 70 cm ») : jusqu'à trois, la plus grande d'abord.
+    # Une cote par axe nommé (longueur, hauteur, largeur, profondeur : la plus grande s'il est redit) ; une
+    # cote sans axe (« stands 32.3 cm ») est gardée si elle ne redit pas, arrondie, une cote déjà gardée.
+    ok = lambda v: 5 <= v <= 300
+    par_axe: dict[str, float] = {}
+    nommees = [(x, m) for avant, m, x in _DIM_NOM.findall(t) if not avant or avant.lower() in _AVANT_AXE]
+    for v, mot in [(x, m) for x, m in _DIM_APRES.findall(t)] + nommees:
+        v = float(v.replace(",", "."))
+        if ok(v):
+            a = _axe(mot)
+            par_axe[a] = max(v, par_axe.get(a, 0))
+    garde = list(par_axe.values())
+    for v in sorted((float(x.replace(",", ".")) for x in _DIM_VERBE.findall(t)), reverse=True):
+        if ok(v) and all(abs(g - v) > 0.016 * g for g in garde):   # même cote redite arrondie (57 et 56.9 cm) : une fois
+            garde.append(v)
+    return sorted(garde, reverse=True)[:3] or None
 
 
 def _mot(m: str) -> str:

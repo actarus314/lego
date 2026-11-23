@@ -1,6 +1,6 @@
 """Complétude du catalogue : pour chaque champ affiché, combien de sets ont une valeur mesurée à la
 source, une valeur estimée (par une règle, marquée comme telle : thème par `themes_estimes`, type de
-briques par `type_estime`, port par `port_estime` de la meilleure offre), ou aucune valeur.
+briques par `type_estime`, dimensions par `dims_estimees`, port par `port_estime` de la meilleure offre), ou aucune valeur.
 
 Deux populations : tous les sets du catalogue, et ceux en vente ou en précommande (les épuisés
 gardent souvent des données incomplètes sans gêner un achat). Le compte est servi en direct par
@@ -45,7 +45,9 @@ def _type(s):
 
 
 def _dims(s):
-    return "mesure" if s.get("dims") else None
+    if s.get("dims"):
+        return "mesure"
+    return "estime" if s.get("dims_estimees") else None
 
 
 def _avis(s):

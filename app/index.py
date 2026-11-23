@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import re
+import statistics
 import threading
 import time
 from pathlib import Path
@@ -34,6 +36,9 @@ PORT_INCONNU = 7.0
 OPTIONNELS = ("barre", "bas30", "jours_suivis", "avant_remise", "avant_remise_j")
 # Ordre de préférence pour le nom affiché d'un set vendu par plusieurs boutiques (anglais avant allemand).
 PREFERENCE_NOM = ["editorial", "kbs", "mouldkingcorp", "bricksvalue", "bausteinreich"]
+# Source d'une cote lue ailleurs que chez la boutique de l'offre (offres LEGO officiel : la boutique est le
+# revendeur, la cote vient de la description de LEGO officiel reprise par la fiche BricksValue).
+SOURCE_COTES = {"bricksvalue": "description LEGO officiel (BricksValue)"}
 
 
 def livraison_revendeurs() -> dict:
@@ -135,6 +140,62 @@ def types_par_serie(sets: list[dict], surs: set[str] | None = None) -> None:
         a_remplir = not s.get("type") if surs is None else s.get("id") not in surs
         if a_remplir and _serie(s) in regle:
             s["type"], s["type_estime"] = regle[_serie(s)], "série"
+
+
+DIM_GROUPE_MIN = 5
+DIM_BORNES = (5, 300)
+
+
+def dimensions_par_defaut(sets: list[dict]) -> None:
+    """Plus grande dimension estimée des sets sans cote publiée : `dims_estimees` (une cote), méthode dans
+    `dims_estime`. Servie à part de `dims` : la page n'affiche que les cotes mesurées tant qu'elle ne marque
+    pas l'estimation (lot C4). Règle étalonnée à chaque reconstruction sur les sets mesurés du catalogue (cote dans
+    `dims`) : log(plus grande cote) = constante du groupe + pente × log(pièces), pente commune à tous les
+    sets, constante du groupe le plus fin qui compte au moins 5 sets mesurés : type de briques et premier
+    thème (« pièces, type et thème »), sinon premier thème (« pièces et thème »), sinon tout le catalogue
+    (« pièces ») ; sans nombre de pièces, médiane du même groupe (« type et thème », « thème »,
+    « catalogue »). Une seule cote, arrondie au centimètre, bornée de 5 à 300 cm.
+    Mesure du 23/11/2026 (catalogue local complet, 763 sets mesurés, chaque set prédit sans lui-même) :
+    écart médian 19 % sur la plus grande cote, 80 % des sets à moins de 44 % ; classe de taille (moins de
+    40, 40 à 59, 60 cm et plus) juste pour 65 % des sets. Essayés sans gain net : groupe par série, par
+    marque, ou LEGO officiel à part (un point d'écart médian au mieux), pente propre à chaque groupe."""
+    mesures = [s for s in sets if s.get("dims")]
+    pts = [(math.log(s["pieces"]), math.log(s["dims"][0]), s) for s in mesures
+           if (s.get("pieces") or 0) > 0 and s["dims"][0] > 0]
+    if len(pts) < DIM_GROUPE_MIN:
+        return
+    mx, my = statistics.fmean(p[0] for p in pts), statistics.fmean(p[1] for p in pts)
+    sxx = sum((x - mx) ** 2 for x, _, _ in pts)
+    pente = sum((x - mx) * (y - my) for x, y, _ in pts) / sxx if sxx else 0.0
+    theme = lambda s: (s.get("themes") or [None])[0]
+    niveaux = (("type et thème", lambda s: (s.get("type"), theme(s))), ("thème", theme), ("catalogue", lambda s: None))
+    residus: dict = {}
+    cotes: dict = {}
+    for nom, cle in niveaux:
+        for x, y, s in pts:
+            residus.setdefault((nom, cle(s)), []).append(y - pente * x)
+        for s in mesures:
+            cotes.setdefault((nom, cle(s)), []).append(s["dims"][0])
+    for s in sets:
+        if s.get("dims"):
+            continue
+        pieces = s.get("pieces") or 0
+        for nom, cle in niveaux:
+            if pieces > 0:
+                r = residus.get((nom, cle(s))) or []
+                if len(r) >= DIM_GROUPE_MIN:
+                    v = math.exp(statistics.fmean(r) + pente * math.log(pieces))
+                    methode = {"type et thème": "pièces, type et thème", "thème": "pièces et thème"}.get(nom, "pièces")
+                    break
+            else:
+                c = cotes.get((nom, cle(s))) or []
+                if len(c) >= DIM_GROUPE_MIN:
+                    v, methode = statistics.median(c), nom
+                    break
+        else:
+            continue
+        s["dims_estimees"] = [float(round(min(max(v, DIM_BORNES[0]), DIM_BORNES[1])))]
+        s["dims_estime"] = methode
 
 
 def corrections() -> dict:
@@ -386,10 +447,13 @@ class Index:
             for k, v in (corr.get("sets", {}).get(s["id"]) or {}).items():
                 if k in ("nom", "type", "themes", "dims"):
                     s[k] = v
+                if k == "dims":
+                    s["dims_source"] = "correction"
             if (locales.get(s["id"]) or {}).get("type") in TYPES:  # imposé depuis la fiche par un administrateur
                 s["type"] = locales[s["id"]]["type"]
         types_par_serie(out, surs)
         themes_par_defaut(out)
+        dimensions_par_defaut(out)
         self.photos_brutes = adresses_photos(out)
         appliquer_photos(out, self.photos.ecartees(), self.photos.douteuses())
         self._cache = (cle_cache, out)
@@ -427,6 +491,10 @@ def _set(cle: str, offres: list[dict], edito: dict, tests: Tests | None = None) 
         "marque": meilleure["marque"], "numero": premier("numero"),
         "themes": themes, "univers": univers, "type": premier("type"), "pieces": premier("pieces"),
         "dims": (ed or {}).get("dims") or premier("dims"), "img": premier("img"),
+        # d'où vient la cote : catalogue éditorial, sinon l'offre qui la porte (boutique, ou description de
+        # LEGO officiel reprise par BricksValue)
+        "dims_source": "catalogue" if (ed or {}).get("dims") else next(
+            (SOURCE_COTES.get(o["source"], o["boutique"]) for o in par_pref if o.get("dims")), None),
         "dispo": meilleure["dispo"], "prix": meilleure["prix"], "port": meilleure.get("port"),
         "depuis": min((o.get("depuis") or "9999") for o in offres),
         "ecart": len(actifs) > 1 and max(actifs) > 1.4 * min(actifs),
