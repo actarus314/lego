@@ -2,6 +2,8 @@
 
 Moteur de recherche de sets de briques pour adultes, LEGO officiel et marques alternatives (Mould King, Reobrix, CaDA, JIE STAR, Cobi…) : catalogue des boutiques tenu à jour chaque jour, prix de la sélection relus chaque heure, historique des prix, meilleur prix port compris, filtres par thème, marque, type de briques, prix et taille, tests indépendants, sélection de cadeaux partagée.
 
+Ce que le Carnet fait de plus que les services existants (mesure du 23/11/2026) : `docs/comparaison-existant.md`. Annuaire des ressources du monde de la brique : [actarus314/awesome-lego](https://github.com/actarus314/awesome-lego).
+
 Deux façons de l'utiliser :
 
 | | Page autonome | Service |
